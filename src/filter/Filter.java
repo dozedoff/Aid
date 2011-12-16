@@ -19,7 +19,7 @@ package filter;
 
 import gui.BlockListDataModel;
 import gui.Stats;
-import io.ConnectionPool;
+import io.ConnectionPoolaid;
 import io.MySQLaid;
 import io.ResourceCreationException;
 import io.ThumbnailLoader;
@@ -59,9 +59,9 @@ public class Filter implements FilterModifiable{
 	private BlockListDataModel blocklistModel;
 	private ThumbnailLoader thumbLoader;
 
-	private ConnectionPool connPool; //TODO there is a MySql.ConnectionPool - check it out
+	private ConnectionPoolaid connPool; //TODO there is a MySql.ConnectionPool - check it out
 	
-	public Filter(ConnectionPool connPool, BlockListDataModel blockListModel, ThumbnailLoader thumbLoader){
+	public Filter(ConnectionPoolaid connPool, BlockListDataModel blockListModel, ThumbnailLoader thumbLoader){
 		this.connPool = connPool;
 		this.blocklistModel = blockListModel;
 		this.thumbLoader = thumbLoader;

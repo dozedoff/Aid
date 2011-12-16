@@ -24,7 +24,7 @@ import gui.Filterlist;
 import gui.Log;
 import gui.Stats;
 import gui.Aid;
-import io.ConnectionPool;
+import io.ConnectionPoolaid;
 import io.FileWriter;
 import io.ImageLoader;
 import io.ThumbnailLoader;
@@ -82,7 +82,7 @@ public class Main implements ActionListener{
 	private WorkQueue pageQueue;
 	private BlockListDataModel blockListModel;
 	private ThumbnailLoader thumbLoader;
-	private ConnectionPool connPool;
+	private ConnectionPoolaid connPool;
 
 	private BoardListDataModel boards = new BoardListDataModel();
 	Properties appSettings = new DefaultAppSettings();
@@ -157,7 +157,7 @@ public class Main implements ActionListener{
 
 		//  -------------- Class instantiation starts here --------------  //
 		pageQueue = new WorkQueue(pageThreads, pageThreads, 100);
-		connPool = new ConnectionPool(sqlProps,10); // connection pool for database connections
+		connPool = new ConnectionPoolaid(sqlProps,10); // connection pool for database connections
 		blockListModel = new BlockListDataModel();
 		thumbLoader = new ThumbnailLoader(connPool);
 		filter = new filter.Filter(connPool,blockListModel,thumbLoader); // filter handler

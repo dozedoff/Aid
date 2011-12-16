@@ -1,13 +1,13 @@
 package testDummy;
 
-import io.ConnectionPool;
-import io.MySQL;
+import io.ConnectionPoolaid;
+import io.MySQLaid;
 import io.ResourceCreationException;
 
 import java.util.Properties;
 
 
-public class DummyConnectionPool extends ConnectionPool{
+public class DummyConnectionPool extends ConnectionPoolaid{
 	boolean block = false, filter = false;
 	
 	public DummyConnectionPool() {
@@ -25,17 +25,17 @@ public class DummyConnectionPool extends ConnectionPool{
 
 
 	@Override
-	public MySQL getResource() throws InterruptedException,ResourceCreationException {
+	public MySQLaid getResource() throws InterruptedException,ResourceCreationException {
 		return new DummySqlAid(block,filter);
 	}
 	
 	@Override
-	public MySQL getResource(long maxWaitMillis) throws InterruptedException,	ResourceCreationException {
+	public MySQLaid getResource(long maxWaitMillis) throws InterruptedException,	ResourceCreationException {
 		return new DummySqlAid(block,filter);
 	}
 
 	@Override
-	public void returnResource(MySQL res) {
+	public void returnResource(MySQLaid res) {
 
 	}
 }

@@ -31,8 +31,8 @@ public class ThumbnailLoader {
 	private static Logger logger = Logger.getLogger(ThumbnailLoader.class.getName());
 	private final int NUM_OF_THUMBS = 17;
 	private final int SQL_MAX_WAITTIME = 5000;
-	private ConnectionPool connPool;
-	public ThumbnailLoader(ConnectionPool connPool){
+	private ConnectionPoolaid connPool;
+	public ThumbnailLoader(ConnectionPoolaid connPool){
 		this.connPool = connPool;
 	}
 	/**
@@ -56,7 +56,7 @@ public class ThumbnailLoader {
 			thumbUrl = thumbUrl.replace("src", "thumb");
 			thumbUrl = thumbUrl.replace(".jpg", "s.jpg");
 
-			MySQL sql = null;
+			MySQLaid sql = null;
 			try {
 				byte data[] = gb.get(thumbUrl); // get thumbnail
 
@@ -84,7 +84,7 @@ public class ThumbnailLoader {
 	 * @return Array of Binary data
 	 */
 	public ArrayList<Image> getThumbs(String id){
-		MySQL mySql = aquireSql();
+		MySQLaid mySql = aquireSql();
 		
 		ArrayList<Image> images = new ArrayList<>(mySql.getThumb(id));
 		releaseSql(mySql);
@@ -92,7 +92,7 @@ public class ThumbnailLoader {
 		return images;
 	}
 
-	private MySQL aquireSql(){
+	private MySQLaid aquireSql(){
 		try {
 			return connPool.getResource(SQL_MAX_WAITTIME);
 		} catch (InterruptedException e) {
@@ -101,7 +101,7 @@ public class ThumbnailLoader {
 		return null;
 	}
 	
-	private void releaseSql(MySQL mySql){
+	private void releaseSql(MySQLaid mySql){
 		connPool.returnResource(mySql);
 	}
 }
