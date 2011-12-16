@@ -19,6 +19,10 @@ public class MySQLaid extends MySQL {
 	
 	public void init(){
 		super.init();
+		addPrepStmt("addFilter"			, "INSERT IGNORE INTO filter (id, board, reason, status) VALUES (?,?,?,?)");
+		addPrepStmt("updateFilter"		, "UPDATE filter SET status = ? WHERE id = ?");
+		addPrepStmt("filterState"		, "SELECT status FROM filter WHERE  id = ?");
+		addPrepStmt("pendingFilter"		, "SELECT board, reason, id FROM filter WHERE status = 1 ORDER BY board, reason ASC");
 		
 	}
 	
@@ -118,5 +122,4 @@ public class MySQLaid extends MySQL {
 		}
 		return new LinkedList<FilterItem>();
 	}
-
 }
