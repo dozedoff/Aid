@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+	<!-- filter Table -->
+	<filter id="5" board="vx" 	reason="and more" 		status="1" />
+	<filter id="6" board="zb" 	reason="om nom nom" 	status="1" />
+	<filter id="7" board="sa" 	reason="rain" 			status="1" />
+	<filter id="8" board="p" 	reason="snow" 			status="0" />
+
+	<!-- dnw Table -->
+	<dnw hash="1" />
+	<dnw hash="2" />
+
+	<!-- block Table -->
+	<block hash="2" />
+	<block hash="3" />
+
+	<!--hash Table -->
+	<hash hash="1" size="34568" 	dir="1" filename="1" />
+	<hash hash="4" size="542322" 	dir="3" filename="2" />
+	
+	<!--archive Table -->
+	<archive hash="1" size="34568" 		dir="1" filename="1" />
+	<archive hash="2" size="790332" 	dir="2" filename="2" />
+</dataset>

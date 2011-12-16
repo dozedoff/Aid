@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+	<!-- cache Table -->
+	<cache id="1" timestamp="12345" />
+	<cache id="2" timestamp="89000" />
+	<cache id="3" timestamp="23444" />
+	<cache id="4" timestamp="887123" />
+
+	<!-- filter Table 0: Deny 1: Pending 2: Allow 3: Unknown -->
+	<filter id="1" board="t" reason="just testing" status="0" />
+	<filter id="2" board="a" reason="foo bar" status="1" />
+	<filter id="3" board="c" reason="yeti!" status="2" />
+	<filter id="4" board="m" reason="more test data" status="3" />
+	<filter id="5" board="vx" reason="and more" status="1" />
+	<filter id="6" board="zb" reason="om nom nom" status="1" />
+	<filter id="7" board="sa" reason="rain" status="1" />
+	<filter id="8" board="p" reason="snow" status="0" />
+
+	<!-- dnw Table -->
+	<dnw hash="1" />
+	<dnw hash="2" />
+	<dnw hash="3" />
+	<dnw hash="4" />
+
+	<!-- block Table -->
+	<block hash="1" />
+	<block hash="2" />
+	<block hash="3" />
+	<block hash="4" />
+	
+	<!--archive Table -->
+	<archive hash="1" size="34568" 		dir="1" filename="1" />
+	<archive hash="2" size="790332" 	dir="2" filename="2" />
+	<archive hash="3" size="5789699" 	dir="3" filename="3" />
+	<archive hash="4" size="542322" 	dir="3" filename="2" />
+
+	<!-- dirlist Table -->
+	<dirlist id="1" dirpath="D:\foo\bar\" />
+	<dirlist id="2" dirpath="D:\test\me\now\" />
+	<dirlist id="3" dirpath="D:\mutated\custard\is\dangerous\" />
+
+	<!-- filelist Table -->
+	<filelist id="1" filename="foo.png" />
+	<filelist id="2" filename="squirrel.jpg" />
+	<filelist id="3" filename="meerkat.gif" />
+
+	<!--hash Table -->
+	<hash hash="1" size="34568" 	dir="1" filename="1" />
+	<hash hash="2" size="790332" 	dir="2" filename="2" />
+	<hash hash="3" size="5789699" 	dir="3" filename="3" />
+	<hash hash="4" size="542322" 	dir="3" filename="2" />
+	
+	<!-- thumbs Table -->
+	<thumbs id="1"	url="1"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="2"	url="1"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="3"	url="1"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="4"	url="1"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="5"	url="2"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="6"	url="2"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="7"	url="2"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="8"	url="2"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="9"	url="3"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="10"	url="3"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="11"	url="3"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="12"	url="3"		filename="pebble.jpg" 	thumb="2341234232314"/>
+</dataset>

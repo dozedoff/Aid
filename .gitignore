@@ -1,0 +1,9 @@
+filter.dat
+*.ini
+*.settings
+*.class
+Aid.xml
+bin_test/
+bin/
+*.classpath
+*.project
