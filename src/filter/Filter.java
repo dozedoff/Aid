@@ -39,6 +39,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
+import java.util.TimerTask;
 import java.util.logging.Logger;
 
 import board.Post;
@@ -420,8 +421,6 @@ public class Filter implements FilterModifiable{
 	
 	/**
 	 * Thread for updating the pending item list.
-	 * 
-	 * @author https://github.com/dozedoff
 	 */
 	class RefreshList extends Thread{
 		@Override
@@ -439,6 +438,69 @@ public class Filter implements FilterModifiable{
 			}
 			releaseSql(mySql);
 			Stats.setFilterSize(filterNr);
+		}
+	}
+	
+	class FilterUpdater extends TimerTask{
+		@Override
+		public void run(){
+			MySQLaid mySql = getSql();
+			
+			String currString = mySql.getOldestFilter();
+			if(currString == null){
+				releaseSql(mySql);
+				return;
+			}
+			
+			refreshFilterItem(currString);
+			// Disabled as it's rather anoying
+			/*
+			filterList.clear();
+			lstFilter.removeAll();		// recreate the Filter List
+			guiListLink.clear();
+			filterNr = 0;
+			try{
+			filterList.addAll(mySql.getPendingFilter());
+			for(FilterItem fi : filterList){
+				lstFilter.add(fi.toString());
+				guiListLink.add(fi);
+				filterNr++;
+			}
+			}catch(Exception e){
+				logger.warning("FilterList update failed,  Reason: "+e.getLocalizedMessage());
+			}
+			*/
+			releaseSql(mySql);
+		}
+	}
+	
+	/**
+	 * Attempts to connect to the URL.
+	 * If it exists, update the filteritems timestamp, else delete it.
+	 * 
+	 * @param mySql an active mySql connection
+	 * @param url the URL to be checked
+	 * @return true if valid, else false
+	 */
+	private boolean refreshFilterItem(String url){
+		String currString = url.toString();
+		MySQLaid mySql = getSql();
+		try {
+			if (new io.GetHtml().getResponse(currString) == 404){
+				mySql.delete("filter",currString);
+				return false;
+			}else{
+				mySql.updateFilterTimestamp(currString);
+				return true;
+			}
+		} catch (MalformedURLException e2) {
+			logger.warning("Refresh invalid URL: "+currString);
+			return false;
+		} catch (Exception e) {
+			logger.warning("Refresh failed,  Reason: "+e.getLocalizedMessage());
+			return false;
+		}finally{
+			releaseSql(mySql);
 		}
 	}
 }
