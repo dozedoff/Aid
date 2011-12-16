@@ -26,12 +26,12 @@ public class DummyConnectionPool extends ConnectionPool{
 
 	@Override
 	public MySQL getResource() throws InterruptedException,ResourceCreationException {
-		return new DummySql(block,filter);
+		return new DummySqlAid(block,filter);
 	}
 	
 	@Override
 	public MySQL getResource(long maxWaitMillis) throws InterruptedException,	ResourceCreationException {
-		return new DummySql(block,filter);
+		return new DummySqlAid(block,filter);
 	}
 
 	@Override

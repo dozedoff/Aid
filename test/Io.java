@@ -9,7 +9,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({ FileWriterTest.class,
 				ImageItemTest.class,
-				MySqlTest.class,
+				MySqlAidTest.class,
 				ImageLoaderTest.class,
 				ThumbnailLoaderTest.class
 })

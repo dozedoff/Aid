@@ -26,8 +26,8 @@ import config.DefaultMySQLconnection;
 import filter.FilterState;
 
 
-public class MySqlTest extends DatabaseTestCase{
-	MySQL sql;
+public class MySqlAidTest extends DatabaseTestCase{
+	MySQLaid sql;
 	final String[] IGNORE_CACHE_COL = {"timestamp"};
 	final String[] IGNORE_THUMBS_DATA_COL = {"id"};
 	final String[] IGNORE_THUMBS_TRIGGER_COL = {"id","thumb"};
@@ -40,7 +40,7 @@ public class MySqlTest extends DatabaseTestCase{
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		sql = new MySQL(new DefaultMySQLconnection("127.0.0.1", 3306, "test", "test", "test"));
+		sql = new MySQLaid(new DefaultMySQLconnection("127.0.0.1", 3306, "test", "test", "test"));
 		sql.init();
 	}
 

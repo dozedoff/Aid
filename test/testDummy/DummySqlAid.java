@@ -1,16 +1,16 @@
 package testDummy;
 
 import filter.FilterItem;
-import io.MySQL;
+import io.MySQLaid;
 
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.Properties;
 
-public class DummySql extends MySQL{
+public class DummySqlAid extends MySQLaid{
 	boolean blacklisted, filter;
 
-	public DummySql(boolean blacklisted,boolean filter) {
+	public DummySqlAid(boolean blacklisted,boolean filter) {
 		super(new Properties());
 		this.blacklisted = blacklisted;
 		this.filter = filter;
@@ -50,5 +50,4 @@ public class DummySql extends MySQL{
 	public LinkedList<FilterItem> getPendingFilters() {
 		return new LinkedList<FilterItem>();
 	}
-	
 }
