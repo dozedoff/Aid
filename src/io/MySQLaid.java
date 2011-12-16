@@ -5,6 +5,7 @@ import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.Properties;
@@ -129,7 +130,7 @@ public class MySQLaid extends MySQL {
 		reconnect();
 		PreparedStatement updateTimestamp = getPrepStmt("filterTime");
 		try {
-			updateTimestamp.setLong(1, Calendar.getInstance().getTimeInMillis());
+			updateTimestamp.setTime(1, new Time(Calendar.getInstance().getTimeInMillis()));
 			updateTimestamp.setString(2, id);
 			updateTimestamp.executeUpdate();
 		} catch (SQLException e) {
