@@ -5,6 +5,7 @@ import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.Properties;
 
@@ -23,7 +24,8 @@ public class MySQLaid extends MySQL {
 		addPrepStmt("updateFilter"		, "UPDATE filter SET status = ? WHERE id = ?");
 		addPrepStmt("filterState"		, "SELECT status FROM filter WHERE  id = ?");
 		addPrepStmt("pendingFilter"		, "SELECT board, reason, id FROM filter WHERE status = 1 ORDER BY board, reason ASC");
-		
+		addPrepStmt("filterTime"		, "UPDATE filter SET timestamp = ? WHERE id = ?");
+		addPrepStmt("oldestFilter"		, "SELECT id FROM filter WHERE timestamp = (SELECT Min(timestamp) FROM filter)");
 	}
 	
 	public boolean addFilter(FilterItem fi){
@@ -121,5 +123,38 @@ public class MySQLaid extends MySQL {
 			logger.warning("Unable to create URL "+e.getMessage());
 		}
 		return new LinkedList<FilterItem>();
+	}
+	
+	public void updateFilterTimestamp(String id){
+		reconnect();
+		PreparedStatement updateTimestamp = getPrepStmt("filterTime");
+		try {
+			updateTimestamp.setLong(1, Calendar.getInstance().getTimeInMillis());
+			updateTimestamp.setString(2, id);
+			updateTimestamp.executeUpdate();
+		} catch (SQLException e) {
+			logger.warning("Filter timestamp update failed: "+e.getMessage());
+		}
+	}
+	
+	public String getOldestFilter(){
+		reconnect();
+		ResultSet rs = null;
+		PreparedStatement getOldest = getPrepStmt("oldestFilter");
+
+		try {
+			rs = getOldest.executeQuery();
+			if(rs.next()){
+				String s = rs.getString(1);
+				rs.close();
+				return s;
+			}else {
+				rs.close();
+				return null;
+			}
+		} catch (SQLException e) {
+			logger.warning("MySql filter update failed: "+e.getLocalizedMessage());
+		}
+		return null;
 	}
 }
