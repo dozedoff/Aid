@@ -26,7 +26,7 @@ public class DefaultAppSettings extends Properties {
 		this.setProperty("page_threads","1");
 		this.setProperty("image_threads","1");
 		this.setProperty("write_Blocked","false");
-		this.setProperty("base_url","http:/boards.4chan.org/");
-		this.setProperty("sub_pages","a;15,w;15;wg;15");
+		this.setProperty("base_url","http://boards.4chan.org/");
+		this.setProperty("sub_pages","a;15,w;15,wg;15");
 	}
 }
