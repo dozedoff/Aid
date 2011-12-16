@@ -39,6 +39,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
+import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Logger;
 
@@ -51,6 +52,7 @@ import board.Post;
  */
 public class Filter implements FilterModifiable{
 	private static Logger logger = Logger.getLogger(Filter.class.getName());
+	private static int FILTER_UPDATER_INTERVAL = 60*1000; // one minute
 
 	private int filterNr = 0;	// filter item counter
 
@@ -61,11 +63,13 @@ public class Filter implements FilterModifiable{
 	private ThumbnailLoader thumbLoader;
 
 	private ConnectionPoolaid connPool; //TODO there is a MySql.ConnectionPool - check it out
+	private Timer filterUpdateTimer = new Timer("Filter update daemon", true);
 	
 	public Filter(ConnectionPoolaid connPool, BlockListDataModel blockListModel, ThumbnailLoader thumbLoader){
 		this.connPool = connPool;
 		this.blocklistModel = blockListModel;
 		this.thumbLoader = thumbLoader;
+		filterUpdateTimer.schedule(new FilterUpdater(), 0, FILTER_UPDATER_INTERVAL);
 	}
 	
 	public boolean loadFilter(String path){
@@ -407,6 +411,7 @@ public class Filter implements FilterModifiable{
 				releaseSql(mySql);
 				return false;
 			}else{
+				mySql.updateFilterTimestamp(currString);
 				releaseSql(mySql);
 				return true;
 			}
@@ -452,54 +457,12 @@ public class Filter implements FilterModifiable{
 				return;
 			}
 			
-			refreshFilterItem(currString);
-			// Disabled as it's rather anoying
-			/*
-			filterList.clear();
-			lstFilter.removeAll();		// recreate the Filter List
-			guiListLink.clear();
-			filterNr = 0;
-			try{
-			filterList.addAll(mySql.getPendingFilter());
-			for(FilterItem fi : filterList){
-				lstFilter.add(fi.toString());
-				guiListLink.add(fi);
-				filterNr++;
+			try {
+				refreshFilterItem(new URL(currString));
+			} catch (MalformedURLException e) {
+				logger.warning("Filter refresh failed due to "+e.getMessage());
 			}
-			}catch(Exception e){
-				logger.warning("FilterList update failed,  Reason: "+e.getLocalizedMessage());
-			}
-			*/
-			releaseSql(mySql);
-		}
-	}
-	
-	/**
-	 * Attempts to connect to the URL.
-	 * If it exists, update the filteritems timestamp, else delete it.
-	 * 
-	 * @param mySql an active mySql connection
-	 * @param url the URL to be checked
-	 * @return true if valid, else false
-	 */
-	private boolean refreshFilterItem(String url){
-		String currString = url.toString();
-		MySQLaid mySql = getSql();
-		try {
-			if (new io.GetHtml().getResponse(currString) == 404){
-				mySql.delete("filter",currString);
-				return false;
-			}else{
-				mySql.updateFilterTimestamp(currString);
-				return true;
-			}
-		} catch (MalformedURLException e2) {
-			logger.warning("Refresh invalid URL: "+currString);
-			return false;
-		} catch (Exception e) {
-			logger.warning("Refresh failed,  Reason: "+e.getLocalizedMessage());
-			return false;
-		}finally{
+			
 			releaseSql(mySql);
 		}
 	}
