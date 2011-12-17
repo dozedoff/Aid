@@ -222,6 +222,7 @@ public class Main implements ActionListener{
 			logger.warning("Error accessing file " + ioe.getMessage());
 		}
 
+		filter.startUpdater();
 		aid.setVisible(true);
 
 		logger.info("Initialization complete");

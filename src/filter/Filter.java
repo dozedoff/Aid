@@ -70,11 +70,14 @@ public class Filter implements FilterModifiable{
 		this.connPool = connPool;
 		this.blocklistModel = blockListModel;
 		this.thumbLoader = thumbLoader;
-		filterUpdateTimer.schedule(new FilterUpdater(), 0, FILTER_UPDATER_INTERVAL);
 	}
 	
 	public boolean loadFilter(String path){
 		return loadFilter(new File(path));
+	}
+	
+	public void startUpdater(){
+		filterUpdateTimer.schedule(new FilterUpdater(), 0, FILTER_UPDATER_INTERVAL);
 	}
 	
 	public boolean loadFilter(File file){
