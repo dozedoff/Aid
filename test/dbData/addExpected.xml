@@ -1,13 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dataset>
 	<!-- cache Table -->
-	<cache id="1" 					timestamp="12345" />
-	<cache id="2" 					timestamp="89000" />
-	<cache id="3" 					timestamp="23444" />
-	<cache id="4" 					timestamp="887123" />
+	<cache id="1" />
+	<cache id="2" />
+	<cache id="3" />
+	<cache id="4" />
 	
-	<cache id="http://foo.bar.com" 	timestamp="123" />
-	<cache id="http://squirrel.net" timestamp="456" />
+	<cache id="http://foo.bar.com" />
+	<cache id="http://squirrel.net" />
 	
 	<!-- filter Table -->
 	<filter id="1" board="t" reason="just testing" status="0" />
