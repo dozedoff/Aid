@@ -1,14 +1,13 @@
 package io;
 
 import java.io.File;
-import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Logger;
 
 import javax.activity.InvalidActivityException;
 
 import net.PageLoadException;
-
 import filter.Filter;
 import gui.Stats;
 
@@ -74,8 +73,11 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 
 		// the file was unavailable
 		if(responseCode == 404 || responseCode == 500){
-			logger.warning("got a 404 or 500 response for "+url.toString());
-			filter.cache(url); // to prevent future attempts to load the file
+			logger.warning("got a 404 or 500 response for " + ple.getUrl()); // to prevent future attempts to load the file
+			try {filter.cache(new URL(ple.getUrl()));
+			} catch (MalformedURLException e) {
+				logger.warning("could not add URL to cache " + ple.getMessage());
+			} 
 		}
 
 		if(responseCode == 503){
