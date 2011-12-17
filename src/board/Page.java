@@ -17,9 +17,7 @@
  */
 package board;
 
-import io.GetHtml;
 import io.ImageLoader;
-import io.PageLoadException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -27,9 +25,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
-import java.util.logging.*;
-
+import net.GetHtml;
+import net.PageLoadException;
 import filter.Filter;
 import filter.FilterItem;
 import filter.FilterState;

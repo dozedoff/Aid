@@ -43,6 +43,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Logger;
 
+import net.GetHtml;
 import board.Post;
 
 /**
@@ -406,7 +407,7 @@ public class Filter implements FilterModifiable{
 		MySQLaid mySql = getSql();
 
 		try {
-			if (new io.GetHtml().getResponse(currString) == 404){
+			if (new GetHtml().getResponse(currString) == 404){
 				mySql.delete("filter", currString);
 				releaseSql(mySql);
 				return false;

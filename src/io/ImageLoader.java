@@ -22,11 +22,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Logger;
 
 import javax.activity.InvalidActivityException;
 
-import java.util.logging.*;
-
+import net.GetBinary;
+import net.PageLoadException;
 import filter.Filter;
 import gui.Stats;
 
