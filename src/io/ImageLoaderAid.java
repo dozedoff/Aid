@@ -31,4 +31,9 @@ public class ImageLoaderAid extends ImageLoader {
 		Stats.setFileQueueState("FileQueue: "+imageUrlList.size()+" - "+"? / "+imageQueueWorkers);
 		// queue size  - active workers / pool size
 	}
+	
+	@Override
+	protected void afterClearImageQueue() {
+		updateFileQueueState();
+	}
 }

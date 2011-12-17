@@ -87,8 +87,9 @@ public class ImageLoader {
 
 	public void clearImageQueue(){
 		imageUrlList.clear();
-		updateFileQueueState();
 	}
+	
+	protected void afterClearImageQueue(){}
 
 	/**
 	 * Download an image and pass it to the buffer for saving.
