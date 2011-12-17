@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `block` (
 # Dumping structure for table aid.cache
 CREATE TABLE IF NOT EXISTS `cache` (
   `id` varchar(48) NOT NULL,
-  `timestamp` bigint(20) NOT NULL,
+  `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='recently downloaded files';
@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS `filter` (
   `board` varchar(2) NOT NULL COMMENT 'board',
   `reason` varchar(30) NOT NULL COMMENT 'filter description',
   `status` tinyint(3) unsigned NOT NULL COMMENT 'filter status',
+  `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='filtered threads';
