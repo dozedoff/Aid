@@ -283,7 +283,7 @@ public class Main implements ActionListener{
 
 	public void actionPerformed(ActionEvent e){
 		if("Clear ImageQueue".equals(e.getActionCommand())){
-			imageLoader.clearImageQueue();
+			imageLoader.clearQueue();
 		}
 
 		if("Clear PageQueue".equals(e.getActionCommand())){

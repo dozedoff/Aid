@@ -8,23 +8,23 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ImageItemTest {
-	ImageItem imageItem;
+	DownloadItem imageItem;
 	@Before
 	public void setUp() throws Exception{
-		imageItem = new ImageItem(new URL("http://foo.bar/test/"), "testImg.jpg");
+		imageItem = new DownloadItem(new URL("http://foo.bar/test/"), "testImg.jpg");
 	}
 	
 	@Test
 	public void testEqualsObject() throws Exception{
 		assertFalse(imageItem.equals(null));
 		
-		ImageItem testItem = new ImageItem(new URL("http://foo.bar/test/"), "testImg.jpg");
+		DownloadItem testItem = new DownloadItem(new URL("http://foo.bar/test/"), "testImg.jpg");
 		assertTrue(imageItem.equals(testItem));
 		
-		testItem = new ImageItem(new URL("http://foo.bar/test/"), "Img.jpg");
+		testItem = new DownloadItem(new URL("http://foo.bar/test/"), "Img.jpg");
 		assertFalse(imageItem.equals(testItem));
 		
-		testItem = new ImageItem(new URL("http://foo.bar/"), "testImg.jpg");
+		testItem = new DownloadItem(new URL("http://foo.bar/"), "testImg.jpg");
 		assertFalse(imageItem.equals(testItem));
 	}
 }

@@ -37,7 +37,7 @@ import gui.Stats;
 public abstract class ImageLoader {
 	private static Logger logger = Logger.getLogger(ImageLoader.class.getName());
 
-	protected LinkedBlockingQueue<ImageItem> urlList = new LinkedBlockingQueue<ImageItem>();
+	protected LinkedBlockingQueue<DownloadItem> downloadList = new LinkedBlockingQueue<DownloadItem>();
 	private LinkedList<Thread> workers = new LinkedList<>();
 
 	/**Delay between downloads. This is used to limit the number of connections**/
@@ -68,13 +68,13 @@ public abstract class ImageLoader {
 	 */
 	protected void afterImageAdd(URL url,String fileName){} // code to run after adding a file to the list
 
-	public void addImage(URL url,String fileName){
+	public void add(URL url,String fileName){
 		beforeImageAdd(url, fileName);
 		
-		if(urlList.contains(url)) // is the file already queued? 
+		if(downloadList.contains(url)) // is the file already queued? 
 			return;
 		
-		urlList.add(new ImageItem(url, fileName));
+		downloadList.add(new DownloadItem(url, fileName));
 		
 		afterImageAdd(url, fileName);
 	}
@@ -87,14 +87,14 @@ public abstract class ImageLoader {
 		this.downloadSleep = sleep;
 	}
 
-	public void clearImageQueue(){
-		urlList.clear();
+	public void clearQueue(){
+		downloadList.clear();
 	}
 	
 	/**
 	 * Called after the queue has been cleared.
 	 */
-	protected void afterClearImageQueue(){}
+	protected void afterClearQueue(){}
 
 	/**
 	 * Download a file, how the data is used is handled in the method afterFileDownload
@@ -155,7 +155,7 @@ public abstract class ImageLoader {
 	public void shutdown(){
 		logger.info("ImageLoader shutting down...");
 		
-		clearImageQueue();
+		clearQueue();
 
 		for(Thread t : workers){
 			t.interrupt();
@@ -170,9 +170,9 @@ public abstract class ImageLoader {
 	
 	/**
 	 * Called after a worker has processed an item from the list.
-	 * @param ii the imageitem that was processed
+	 * @param di the imageitem that was processed
 	 */
-	protected void afterProcessItem(ImageItem ii){}
+	protected void afterProcessItem(DownloadItem di){}
 
 	class DownloadWorker extends Thread{
 		public DownloadWorker() {
@@ -185,13 +185,13 @@ public abstract class ImageLoader {
 		public void run() {
 			while(! isInterrupted()){
 				try{
-					ImageItem ii;
-					ii = urlList.take(); // grab some work
-					if(ii == null) // check if the item is valid
+					DownloadItem di;
+					di = downloadList.take(); // grab some work
+					if(di == null) // check if the item is valid
 						continue;
 
-					loadFile(ii.getImageUrl(), new File(ii.getImageName()));
-					afterProcessItem(ii);
+					loadFile(di.getImageUrl(), new File(di.getImageName()));
+					afterProcessItem(di);
 					
 				}catch(InterruptedException ie){interrupt();} //otherwise it will reset it's own interrupt flag
 			}

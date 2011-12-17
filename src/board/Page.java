@@ -169,7 +169,7 @@ public class Page implements Runnable{
 				if(stop){break;}
 
 				if(p.hasImage()){
-						imageLoader.addImage(p.getImageUrl(), pt.getBoardDesignation()+"\\"+pt.getThreadNumber()+"\\"+p.getImageName());
+						imageLoader.add(p.getImageUrl(), pt.getBoardDesignation()+"\\"+pt.getThreadNumber()+"\\"+p.getImageName());
 				}
 			}
 		}

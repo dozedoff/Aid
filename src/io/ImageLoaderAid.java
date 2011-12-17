@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Logger;
 
+import javax.activity.InvalidActivityException;
+
 import net.PageLoadException;
 
 import filter.Filter;
@@ -13,10 +15,15 @@ import gui.Stats;
 public class ImageLoaderAid extends ImageLoader {
 private Logger logger = Logger.getLogger(ImageLoaderAid.class.getName());
 
-	public ImageLoaderAid(FileWriter fileWriter, Filter filter,
-			File workingDir, int imageQueueWorkers) {
-		super(fileWriter, filter, workingDir, imageQueueWorkers);
-		// TODO Auto-generated constructor stub
+private FileWriter fileWriter;
+private Filter filter;
+
+private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph output
+
+	public ImageLoaderAid(FileWriter fileWriter, Filter filter, File workingDir, int imageQueueWorkers) {
+		super(workingDir, imageQueueWorkers);
+		this.fileWriter = fileWriter;
+		this.filter = filter;
 	}
 
 	@Override
@@ -33,24 +40,29 @@ private Logger logger = Logger.getLogger(ImageLoaderAid.class.getName());
 	}
 	
 	private void updateFileQueueState(){
-		Stats.setFileQueueState("FileQueue: "+urlList.size()+" - "+"? / "+imageQueueWorkers);
+		Stats.setFileQueueState("FileQueue: "+downloadList.size()+" - "+"? / "+imageQueueWorkers);
 		// queue size  - active workers / pool size
 	}
 	
 	@Override
-	protected void afterClearImageQueue() {
+	protected void afterClearQueue() {
 		updateFileQueueState();
 	}
 	
 	@Override
-	protected void afterProcessItem(ImageItem ii) {
+	protected void afterProcessItem(DownloadItem ii) {
 		updateFileQueueState();
 	}
 	
 	@Override
 	protected void afterFileDownload(byte[] data, File fullpath, URL url) {
 		if(data != null){
-			fileWriter.add(fullPath, data.clone());
+			try {
+				fileWriter.add(fullpath, data.clone());
+			} catch (InvalidActivityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			filter.cache(url);;	//add URL to cache
 			Stats.addTimeGraphValue((int)((data.length/1024)*TIME_GRAPH_FACTOR)); // add data to the download graph
 		}
