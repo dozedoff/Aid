@@ -34,7 +34,7 @@ import gui.Stats;
 /**
  * Class for downloading images from the Internet.
  */
-public class ImageLoader {
+public abstract class ImageLoader {
 	private static Logger logger = Logger.getLogger(ImageLoader.class.getName());
 
 	private FileWriter fileWriter;
@@ -116,38 +116,41 @@ public class ImageLoader {
 
 		try{Thread.sleep(SLEEP_VALUE_IMAGE);}catch(InterruptedException ie){}
 
-		byte[] file = null;
+		byte[] data = null;
 		try{
-			file = getBinary.getViaHttp(url);
-
-			if(file != null){
-				fileWriter.add(fullPath, file.clone());
-				filter.cache(url);;	//add URL to cache
-				Stats.addTimeGraphValue((int)((file.length/1024)*TIME_GRAPH_FACTOR)); // add data to the download graph
-			}
-		}catch(InvalidActivityException iae){
-			logger.warning(iae.getMessage());
+			data = getBinary.getViaHttp(url);
+			onFileDownload(data,fullPath,url);
 		}catch(PageLoadException ple){
-			int responseCode = Integer.parseInt(ple.getMessage());
-
-			// the file was unavailable
-			if(responseCode == 404 || responseCode == 500){
-				logger.warning("got a 404 or 500 response for "+url.toString());
-				filter.cache(url); // to prevent future attempts to load the file
-				return;
-			}
-
-			if(responseCode == 503){
-				logger.severe("IP was banned for too many connections"); // :_(  thats what you get if you use too short intervals
-				System.exit(3);
-			}else{
-				logger.info("GetBinary(size) http code "+ple.getMessage());
-			}
-		}catch(IOException io){
-			logger.warning("GetBinary Error: "+io.getLocalizedMessage());
+			onPageLoadException(ple);
+		}catch(IOException ioe){
+			onIOException(ioe);
 		}
 	}
-
+	
+	/**
+	 * Called when a page could be contacted, but an error code was received from the server.
+	 * @param ple the PageLoadException that was thrown
+	 */
+	protected void onPageLoadException(PageLoadException ple){
+		logger.warning("Unable to load " + ple.getUrl() + " , response is " + ple.getResponseCode());
+	}
+	
+	/**
+	 * Called when a page could not be loaded due to an IO error.
+	 * @param ioe the IOException that was thrown
+	 */
+	protected void onIOException(IOException ioe){
+		logger.warning("Unable to load page " + ioe.getLocalizedMessage());
+	}
+	
+	/**
+	 * Called when the file was successfully downloaded.
+	 * @param data the downloaded file
+	 * @param fullpath the absolute filepath
+	 * @param url the url of the file
+	 */
+	abstract protected void onFileDownload(byte[] data, File fullpath, URL url);
+	
 	private void setUp(int image){
 		for(int i=0; i <image; i++){
 			workers.add(new ImageWorker());

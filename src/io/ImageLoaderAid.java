@@ -1,12 +1,17 @@
 package io;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.util.logging.Logger;
+
+import net.PageLoadException;
 
 import filter.Filter;
 import gui.Stats;
 
 public class ImageLoaderAid extends ImageLoader {
+private Logger logger = Logger.getLogger(ImageLoaderAid.class.getName());
 
 	public ImageLoaderAid(FileWriter fileWriter, Filter filter,
 			File workingDir, int imageQueueWorkers) {
@@ -40,5 +45,32 @@ public class ImageLoaderAid extends ImageLoader {
 	@Override
 	protected void afterProcessItem(ImageItem ii) {
 		updateFileQueueState();
+	}
+	
+	@Override
+	protected void onFileDownload(byte[] data, File fullpath, URL url) {
+		if(data != null){
+			fileWriter.add(fullPath, data.clone());
+			filter.cache(url);;	//add URL to cache
+			Stats.addTimeGraphValue((int)((data.length/1024)*TIME_GRAPH_FACTOR)); // add data to the download graph
+		}
+	}
+	
+	@Override
+	protected void onPageLoadException(PageLoadException ple) {
+		int responseCode = Integer.parseInt(ple.getMessage());
+
+		// the file was unavailable
+		if(responseCode == 404 || responseCode == 500){
+			logger.warning("got a 404 or 500 response for "+url.toString());
+			filter.cache(url); // to prevent future attempts to load the file
+		}
+
+		if(responseCode == 503){
+			logger.severe("IP was banned for too many connections"); // :_(  thats what you get if you use too short intervals
+			System.exit(3);
+		}else{
+			logger.info("GetBinary(size) http code "+ple.getMessage());
+		}
 	}
 }
