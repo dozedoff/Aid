@@ -37,38 +37,21 @@ import gui.Stats;
 public abstract class ImageLoader {
 	private static Logger logger = Logger.getLogger(ImageLoader.class.getName());
 
-	private FileWriter fileWriter;
-
-	protected LinkedBlockingQueue<ImageItem> imageUrlList = new LinkedBlockingQueue<ImageItem>();
+	protected LinkedBlockingQueue<ImageItem> urlList = new LinkedBlockingQueue<ImageItem>();
 	private LinkedList<Thread> workers = new LinkedList<>();
 
-	private boolean skipLogEnabled = false;
-
-	private final double TIME_GRAPH_FACTOR = 0.03255;
-	private final int SLEEP_VALUE_IMAGE = 1000;
+	/**Delay between downloads. This is used to limit the number of connections**/
+	protected int downloadSleep = 1000;
+	protected int imageQueueWorkers;
 
 	private GetBinary getBinary = new GetBinary();
 
 	private File workingDir;
 
-	protected int imageQueueWorkers;
-	private Filter filter;
-
-	public ImageLoader(FileWriter fileWriter,Filter filter, File workingDir, int imageQueueWorkers) {
-		this.fileWriter = fileWriter;
+	public ImageLoader(File workingDir, int imageQueueWorkers) {
 		this.workingDir = workingDir;
 		this.imageQueueWorkers = imageQueueWorkers;
-		this.filter = filter;
-
 		setUp(imageQueueWorkers);
-	}
-
-	public boolean isSkipLogEnabled() {
-		return skipLogEnabled;
-	}
-
-	public void setSkipLogEnabled(boolean skipLogEnabled) {
-		this.skipLogEnabled = skipLogEnabled;
 	}
 	
 	/**
@@ -88,16 +71,24 @@ public abstract class ImageLoader {
 	public void addImage(URL url,String fileName){
 		beforeImageAdd(url, fileName);
 		
-		if(imageUrlList.contains(url)) // is the file already queued? 
+		if(urlList.contains(url)) // is the file already queued? 
 			return;
 		
-		imageUrlList.add(new ImageItem(url, fileName));
+		urlList.add(new ImageItem(url, fileName));
 		
 		afterImageAdd(url, fileName);
 	}
+	
+	/**
+	 * Set the delay between file downloads. Used to limit the number of connections.
+	 * @param sleep time between downloads in milliseconds
+	 */
+	public void setDownloadSleep(int sleep){
+		this.downloadSleep = sleep;
+	}
 
 	public void clearImageQueue(){
-		imageUrlList.clear();
+		urlList.clear();
 	}
 	
 	/**
@@ -106,20 +97,20 @@ public abstract class ImageLoader {
 	protected void afterClearImageQueue(){}
 
 	/**
-	 * Download an image and pass it to the buffer for saving.
+	 * Download a file, how the data is used is handled in the method afterFileDownload
 	 * 
 	 * @param url URL to save
 	 * @param savePath relative save path
 	 */
-	private void loadImage(URL url, File savePath){
+	private void loadFile(URL url, File savePath){
 		File fullPath = new File(workingDir, savePath.toString());
 
-		try{Thread.sleep(SLEEP_VALUE_IMAGE);}catch(InterruptedException ie){}
+		try{Thread.sleep(downloadSleep);}catch(InterruptedException ie){}
 
 		byte[] data = null;
 		try{
 			data = getBinary.getViaHttp(url);
-			onFileDownload(data,fullPath,url);
+			afterFileDownload(data,fullPath,url);
 		}catch(PageLoadException ple){
 			onPageLoadException(ple);
 		}catch(IOException ioe){
@@ -128,7 +119,7 @@ public abstract class ImageLoader {
 	}
 	
 	/**
-	 * Called when a page could be contacted, but an error code was received from the server.
+	 * Called when a server could be contacted, but an error code was returned.
 	 * @param ple the PageLoadException that was thrown
 	 */
 	protected void onPageLoadException(PageLoadException ple){
@@ -136,7 +127,7 @@ public abstract class ImageLoader {
 	}
 	
 	/**
-	 * Called when a page could not be loaded due to an IO error.
+	 * Called when a page / File could not be loaded due to an IO error.
 	 * @param ioe the IOException that was thrown
 	 */
 	protected void onIOException(IOException ioe){
@@ -149,11 +140,11 @@ public abstract class ImageLoader {
 	 * @param fullpath the absolute filepath
 	 * @param url the url of the file
 	 */
-	abstract protected void onFileDownload(byte[] data, File fullpath, URL url);
+	abstract protected void afterFileDownload(byte[] data, File fullpath, URL url);
 	
 	private void setUp(int image){
 		for(int i=0; i <image; i++){
-			workers.add(new ImageWorker());
+			workers.add(new DownloadWorker());
 		}
 
 		for(Thread t : workers){
@@ -183,9 +174,9 @@ public abstract class ImageLoader {
 	 */
 	protected void afterProcessItem(ImageItem ii){}
 
-	class ImageWorker extends Thread{
-		public ImageWorker() {
-			super("ImageWorker");
+	class DownloadWorker extends Thread{
+		public DownloadWorker() {
+			super("Download Worker");
 
 			Thread.currentThread().setPriority(2);
 		}
@@ -195,11 +186,11 @@ public abstract class ImageLoader {
 			while(! isInterrupted()){
 				try{
 					ImageItem ii;
-					ii = imageUrlList.take(); // grab some work
+					ii = urlList.take(); // grab some work
 					if(ii == null) // check if the item is valid
 						continue;
 
-					loadImage(ii.getImageUrl(), new File(ii.getImageName()));
+					loadFile(ii.getImageUrl(), new File(ii.getImageName()));
 					afterProcessItem(ii);
 					
 				}catch(InterruptedException ie){interrupt();} //otherwise it will reset it's own interrupt flag

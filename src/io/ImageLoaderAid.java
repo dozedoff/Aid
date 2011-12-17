@@ -33,7 +33,7 @@ private Logger logger = Logger.getLogger(ImageLoaderAid.class.getName());
 	}
 	
 	private void updateFileQueueState(){
-		Stats.setFileQueueState("FileQueue: "+imageUrlList.size()+" - "+"? / "+imageQueueWorkers);
+		Stats.setFileQueueState("FileQueue: "+urlList.size()+" - "+"? / "+imageQueueWorkers);
 		// queue size  - active workers / pool size
 	}
 	
@@ -48,7 +48,7 @@ private Logger logger = Logger.getLogger(ImageLoaderAid.class.getName());
 	}
 	
 	@Override
-	protected void onFileDownload(byte[] data, File fullpath, URL url) {
+	protected void afterFileDownload(byte[] data, File fullpath, URL url) {
 		if(data != null){
 			fileWriter.add(fullPath, data.clone());
 			filter.cache(url);;	//add URL to cache
