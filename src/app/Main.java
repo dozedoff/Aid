@@ -26,7 +26,7 @@ import gui.Stats;
 import gui.Aid;
 import io.ConnectionPoolaid;
 import io.FileWriter;
-import io.ImageLoader;
+import io.FileLoader;
 import io.ThumbnailLoader;
 
 import java.awt.event.ActionEvent;
@@ -74,7 +74,7 @@ public class Main implements ActionListener{
 
 	private io.FileWriter fileWriter;
 	private filter.Filter filter;
-	private ImageLoader imageLoader;
+	private FileLoader imageLoader;
 
 	private Aid aid;
 	private Filterlist filterlist;
@@ -164,7 +164,7 @@ public class Main implements ActionListener{
 		filterlist = new Filterlist(filter); // filter GUI
 		fileWriter = new FileWriter(filter); // disk IO
 
-		imageLoader = new ImageLoader(fileWriter, filter, basePath,imageThreads);
+		imageLoader = new FileLoader(fileWriter, filter, basePath,imageThreads);
 		logger.info("Saving files to the basePath "+basePath.toString());
 		blockList = new BlockList(filter,blockListModel);
 

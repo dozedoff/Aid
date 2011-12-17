@@ -17,7 +17,7 @@
  */
 package board;
 
-import io.ImageLoader;
+import io.FileLoader;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -34,7 +34,7 @@ public class PageFactory {
 	private static Logger logger = Logger.getLogger(PageFactory.class.getName());
 	private PageFactory(){}
 
-	public static ArrayList<Page> makePages(String boardUrl, int numOfPages, Filter filter, ImageLoader imageLoader){
+	public static ArrayList<Page> makePages(String boardUrl, int numOfPages, Filter filter, FileLoader imageLoader){
 		ArrayList<Page>pages = new ArrayList<>(numOfPages);
 
 		try {

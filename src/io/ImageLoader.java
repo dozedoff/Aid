@@ -1,200 +1,90 @@
-/*  Copyright (C) 2011  Nicholas Wright
-	
-	part of 'Aid', an imageboard downloader.
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 package io;
 
 import java.io.File;
-import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.LinkedList;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
 import javax.activity.InvalidActivityException;
 
-import net.GetBinary;
 import net.PageLoadException;
 import filter.Filter;
 import gui.Stats;
 
-/**
- * Class for downloading images from the Internet.
- */
-public abstract class ImageLoader {
-	private static Logger logger = Logger.getLogger(ImageLoader.class.getName());
+public class ImageLoader extends FileLoader {
+private Logger logger = Logger.getLogger(ImageLoader.class.getName());
 
-	protected LinkedBlockingQueue<DownloadItem> downloadList = new LinkedBlockingQueue<DownloadItem>();
-	private LinkedList<Thread> workers = new LinkedList<>();
+private FileWriter fileWriter;
+private Filter filter;
 
-	/**Delay between downloads. This is used to limit the number of connections**/
-	protected int downloadSleep = 1000;
-	protected int imageQueueWorkers;
+private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph output
 
-	private GetBinary getBinary = new GetBinary();
-
-	private File workingDir;
-
-	public ImageLoader(File workingDir, int imageQueueWorkers) {
-		this.workingDir = workingDir;
-		this.imageQueueWorkers = imageQueueWorkers;
-		setUp(imageQueueWorkers);
+	public ImageLoader(FileWriter fileWriter, Filter filter, File workingDir, int imageQueueWorkers) {
+		super(workingDir, imageQueueWorkers);
+		this.fileWriter = fileWriter;
+		this.filter = filter;
 	}
-	
-	/**
-	 * Run before a file is added to the list.
-	 * @param url URL that was added
-	 * @param fileName relative path to working directory
-	 */
-	protected void beforeImageAdd(URL url,String fileName){} // code to run before adding a file to the list
-	
-	/**
-	 * Run after a file was added to the list.
-	 * @param url URL that was added
-	 * @param fileName relative path to working directory
-	 */
-	protected void afterImageAdd(URL url,String fileName){} // code to run after adding a file to the list
 
-	public void add(URL url,String fileName){
-		beforeImageAdd(url, fileName);
-		
-		if(downloadList.contains(url)) // is the file already queued? 
+	@Override
+	protected void beforeImageAdd(URL url, String fileName) {
+		if(filter.isCached(url)){	// has the file been downloaded recently?
+			filter.cache(url);		// if it has, update cache timestamp
 			return;
-		
-		downloadList.add(new DownloadItem(url, fileName));
-		
-		afterImageAdd(url, fileName);
-	}
-	
-	/**
-	 * Set the delay between file downloads. Used to limit the number of connections.
-	 * @param sleep time between downloads in milliseconds
-	 */
-	public void setDownloadSleep(int sleep){
-		this.downloadSleep = sleep;
-	}
-
-	public void clearQueue(){
-		downloadList.clear();
-	}
-	
-	/**
-	 * Called after the queue has been cleared.
-	 */
-	protected void afterClearQueue(){}
-
-	/**
-	 * Download a file, how the data is used is handled in the method afterFileDownload
-	 * 
-	 * @param url URL to save
-	 * @param savePath relative save path
-	 */
-	private void loadFile(URL url, File savePath){
-		File fullPath = new File(workingDir, savePath.toString());
-
-		try{Thread.sleep(downloadSleep);}catch(InterruptedException ie){}
-
-		byte[] data = null;
-		try{
-			data = getBinary.getViaHttp(url);
-			afterFileDownload(data,fullPath,url);
-		}catch(PageLoadException ple){
-			onPageLoadException(ple);
-		}catch(IOException ioe){
-			onIOException(ioe);
 		}
 	}
 	
-	/**
-	 * Called when a server could be contacted, but an error code was returned.
-	 * @param ple the PageLoadException that was thrown
-	 */
-	protected void onPageLoadException(PageLoadException ple){
-		logger.warning("Unable to load " + ple.getUrl() + " , response is " + ple.getResponseCode());
+	@Override
+	protected void afterImageAdd(URL url, String fileName) {
+		updateFileQueueState();
 	}
 	
-	/**
-	 * Called when a page / File could not be loaded due to an IO error.
-	 * @param ioe the IOException that was thrown
-	 */
-	protected void onIOException(IOException ioe){
-		logger.warning("Unable to load page " + ioe.getLocalizedMessage());
+	private void updateFileQueueState(){
+		Stats.setFileQueueState("FileQueue: "+downloadList.size()+" - "+"? / "+imageQueueWorkers);
+		// queue size  - active workers / pool size
 	}
 	
-	/**
-	 * Called when the file was successfully downloaded.
-	 * @param data the downloaded file
-	 * @param fullpath the absolute filepath
-	 * @param url the url of the file
-	 */
-	abstract protected void afterFileDownload(byte[] data, File fullpath, URL url);
-	
-	private void setUp(int image){
-		for(int i=0; i <image; i++){
-			workers.add(new DownloadWorker());
-		}
-
-		for(Thread t : workers){
-			t.start();
-		}
-	}
-
-	public void shutdown(){
-		logger.info("ImageLoader shutting down...");
-		
-		clearQueue();
-
-		for(Thread t : workers){
-			t.interrupt();
-		}
-
-		for(Thread t : workers){
-			try {t.join();} catch (InterruptedException e) {}
-		}
-		
-		logger.info("ImageLoader shutdown complete");
+	@Override
+	protected void afterClearQueue() {
+		updateFileQueueState();
 	}
 	
-	/**
-	 * Called after a worker has processed an item from the list.
-	 * @param di the imageitem that was processed
-	 */
-	protected void afterProcessItem(DownloadItem di){}
-
-	class DownloadWorker extends Thread{
-		public DownloadWorker() {
-			super("Download Worker");
-
-			Thread.currentThread().setPriority(2);
-		}
-
-		@Override
-		public void run() {
-			while(! isInterrupted()){
-				try{
-					DownloadItem di;
-					di = downloadList.take(); // grab some work
-					if(di == null) // check if the item is valid
-						continue;
-
-					loadFile(di.getImageUrl(), new File(di.getImageName()));
-					afterProcessItem(di);
-					
-				}catch(InterruptedException ie){interrupt();} //otherwise it will reset it's own interrupt flag
+	@Override
+	protected void afterProcessItem(DownloadItem ii) {
+		updateFileQueueState();
+	}
+	
+	@Override
+	protected void afterFileDownload(byte[] data, File fullpath, URL url) {
+		if(data != null){
+			try {
+				fileWriter.add(fullpath, data.clone());
+			} catch (InvalidActivityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
+			filter.cache(url);;	//add URL to cache
+			Stats.addTimeGraphValue((int)((data.length/1024)*TIME_GRAPH_FACTOR)); // add data to the download graph
+		}
+	}
+	
+	@Override
+	protected void onPageLoadException(PageLoadException ple) {
+		int responseCode = Integer.parseInt(ple.getMessage());
+
+		// the file was unavailable
+		if(responseCode == 404 || responseCode == 500){
+			logger.warning("got a 404 or 500 response for " + ple.getUrl()); // to prevent future attempts to load the file
+			try {filter.cache(new URL(ple.getUrl()));
+			} catch (MalformedURLException e) {
+				logger.warning("could not add URL to cache " + ple.getMessage());
+			} 
+		}
+
+		if(responseCode == 503){
+			logger.severe("IP was banned for too many connections"); // :_(  thats what you get if you use too short intervals
+			System.exit(3);
+		}else{
+			logger.info("GetBinary(size) http code "+ple.getMessage());
 		}
 	}
 }

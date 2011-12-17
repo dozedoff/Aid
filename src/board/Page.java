@@ -17,7 +17,7 @@
  */
 package board;
 
-import io.ImageLoader;
+import io.FileLoader;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -41,12 +41,12 @@ public class Page implements Runnable{
 	private static Logger logger = Logger.getLogger(Page.class.getName());
 	private URL pageUrl, boardUrl;
 	private Filter filter;
-	private ImageLoader imageLoader;
+	private FileLoader imageLoader;
 	private int pageNumber;
 
 	private boolean stop = false;
 
-	public Page(URL boardUrl,int pageNumber, Filter filter,ImageLoader imageLoader){
+	public Page(URL boardUrl,int pageNumber, Filter filter,FileLoader imageLoader){
 		this.boardUrl = boardUrl;
 		this.filter = filter;
 		this.imageLoader = imageLoader;
