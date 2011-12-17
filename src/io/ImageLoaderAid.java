@@ -36,4 +36,9 @@ public class ImageLoaderAid extends ImageLoader {
 	protected void afterClearImageQueue() {
 		updateFileQueueState();
 	}
+	
+	@Override
+	protected void afterProcessItem(ImageItem ii) {
+		updateFileQueueState();
+	}
 }

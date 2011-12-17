@@ -71,8 +71,19 @@ public class ImageLoader {
 		this.skipLogEnabled = skipLogEnabled;
 	}
 	
+	/**
+	 * Run before a file is added to the list.
+	 * @param url URL that was added
+	 * @param fileName relative path to working directory
+	 */
 	protected void beforeImageAdd(URL url,String fileName){} // code to run before adding a file to the list
-	protected void afterImageAdd(URL url,String fileName){} // ocde to run after adding a file to the list
+	
+	/**
+	 * Run after a file was added to the list.
+	 * @param url URL that was added
+	 * @param fileName relative path to working directory
+	 */
+	protected void afterImageAdd(URL url,String fileName){} // code to run after adding a file to the list
 
 	public void addImage(URL url,String fileName){
 		beforeImageAdd(url, fileName);
@@ -89,13 +100,16 @@ public class ImageLoader {
 		imageUrlList.clear();
 	}
 	
+	/**
+	 * Called after the queue has been cleared.
+	 */
 	protected void afterClearImageQueue(){}
 
 	/**
 	 * Download an image and pass it to the buffer for saving.
 	 * 
-	 * @param url
-	 * @param savePath
+	 * @param url URL to save
+	 * @param savePath relative save path
 	 */
 	private void loadImage(URL url, File savePath){
 		File fullPath = new File(workingDir, savePath.toString());
@@ -159,6 +173,12 @@ public class ImageLoader {
 		
 		logger.info("ImageLoader shutdown complete");
 	}
+	
+	/**
+	 * Called after a worker has processed an item from the list.
+	 * @param ii the imageitem that was processed
+	 */
+	protected void afterProcessItem(ImageItem ii){}
 
 	class ImageWorker extends Thread{
 		public ImageWorker() {
@@ -176,9 +196,9 @@ public class ImageLoader {
 					if(ii == null) // check if the item is valid
 						continue;
 
-					updateFileQueueState();
-					
 					loadImage(ii.getImageUrl(), new File(ii.getImageName()));
+					afterProcessItem(ii);
+					
 				}catch(InterruptedException ie){interrupt();} //otherwise it will reset it's own interrupt flag
 			}
 		}
