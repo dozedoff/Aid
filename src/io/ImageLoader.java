@@ -39,7 +39,7 @@ public class ImageLoader {
 
 	private FileWriter fileWriter;
 
-	private LinkedBlockingQueue<ImageItem> imageUrlList = new LinkedBlockingQueue<ImageItem>();
+	protected LinkedBlockingQueue<ImageItem> imageUrlList = new LinkedBlockingQueue<ImageItem>();
 	private LinkedList<Thread> workers = new LinkedList<>();
 
 	private boolean skipLogEnabled = false;
@@ -51,7 +51,7 @@ public class ImageLoader {
 
 	private File workingDir;
 
-	private int imageQueueWorkers;
+	protected int imageQueueWorkers;
 	private Filter filter;
 
 	public ImageLoader(FileWriter fileWriter,Filter filter, File workingDir, int imageQueueWorkers) {
@@ -70,18 +70,19 @@ public class ImageLoader {
 	public void setSkipLogEnabled(boolean skipLogEnabled) {
 		this.skipLogEnabled = skipLogEnabled;
 	}
+	
+	protected void beforeImageAdd(URL url,String fileName){} // code to run before adding a file to the list
+	protected void afterImageAdd(URL url,String fileName){} // ocde to run after adding a file to the list
 
 	public void addImage(URL url,String fileName){
-		if(filter.isCached(url)){	// has the file been downloaded recently?
-			filter.cache(url);		// if it has, update cache timestamp
-			return;
-		}
-
+		beforeImageAdd(url, fileName);
+		
 		if(imageUrlList.contains(url)) // is the file already queued? 
 			return;
 		
 		imageUrlList.add(new ImageItem(url, fileName));
-		updateFileQueueState();
+		
+		afterImageAdd(url, fileName);
 	}
 
 	public void clearImageQueue(){
@@ -156,11 +157,6 @@ public class ImageLoader {
 		}
 		
 		logger.info("ImageLoader shutdown complete");
-	}
-
-	private void updateFileQueueState(){
-		Stats.setFileQueueState("FileQueue: "+imageUrlList.size()+" - "+"? / "+imageQueueWorkers);
-		// queue size  - active workers / pool size
 	}
 
 	class ImageWorker extends Thread{
