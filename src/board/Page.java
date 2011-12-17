@@ -17,7 +17,6 @@
  */
 package board;
 
-import io.FileLoader;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -27,6 +26,7 @@ import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
+import net.FileLoader;
 import net.GetHtml;
 import net.PageLoadException;
 import filter.Filter;

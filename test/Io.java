@@ -10,7 +10,6 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({ FileWriterTest.class,
 				ImageItemTest.class,
 				MySqlAidTest.class,
-				ImageLoaderTest.class,
 				ThumbnailLoaderTest.class
 })
 public class Io {

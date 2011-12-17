@@ -7,6 +7,8 @@ import java.util.logging.Logger;
 
 import javax.activity.InvalidActivityException;
 
+import net.DownloadItem;
+import net.FileLoader;
 import net.PageLoadException;
 import filter.Filter;
 import gui.Stats;

@@ -26,7 +26,6 @@ import gui.Stats;
 import gui.Aid;
 import io.ConnectionPoolaid;
 import io.FileWriter;
-import io.FileLoader;
 import io.ThumbnailLoader;
 
 import java.awt.event.ActionEvent;
@@ -45,6 +44,8 @@ import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
+
+import net.FileLoader;
 
 import config.DefaultAppSettings;
 import config.DefaultLoggerSettings;

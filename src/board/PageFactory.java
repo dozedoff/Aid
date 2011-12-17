@@ -17,13 +17,14 @@
  */
 package board;
 
-import io.FileLoader;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
 import java.util.logging.*;
+
+import net.FileLoader;
 
 import filter.Filter;
 

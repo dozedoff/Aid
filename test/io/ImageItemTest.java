@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import java.net.URL;
 
+import net.DownloadItem;
+
 import org.junit.Before;
 import org.junit.Test;
 
