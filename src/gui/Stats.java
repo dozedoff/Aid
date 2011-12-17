@@ -30,7 +30,7 @@ public class Stats {
 	private static int cacheSize;
 	private static long bytesSaved, bytesDiscarded;
 	private static int filterSize;
-	private static String pageQueueSize, fileQueueSize, spinUpQueueSize;
+	private static String pageQueueSize, fileQueueSize;
 	private static AtomicInteger timeGraphValue;
 	
 	static{
@@ -42,7 +42,6 @@ public class Stats {
 		
 		pageQueueSize = "";
 		fileQueueSize = "";
-		spinUpQueueSize = "";
 	}
 
 	public static void addStatListener(StatListener listener) {
@@ -105,11 +104,6 @@ public class Stats {
 		statChanged("fileQueueSize");
 	}
 	
-	public static void setSpinUpQueueState(String state){
-		spinUpQueueSize = state;
-		statChanged("spinUpQueueSize");
-	}
-	
 	public static void addTimeGraphValue(int value){
 		timeGraphValue.addAndGet(value);
 		statChanged("timeGraphValue");
@@ -139,10 +133,6 @@ public class Stats {
 	
 	public static String getFileQueueState(){
 		return fileQueueSize;
-	}
-	
-	public static String getSpinUpQueueState(){
-		return spinUpQueueSize;
 	}
 	
 	public static int getTimeGraphValue(){

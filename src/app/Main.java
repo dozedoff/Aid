@@ -104,7 +104,7 @@ public class Main implements ActionListener{
 	 */
 	final private void build(){
 		String page, image, writeBlocked, baseUrl = "", subPages = "";
-		int pageThreads = 1, imageThreads = 1, spinUpThreads=1;
+		int pageThreads = 1, imageThreads = 1;
 		boolean writeBlock = false;
 
 		//  -------------- Configuration loading starts here --------------
@@ -164,7 +164,7 @@ public class Main implements ActionListener{
 		filterlist = new Filterlist(filter); // filter GUI
 		fileWriter = new FileWriter(filter); // disk IO
 
-		imageLoader = new ImageLoader(fileWriter, filter, basePath,imageThreads,spinUpThreads);
+		imageLoader = new ImageLoader(fileWriter, filter, basePath,imageThreads);
 		logger.info("Saving files to the basePath "+basePath.toString());
 		blockList = new BlockList(filter,blockListModel);
 

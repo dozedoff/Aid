@@ -40,7 +40,6 @@ public class ImageLoader {
 	private FileWriter fileWriter;
 
 	private LinkedBlockingQueue<ImageItem> imageUrlList = new LinkedBlockingQueue<ImageItem>();
-	private LinkedBlockingQueue<ImageItem> spinUpUrlList = new LinkedBlockingQueue<ImageItem>(); //TODO remove this and all related
 	private LinkedList<Thread> workers = new LinkedList<>();
 
 	private boolean skipLogEnabled = false;
@@ -52,17 +51,16 @@ public class ImageLoader {
 
 	private File workingDir;
 
-	private int imageQueueWorkers, spinUpQueueWorkers;
+	private int imageQueueWorkers;
 	private Filter filter;
 
-	public ImageLoader(FileWriter fileWriter,Filter filter, File workingDir, int imageQueueWorkers, int spinUpQueueWorkers) {
+	public ImageLoader(FileWriter fileWriter,Filter filter, File workingDir, int imageQueueWorkers) {
 		this.fileWriter = fileWriter;
 		this.workingDir = workingDir;
 		this.imageQueueWorkers = imageQueueWorkers;
-		this.spinUpQueueWorkers = spinUpQueueWorkers;
 		this.filter = filter;
 
-		setUp(imageQueueWorkers, spinUpQueueWorkers);
+		setUp(imageQueueWorkers);
 	}
 
 	public boolean isSkipLogEnabled() {
@@ -80,11 +78,10 @@ public class ImageLoader {
 		}
 
 		if(imageUrlList.contains(url)) // is the file already queued? 
-			return; //TODO check performance impact for large queues
+			return;
 		
 		imageUrlList.add(new ImageItem(url, fileName));
 		updateFileQueueState();
-
 	}
 
 	public void clearImageQueue(){
@@ -135,13 +132,9 @@ public class ImageLoader {
 		}
 	}
 
-	private void setUp(int image, int spin){
+	private void setUp(int image){
 		for(int i=0; i <image; i++){
-			workers.add(new ImageWorker(false));
-		}
-
-		for(int i=0; i <spin; i++){
-			workers.add(new ImageWorker(true));
+			workers.add(new ImageWorker());
 		}
 
 		for(Thread t : workers){
@@ -170,25 +163,11 @@ public class ImageLoader {
 		// queue size  - active workers / pool size
 	}
 
-	private void updateSpinUpQueueState(){
-		Stats.setFileQueueState("SpinUpQueue: "+spinUpUrlList.size()+" - "+"? / "+spinUpQueueWorkers);
-		// queue size  - active workers / pool size
-	}
-
 	class ImageWorker extends Thread{
-		private boolean isSpinUp;
-		LinkedBlockingQueue<ImageItem> queue;
-		public ImageWorker(boolean isSpinUp) {
+		public ImageWorker() {
 			super("ImageWorker");
-			this.isSpinUp = isSpinUp;
 
 			Thread.currentThread().setPriority(2);
-
-			if(isSpinUp){
-				queue = spinUpUrlList;
-			}else{
-				queue = imageUrlList;
-			}
 		}
 
 		@Override
@@ -196,15 +175,12 @@ public class ImageLoader {
 			while(! isInterrupted()){
 				try{
 					ImageItem ii;
-					ii = queue.take(); // grab some work
+					ii = imageUrlList.take(); // grab some work
 					if(ii == null) // check if the item is valid
 						continue;
 
-					if(isSpinUp)
-						updateSpinUpQueueState();
-					else
-						updateFileQueueState();
-
+					updateFileQueueState();
+					
 					loadImage(ii.getImageUrl(), new File(ii.getImageName()));
 				}catch(InterruptedException ie){interrupt();} //otherwise it will reset it's own interrupt flag
 			}
