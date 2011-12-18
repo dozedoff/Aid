@@ -13,20 +13,20 @@ public class ImageItemTest {
 	DownloadItem imageItem;
 	@Before
 	public void setUp() throws Exception{
-		imageItem = new DownloadItem("http://foo.bar/test/", "testImg.jpg");
+		imageItem = new DownloadItem(new URL("http://foo.bar/test/"), "testImg.jpg");
 	}
 	
 	@Test
 	public void testEqualsObject() throws Exception{
 		assertFalse(imageItem.equals(null));
 		
-		DownloadItem testItem = new DownloadItem("http://foo.bar/test/", "testImg.jpg");
+		DownloadItem testItem = new DownloadItem(new URL("http://foo.bar/test/"), "testImg.jpg");
 		assertTrue(imageItem.equals(testItem));
 		
-		testItem = new DownloadItem("http://foo.bar/test/", "Img.jpg");
+		testItem = new DownloadItem(new URL("http://foo.bar/test/"), "Img.jpg");
 		assertFalse(imageItem.equals(testItem));
 		
-		testItem = new DownloadItem("http://foo.bar/", "testImg.jpg");
+		testItem = new DownloadItem(new URL("http://foo.bar/"), "testImg.jpg");
 		assertFalse(imageItem.equals(testItem));
 	}
 }
