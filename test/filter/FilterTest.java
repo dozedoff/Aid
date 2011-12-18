@@ -7,7 +7,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.matchers.JUnitMatchers.hasItems;
+import static org.mockito.Mockito.*;
 import gui.BlockListDataModel;
+
+import io.ConnectionPoolaid;
+import io.ThumbnailLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,12 +22,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import testDummy.DummyConnectionPool;
-import testDummy.DummyPost;
-import testDummy.DummyThumbnailLoader;
+import board.Post;
 
 public class FilterTest {
-	DummyConnectionPool dc;
+	ConnectionPoolaid mockConnectionPoolaid = mock(ConnectionPoolaid.class);
+	ThumbnailLoader mockThumbnailLoader = mock(ThumbnailLoader.class);
+	
 	Filter filter;
 	TemporaryFolder tempFolder = new TemporaryFolder();
 	final String TEST_FILE_NAME = "test_file";
@@ -36,8 +40,7 @@ public class FilterTest {
 			
 	@Before
 	public void setUp() throws Exception {
-		dc = new DummyConnectionPool();
-		filter = new Filter(dc, new BlockListDataModel(),new DummyThumbnailLoader());
+		filter = new Filter(mockConnectionPoolaid, new BlockListDataModel(),mockThumbnailLoader);
 		testFile = tempFolder.newFile(TEST_FILE_NAME);
 		testURL = new URL("http://foo.bar/test/12345");
 	}
@@ -60,7 +63,7 @@ public class FilterTest {
 		filter.saveFilter(testFile);
 		
 		// new Filter item to clear data
-		filter = new Filter(dc,new BlockListDataModel(),new DummyThumbnailLoader());
+		filter = new Filter(mockConnectionPoolaid,new BlockListDataModel(),mockThumbnailLoader);
 		
 		//should be empty now
 		assertThat(new ArrayList<String>(), is(filter.getFileNameFilterItem()));
@@ -77,17 +80,22 @@ public class FilterTest {
 
 	@Test
 	public void testCheckPost() throws IOException {
-		DummyPost dp = new DummyPost("test.png", new URL("http://foo.bar/yeti/1234"), "just testing, foo bar");
+		Post mockPost = mock(Post.class);
+		when(mockPost.getImageName()).thenReturn("test.png");
+		when(mockPost.getImageUrl()).thenReturn(new URL("http://foo.bar/yeti/1234"));
+		when(mockPost.getComment()).thenReturn("just testing, foo bar");
+		when(mockPost.hasComment()).thenReturn(true);
+		when(mockPost.hasImage()).thenReturn(true);
 		
-		assertNull(filter.checkPost(dp));
+		assertNull(filter.checkPost(mockPost));
 		
 		filter.addFileNameFilterItem("test");
-		assertNotNull(filter.checkPost(dp));
-		assertThat(filter.checkPost(dp), is("file name, test"));
+		assertNotNull(filter.checkPost(mockPost));
+		assertThat(filter.checkPost(mockPost), is("file name, test"));
 		filter.removeFileNameFilterItem("test");
 		
 		filter.addPostContentFilterItem("foo");
-		assertNotNull(filter.checkPost(dp));
-		assertThat(filter.checkPost(dp), is("post content, foo"));
+		assertNotNull(filter.checkPost(mockPost));
+		assertThat(filter.checkPost(mockPost), is("post content, foo"));
 	}
 }

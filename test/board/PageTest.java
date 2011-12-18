@@ -1,8 +1,10 @@
 package board;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.matchers.JUnitMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import io.ImageLoader;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -12,16 +14,13 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import testDummy.DummyFilter;
-import testDummy.DummyImageLoader;
+import filter.Filter;
 
-@SuppressWarnings("unused")
 public class PageTest {
 	Page page;
 	
 	@Before
 	public void setUp() throws Exception {
-		page = new Page(new URL("http://foo.bar"), 2, new DummyFilter(), new DummyImageLoader());
 	}
 
 	@After
@@ -30,15 +29,22 @@ public class PageTest {
 
 	@Test
 	public void testGetPageUrl() throws MalformedURLException {
+		Filter mockFilter = mock(Filter.class);
+		ImageLoader mockImageLoader = mock(ImageLoader.class);
+		
+		page = new Page(new URL("http://foo.bar/"), 1, mockFilter, mockImageLoader);
+		assertThat(page.getPageUrl(), is(new URL("http://foo.bar/1")));
+		
+		page = new Page(new URL("http://foo.bar/"), 2, mockFilter, mockImageLoader);
 		assertThat(page.getPageUrl(), is(new URL("http://foo.bar/2")));
 		
-		page = new Page(new URL("http://foo.bar/"), 3, new DummyFilter(), new DummyImageLoader());
+		page = new Page(new URL("http://foo.bar/"), 3, mockFilter, mockImageLoader);
 		assertThat(page.getPageUrl(), is(new URL("http://foo.bar/3")));
 		
-		page = new Page(new URL("http://foo.bar/"), 0, new DummyFilter(), new DummyImageLoader());
+		page = new Page(new URL("http://foo.bar/"), 0, mockFilter, mockImageLoader);
 		assertThat(page.getPageUrl(), is(new URL("http://foo.bar/")));
 		
-		page = new Page(new URL("http://foo.bar"), 0, new DummyFilter(), new DummyImageLoader());
+		page = new Page(new URL("http://foo.bar"), 0, mockFilter, mockImageLoader);
 		assertThat(page.getPageUrl(), is(new URL("http://foo.bar/")));
 	}
 
