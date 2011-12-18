@@ -13,11 +13,14 @@
 
 ## Dependencies
 * The code requires the MySQL JDBC Driver.
-* Tests additionally require JUnit4, DbUnit and SLF4J (API and JDK14).
+* Tests additionally require JUnit4, DbUnit, Mockito and SLF4J (API and JDK14).
 
 http://www.mysql.com/downloads/connector/j/
 
 http://www.junit.org/
+
 http://www.dbunit.org/
+
+http://code.google.com/p/mockito/
 
 http://slf4j.org/
