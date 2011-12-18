@@ -23,7 +23,7 @@ public class PostTest {
 		assertTrue(post.hasImage());
 		assertTrue(post.hasComment());
 		
-		assertThat(post.getComment(), is("You must spend 1 year alone in a small log cabin with the bare basics in the middle of no where with a character of your choice. Your not allowed to have any sexual relations of any kind with said character. You and your companion must gather your own food which is not too hard to find. Who do you choose?<br /><br />Hard mode: not your waifu"));
+		assertThat(post.getComment(), is("You must spend 1 year alone in a small log cabin with the bare basics in the middle of no where. <br /><br />Hard mode:"));
 		assertThat(post.getImageName(), is("1301298882993.jpg"));
 		assertThat(post.getImageUrl().toString(),is("http://images.4chan.org/a/src/1322860719840.jpg"));
 	}
@@ -51,7 +51,7 @@ public class PostTest {
 		assertTrue(post.hasImage());
 		assertTrue(post.hasComment());
 		
-		assertThat(post.getComment(), is("<font class=\"unkfunc\"><a href=\"57866763#57866763\" class=\"quotelink\">&gt;&gt;57866763</a></font><br /><font class=\"unkfunc\">&gt;You must spend 1 year alone in a small log cabin with the bare basics in the middle of no where with a character of your choice.</font><br /><font class=\"unkfunc\">&gt;not your waifu</font><br />Well that's easy the-<br /><font class=\"unkfunc\">&gt;Your not allowed to have any sexual relations of any kind with said character</font><br />That's just not fair."));
+		assertThat(post.getComment(), is("<font class=\"unkfunc\"><a href=\"57866763#57866763\" class=\"quotelink\">&gt;&gt;57866763</a></font><br /><font class=\"unkfunc\">&gt;You must spend 1 year alone in a small log cabin with the bare basics in the middle of no where.</font><br /><font class=\"unkfunc\">&gt;</font><br />Well that's easy the-<br /><font class=\"unkfunc\">&gt;</font><br />That's just not fair."));
 		assertThat(post.getImageName(),is("1299649678890.jpg"));
 		assertThat(post.getImageUrl().toString(),is("http://images.4chan.org/a/src/1322861012803.jpg"));
 	}
