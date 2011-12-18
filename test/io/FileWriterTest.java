@@ -16,14 +16,16 @@ import gui.BlockListDataModel;
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.matchers.JUnitMatchers.*;
+import static org.mockito.Mockito.*;
 
-import testDummy.DummyConnectionPool;
-import testDummy.DummyThumbnailLoader;
 //TODO re-write tests to use temp. folders
 @SuppressWarnings("unused")
 public class FileWriterTest {
+	ConnectionPoolaid mockConnectionPoolaid = mock(ConnectionPoolaid.class);
+	ThumbnailLoader mockThumbnailLoader = mock(ThumbnailLoader.class);
+	Filter mockFilter = mock(Filter.class);
+	
 	FileWriter fileWriter;
-	Filter filter;
 	File testPath = new File("D:\\test\\");
 	byte[] testData = {12,45,6,12,99};
 	File[] testFiles = {new File(testPath,"a\\test1.txt"),new File(testPath,"a\\test2.txt"),new File(testPath,"b\\test1.txt"),new File(testPath,"c\\test1.txt"),new File(testPath,"c\\test2.txt")};
@@ -35,8 +37,7 @@ public class FileWriterTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		filter = new Filter(new DummyConnectionPool(), new BlockListDataModel(), new DummyThumbnailLoader());
-		fileWriter = new FileWriter(filter);
+		fileWriter = new FileWriter(mockFilter);
 	}
 	/**
 	 * Shutdown the Filewriter and delete files created during the test.
@@ -109,8 +110,8 @@ public class FileWriterTest {
 
 	@Test
 	public void testGetBytesDiscarded() throws InvalidActivityException {
-		Filter filter = new Filter(new DummyConnectionPool(false, true), new BlockListDataModel(),new DummyThumbnailLoader());
-		fileWriter = new FileWriter(filter);
+		fileWriter = new FileWriter(mockFilter);
+		when(mockFilter.exists(anyString())).thenReturn(true);
 		
 		for(File f : testFiles)
 			fileWriter.add(f, testData);
