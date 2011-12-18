@@ -28,20 +28,22 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 	}
 
 	@Override
-	protected void beforeImageAdd(URL url, String fileName) {
+	protected boolean beforeFileAdd(URL url, String fileName) {
 		if(filter.isCached(url)){	// has the file been downloaded recently?
 			filter.cache(url);		// if it has, update cache timestamp
-			return;
+			return false;
+		}else{
+			return true;
 		}
 	}
 	
 	@Override
-	protected void afterImageAdd(URL url, String fileName) {
+	protected void afterFileAdd(URL url, String fileName) {
 		updateFileQueueState();
 	}
 	
 	private void updateFileQueueState(){
-		Stats.setFileQueueState("FileQueue: "+downloadList.size()+" - "+"? / "+imageQueueWorkers);
+		Stats.setFileQueueState("FileQueue: "+downloadList.size()+" - "+"? / "+fileQueueWorkers);
 		// queue size  - active workers / pool size
 	}
 	
