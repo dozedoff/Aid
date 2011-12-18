@@ -32,9 +32,13 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 		if(filter.isCached(url)){	// has the file been downloaded recently?
 			filter.cache(url);		// if it has, update cache timestamp
 			return false;
-		}else{
-			return true;
 		}
+		
+		if(downloadList.contains(url)) // is the file already queued? 
+			return false;
+			
+		return true;
+		
 	}
 	
 	@Override
