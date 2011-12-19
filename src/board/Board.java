@@ -57,6 +57,8 @@ public class Board {
 		if(pageAdder != null)
 			pageAdder.cancel();
 		
+		lastRun = ""; // looks a bit odd otherwise
+		
 		logger.info("Board "+boardId+" is stopping...");
 	}
 
