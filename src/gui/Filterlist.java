@@ -45,6 +45,8 @@ public class Filterlist extends JFrame implements ActionListener, ListSelectionL
 	private JLabel lblFileName = null;
 	private JButton btnAddPost = null;
 	private FilterModifiable filter;
+	
+	private final int ADD_BTN_WIDTH = 55;
 
 	/**
 	 * Creates a new Frame that can be used to manage
@@ -65,7 +67,7 @@ public class Filterlist extends JFrame implements ActionListener, ListSelectionL
 	 * @return void
 	 */
 	private void initialize() {
-		this.setSize(373, 294);
+		this.setSize(400, 300);
 		this.setLocation(600, 100);
 		this.setContentPane(getJContentPane());
 		this.setTitle("FilterList");
@@ -90,10 +92,11 @@ public class Filterlist extends JFrame implements ActionListener, ListSelectionL
 			jContentPane.add(getLstPostContent(), null);
 			jContentPane.add(getEditBox(), null);
 			jContentPane.add(getBtnAddFile(), null);
+			jContentPane.add(getBtnAddPost(), null);
 			jContentPane.add(getBtnRemove(), null);
 			jContentPane.add(lblPostCont, null);
 			jContentPane.add(lblFileName, null);
-			jContentPane.add(getBtnAddPost(), null);
+			
 		}
 		return jContentPane;
 	}
@@ -151,7 +154,7 @@ public class Filterlist extends JFrame implements ActionListener, ListSelectionL
 	private JButton getBtnAddFile() {
 		if (btnAddFile == null) {
 			btnAddFile = new JButton();
-			btnAddFile.setBounds(188, 222, 39, 28);
+			btnAddFile.setBounds(188, 222, ADD_BTN_WIDTH, 28);
 			btnAddFile.setText("Add");
 			btnAddFile.addActionListener(this);
 		}
@@ -166,7 +169,7 @@ public class Filterlist extends JFrame implements ActionListener, ListSelectionL
 	private JButton getBtnRemove() {
 		if (btnRemove == null) {
 			btnRemove = new JButton();
-			btnRemove.setBounds(270, 222, 69, 28);
+			btnRemove.setBounds(btnAddPost.getX()+btnAddPost.getWidth()+2, 222, 75, 28);
 			btnRemove.setText("Remove");
 			btnRemove.addActionListener(this);
 		}
@@ -181,7 +184,7 @@ public class Filterlist extends JFrame implements ActionListener, ListSelectionL
 	private JButton getBtnAddPost() {
 		if (btnAddPost == null) {
 			btnAddPost = new JButton();
-			btnAddPost.setBounds(229, 222, 39, 28);
+			btnAddPost.setBounds(btnAddFile.getX()+btnAddFile.getWidth()+2, 222, ADD_BTN_WIDTH, 28);
 			btnAddPost.setText("Add");
 			btnAddPost.addActionListener(this);
 		}
