@@ -36,8 +36,8 @@ public class Filterlist extends JFrame implements ActionListener, ListSelectionL
 	private JList<String> lstPostContent = null;
 	private JScrollPane scrlFileName = null;
 	private JScrollPane scrlPostContent = null;
-	private DefaultListModel<String> fileNameModel = new DefaultListModel<>();
-	private DefaultListModel<String> postContentModel = new DefaultListModel<>();
+	private DefaultListModel<String> fileNameModel = null;
+	private DefaultListModel<String> postContentModel = null;
 	private JTextField editBox = null;
 	private JButton btnAddFile = null;
 	private JButton btnRemove = null;
@@ -51,8 +51,10 @@ public class Filterlist extends JFrame implements ActionListener, ListSelectionL
 	 * the filters.
 	 * @param filter
 	 */
-	public Filterlist(FilterModifiable filter) {
+	public Filterlist(FilterModifiable filter, DefaultListModel<String> fileNameModel, DefaultListModel<String> postContentModel) {
 		super();
+		this.fileNameModel = fileNameModel;
+		this.postContentModel = postContentModel;
 		this.filter = filter;
 		initialize();
 	}
@@ -188,27 +190,15 @@ public class Filterlist extends JFrame implements ActionListener, ListSelectionL
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-//		if(e.getSource() == btnAddFile)
-//			filter.addFileNameFilterItem(editBox.getText());
-//		
-//		if(e.getSource() == btnAddPost)
-//			filter.addPostContentFilterItem(editBox.getText());
-//		
-//		if(e.getSource() == btnRemove){
-//			filter.removeFileNameFilterItem(editBox.getText());
-//			filter.removePostContentFilterItem(editBox.getText());
-//		}
-		
-		//DEBUG re-write this
 		if(e.getSource() == btnAddFile)
-			fileNameModel.addElement(editBox.getText());
+			filter.addFileNameFilterItem(editBox.getText());
 		
 		if(e.getSource() == btnAddPost)
-			postContentModel.addElement(editBox.getText());
+			filter.addPostContentFilterItem(editBox.getText());
 		
 		if(e.getSource() == btnRemove){
-			fileNameModel.removeElement(editBox.getText());
-			postContentModel.removeElement(editBox.getText());
+			filter.removeFileNameFilterItem(editBox.getText());
+			filter.removePostContentFilterItem(editBox.getText());
 		}
 	}
 

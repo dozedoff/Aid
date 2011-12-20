@@ -43,6 +43,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Logger;
 
+import javax.swing.DefaultListModel;
+
 import net.GetHtml;
 import board.Post;
 
@@ -57,18 +59,19 @@ public class Filter implements FilterModifiable{
 
 	private int filterNr = 0;	// filter item counter
 
-	private ArrayList<String> postContentKeywords = new ArrayList<String>();
-	private ArrayList<String> imageNameKeywords = new ArrayList<String>();
-
 	private BlockListDataModel blocklistModel;
+	private DefaultListModel<String> fileNameModel;
+	private DefaultListModel<String> postContentModel;
 	private ThumbnailLoader thumbLoader;
 
 	private ConnectionPoolaid connPool; //TODO there is a MySql.ConnectionPool - check it out
 	private Timer filterUpdateTimer = new Timer("Filter update daemon", true);
 	
-	public Filter(ConnectionPoolaid connPool, BlockListDataModel blockListModel, ThumbnailLoader thumbLoader){
+	public Filter(ConnectionPoolaid connPool, BlockListDataModel blockListModel,DefaultListModel<String> fileNameModel, DefaultListModel<String> postContentModel, ThumbnailLoader thumbLoader){
 		this.connPool = connPool;
 		this.blocklistModel = blockListModel;
+		this.fileNameModel = fileNameModel;
+		this.postContentModel = postContentModel;
 		this.thumbLoader = thumbLoader;
 	}
 	
@@ -101,9 +104,17 @@ public class Filter implements FilterModifiable{
 			if(is == null)
 				return false;
 			ObjectInputStream o = new ObjectInputStream(is);
-			postContentKeywords.addAll((ArrayList<String>)o.readObject());
-			imageNameKeywords.addAll((ArrayList<String>)o.readObject());
+			DefaultListModel<String> tmpPostContentModel = (DefaultListModel<String>)o.readObject();
+			DefaultListModel<String> tmpFileNameModel = (DefaultListModel<String>)o.readObject();
 			o.close();
+			
+			for(Object obj : tmpFileNameModel.toArray()){
+				fileNameModel.addElement((String)obj);
+			}
+			
+			for(Object obj : tmpPostContentModel.toArray()){
+				postContentModel.addElement((String)obj);
+			}
 		}catch (IOException io) { 
 			logger.warning("Error when loading file: "+io.getMessage());
 			return false;		} catch (ClassNotFoundException e) {
@@ -124,8 +135,8 @@ public class Filter implements FilterModifiable{
 		try{
 			FileOutputStream file = new FileOutputStream(path);
 			ObjectOutputStream o = new ObjectOutputStream( file );  
-			o.writeObject(postContentKeywords);
-			o.writeObject(imageNameKeywords);
+			o.writeObject(postContentModel);
+			o.writeObject(fileNameModel);
 			o.close();
 			logger.info("Saved filter to "+path);
 			return true;
@@ -135,38 +146,21 @@ public class Filter implements FilterModifiable{
 	}
 
 	public void addFileNameFilterItem(String item){
-		if(! imageNameKeywords.contains(item))
-			imageNameKeywords.add(item);
+		if(! fileNameModel.contains(item))
+			fileNameModel.addElement(item);
 	}
 
 	public void addPostContentFilterItem(String item){
-		if(! postContentKeywords.contains(item))
-			postContentKeywords.add(item);
+		if(! postContentModel.contains(item))
+			postContentModel.addElement(item);
 	}
 
 	public void removeFileNameFilterItem(String item){
-		imageNameKeywords.remove(item);
+		fileNameModel.removeElement(item);
 	}
 
 	public void removePostContentFilterItem(String item){
-		postContentKeywords.remove(item);
-	}
-
-	public ArrayList<String> getFileNameFilterItem(){
-		ArrayList<String> tmp = new ArrayList<String>(imageNameKeywords.size());
-		for(String s : imageNameKeywords)
-			tmp.add(s);
-
-		return tmp;
-	}
-
-	public ArrayList<String> getPostContentFilterItem(){
-		ArrayList<String> tmp = new ArrayList<String>(postContentKeywords.size());
-		
-		for(String s : postContentKeywords)
-			tmp.add(s);
-
-		return tmp;
+		postContentModel.removeElement(item);
 	}
 
 	/**
@@ -271,18 +265,18 @@ public class Filter implements FilterModifiable{
 	public String checkPost(Post p){
 		// filter out unwanted content (File Name Check)
 		if(p.hasImage()){
-			for (String detail : imageNameKeywords){
-				if (p.getImageName().toLowerCase().contains(detail)){
-					return "file name, "+detail;
+			for (Object detail : fileNameModel.toArray()){
+				if (p.getImageName().toLowerCase().contains((String)detail)){
+					return "file name, "+(String)detail;
 				}
 			}
 		}
 
 		// filter out unwanted content (Post content check)
 		if(p.hasComment()){
-			for (String detail : postContentKeywords){
-				if (p.getComment().toLowerCase().contains(detail))
-					return "post content, "+detail;
+			for (Object detail : postContentModel.toArray()){
+				if (p.getComment().toLowerCase().contains((String)detail))
+					return "post content, "+(String)detail;
 			}
 		}
 		return null;

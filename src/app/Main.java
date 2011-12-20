@@ -43,6 +43,7 @@ import java.util.Properties;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
@@ -160,8 +161,10 @@ public class Main implements ActionListener{
 		connPool = new ConnectionPoolaid(sqlProps,10); // connection pool for database connections
 		blockListModel = new BlockListDataModel();
 		thumbLoader = new ThumbnailLoader(connPool);
-		filter = new filter.Filter(connPool,blockListModel,thumbLoader); // filter handler
-		filterlist = new Filterlist(filter); // filter GUI
+		DefaultListModel<String> fileNameModel = new DefaultListModel<>();
+		DefaultListModel<String> postContentModel = new DefaultListModel<>();
+		filter = new filter.Filter(connPool,blockListModel,fileNameModel, postContentModel, thumbLoader); // filter handler
+		filterlist = new Filterlist(filter, fileNameModel, postContentModel); // filter GUI
 		fileWriter = new FileWriter(filter); // disk IO
 
 		imageLoader = new ImageLoader(fileWriter, filter, basePath,imageThreads);

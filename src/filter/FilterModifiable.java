@@ -17,7 +17,6 @@
  */
 package filter;
 
-import java.util.AbstractList;
 
 /**
  * Interface for filter interaction.
@@ -27,6 +26,4 @@ public interface FilterModifiable {
 	public void addPostContentFilterItem(String item);
 	public void removeFileNameFilterItem(String item);
 	public void removePostContentFilterItem(String item);
-	public AbstractList<String> getFileNameFilterItem();
-	public AbstractList<String> getPostContentFilterItem();
 }
