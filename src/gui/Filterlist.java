@@ -17,33 +17,33 @@
  */
 package gui;
 
-import javax.swing.JPanel;
-import javax.swing.JFrame;
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import filter.FilterModifiable;
 
-import java.awt.List;
-import java.awt.Rectangle;
-import java.awt.TextField;
-import java.awt.Button;
-import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
  * Displays lists of filtered keywords, and lets the user edit them.
  */
-public class Filterlist extends JFrame implements ActionListener {
+public class Filterlist extends JFrame implements ActionListener, ListSelectionListener {
 	private static final long serialVersionUID = 1L;
 	private JPanel jContentPane = null;
-	private List lstFileName = null;
-	private List lstPostContent = null;
-	private TextField editBox = null;
-	private Button btnAddFile = null;
-	private Button btnRemove = null;
-	private Label lblPostCont = null;
-	private Label lblFileName = null;
-	private Button btnAddPost = null;
+	private JList<String> lstFileName = null;
+	private JList<String> lstPostContent = null;
+	private JScrollPane scrlFileName = null;
+	private JScrollPane scrlPostContent = null;
+	private DefaultListModel<String> fileNameModel = new DefaultListModel<>();
+	private DefaultListModel<String> postContentModel = new DefaultListModel<>();
+	private JTextField editBox = null;
+	private JButton btnAddFile = null;
+	private JButton btnRemove = null;
+	private JLabel lblPostCont = null;
+	private JLabel lblFileName = null;
+	private JButton btnAddPost = null;
 	private FilterModifiable filter;
 
 	/**
@@ -67,8 +67,6 @@ public class Filterlist extends JFrame implements ActionListener {
 		this.setLocation(600, 100);
 		this.setContentPane(getJContentPane());
 		this.setTitle("FilterList");
-		refreshLists();
-		refreshLists();
 	}
 
 	/**
@@ -78,11 +76,11 @@ public class Filterlist extends JFrame implements ActionListener {
 	 */
 	private JPanel getJContentPane() {
 		if (jContentPane == null) {
-			lblFileName = new Label();
-			lblFileName.setBounds(new Rectangle(15, 6, 151, 20));
+			lblFileName = new JLabel();
+			lblFileName.setBounds(15, 6, 151, 20);
 			lblFileName.setText("Filename");
-			lblPostCont = new Label();
-			lblPostCont.setBounds(new Rectangle(188, 6, 151, 20));
+			lblPostCont = new JLabel();
+			lblPostCont.setBounds(188, 6, 151, 20);
 			lblPostCont.setText("Post content");
 			jContentPane = new JPanel();
 			jContentPane.setLayout(null);
@@ -103,13 +101,15 @@ public class Filterlist extends JFrame implements ActionListener {
 	 * 	
 	 * @return java.awt.List	
 	 */
-	private List getLstFileName() {
+	private JScrollPane getLstFileName() {
 		if (lstFileName == null) {
-			lstFileName = new List();
-			lstFileName.setBounds(new Rectangle(15, 30, 151, 182));
-			lstFileName.addActionListener(this);
+			lstFileName = new JList<>(fileNameModel);
+			lstFileName.setBounds(15, 30, 151, 182);
+			lstFileName.addListSelectionListener(this);
+			scrlFileName = new JScrollPane(lstFileName);
+			scrlFileName.setBounds(15, 30, 151, 182);
 		}
-		return lstFileName;
+		return scrlFileName;
 	}
 
 	/**
@@ -117,13 +117,15 @@ public class Filterlist extends JFrame implements ActionListener {
 	 * 	
 	 * @return java.awt.List	
 	 */
-	private List getLstPostContent() {
+	private JScrollPane getLstPostContent() {
 		if (lstPostContent == null) {
-			lstPostContent = new List();
-			lstPostContent.setBounds(new Rectangle(188, 30, 151, 182));
-			lstPostContent.addActionListener(this);
+			lstPostContent = new JList<>(postContentModel);
+			lstPostContent.setBounds(188, 30, 151, 182);
+			lstPostContent.addListSelectionListener(this);
+			scrlPostContent = new JScrollPane(lstPostContent);
+			scrlPostContent.setBounds(188, 30, 151, 182);
 		}
-		return lstPostContent;
+		return scrlPostContent;
 	}
 
 	/**
@@ -131,10 +133,10 @@ public class Filterlist extends JFrame implements ActionListener {
 	 * 	
 	 * @return java.awt.TextField	
 	 */
-	private TextField getEditBox() {
+	private JTextField getEditBox() {
 		if (editBox == null) {
-			editBox = new TextField();
-			editBox.setBounds(new Rectangle(16, 222, 151, 28));
+			editBox = new JTextField();
+			editBox.setBounds(16, 222, 151, 28);
 		}
 		return editBox;
 	}
@@ -144,11 +146,11 @@ public class Filterlist extends JFrame implements ActionListener {
 	 * 	
 	 * @return java.awt.Button	
 	 */
-	private Button getBtnAddFile() {
+	private JButton getBtnAddFile() {
 		if (btnAddFile == null) {
-			btnAddFile = new Button();
-			btnAddFile.setBounds(new Rectangle(188, 222, 39, 28));
-			btnAddFile.setLabel("Add");
+			btnAddFile = new JButton();
+			btnAddFile.setBounds(188, 222, 39, 28);
+			btnAddFile.setText("Add");
 			btnAddFile.addActionListener(this);
 		}
 		return btnAddFile;
@@ -159,11 +161,11 @@ public class Filterlist extends JFrame implements ActionListener {
 	 * 	
 	 * @return java.awt.Button	
 	 */
-	private Button getBtnRemove() {
+	private JButton getBtnRemove() {
 		if (btnRemove == null) {
-			btnRemove = new Button();
-			btnRemove.setBounds(new Rectangle(270, 222, 69, 28));
-			btnRemove.setLabel("Remove");
+			btnRemove = new JButton();
+			btnRemove.setBounds(270, 222, 69, 28);
+			btnRemove.setText("Remove");
 			btnRemove.addActionListener(this);
 		}
 		return btnRemove;
@@ -174,11 +176,11 @@ public class Filterlist extends JFrame implements ActionListener {
 	 * 	
 	 * @return java.awt.Button	
 	 */
-	private Button getBtnAddPost() {
+	private JButton getBtnAddPost() {
 		if (btnAddPost == null) {
-			btnAddPost = new Button();
-			btnAddPost.setBounds(new Rectangle(229, 222, 39, 28));
-			btnAddPost.setLabel("Add");
+			btnAddPost = new JButton();
+			btnAddPost.setBounds(229, 222, 39, 28);
+			btnAddPost.setText("Add");
 			btnAddPost.addActionListener(this);
 		}
 		return btnAddPost;
@@ -186,34 +188,36 @@ public class Filterlist extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+//		if(e.getSource() == btnAddFile)
+//			filter.addFileNameFilterItem(editBox.getText());
+//		
+//		if(e.getSource() == btnAddPost)
+//			filter.addPostContentFilterItem(editBox.getText());
+//		
+//		if(e.getSource() == btnRemove){
+//			filter.removeFileNameFilterItem(editBox.getText());
+//			filter.removePostContentFilterItem(editBox.getText());
+//		}
+		
+		//DEBUG re-write this
 		if(e.getSource() == btnAddFile)
-			filter.addFileNameFilterItem(editBox.getText());
+			fileNameModel.addElement(editBox.getText());
 		
 		if(e.getSource() == btnAddPost)
-			filter.addPostContentFilterItem(editBox.getText());
+			postContentModel.addElement(editBox.getText());
 		
 		if(e.getSource() == btnRemove){
-			filter.removeFileNameFilterItem(editBox.getText());
-			filter.removePostContentFilterItem(editBox.getText());
+			fileNameModel.removeElement(editBox.getText());
+			postContentModel.removeElement(editBox.getText());
 		}
-		
-		if(e.getSource() == lstFileName || lstFileName.getSelectedItem() != null)
-			editBox.setText(lstFileName.getSelectedItem());
-		
-		if(e.getSource() == lstPostContent || lstPostContent.getSelectedItem() != null)
-			editBox.setText(lstPostContent.getSelectedItem());
-		
-		refreshLists();
-	}
-	
-	private void refreshLists(){
-		lstFileName.removeAll();
-		lstPostContent.removeAll();
-		
-		for(String s : filter.getFileNameFilterItem())
-			lstFileName.add(s);
-		for(String s : filter.getPostContentFilterItem())
-			lstPostContent.add(s);
 	}
 
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+	@Override
+	public void valueChanged(ListSelectionEvent e) {
+		if(e.getSource() == lstFileName || lstFileName.getSelectedIndex() != -1)
+			editBox.setText(lstFileName.getModel().getElementAt(lstFileName.getSelectedIndex()));
+		
+		if(e.getSource() == lstPostContent || lstPostContent.getSelectedIndex() != -1)
+			editBox.setText(lstPostContent.getModel().getElementAt(lstPostContent.getSelectedIndex()));
+	}
+}
