@@ -18,7 +18,6 @@
 package gui;
 
 
-import java.awt.Button;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.GridLayout;
@@ -26,15 +25,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import board.Board;
 
@@ -78,11 +69,11 @@ public class Aid extends JFrame implements ActionListener, StatListener{
 		}
 	}
 
-	private Button btnFilter = new Button("Filter (0)");
-	private Button btnRun = new Button("Run");
-	private Button btnStartAll = new Button("Start All");
-	private Button btnStop = new Button("Stop");
-	private Button btnStopAll = new Button("Stop All");
+	private JButton btnFilter = new JButton("Filter (0)");
+	private JButton btnRun = new JButton("Run");
+	private JButton btnStartAll = new JButton("Start All");
+	private JButton btnStop = new JButton("Stop");
+	private JButton btnStopAll = new JButton("Stop All");
 
 	private StatusDisplay statusDisplay = new StatusDisplay();	// Program status is displayed here in Text
 
@@ -170,6 +161,11 @@ public class Aid extends JFrame implements ActionListener, StatListener{
 		btnFilter.addActionListener(parent);
 		btnStartAll.addActionListener(this);
 		btnStopAll.addActionListener(this);
+		
+		btnRun.setBorder(null);
+		btnStop.setBorder(null);
+		btnFilter.setBorder(null);
+		btnStopAll.setBorder(null);
 
 		// Hash Key Display
 		txtKeys.setText("");
@@ -250,7 +246,7 @@ public class Aid extends JFrame implements ActionListener, StatListener{
 		if("resetLog".equals(stat)){
 			Log.clear();
 		}else if("filterSize".equals(stat)){
-			btnFilter.setLabel("Filter ("+Stats.getFilterSize()+")");
+			btnFilter.setText("Filter ("+Stats.getFilterSize()+")");
 		}else if("cacheSize".equals(stat)){
 			txtKeys.setText("URLs: "+Stats.getCacheSize());
 		}else if("timeGraphValue".equals(stat)){
