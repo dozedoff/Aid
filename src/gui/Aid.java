@@ -101,8 +101,8 @@ public class Aid extends JFrame implements ActionListener, StatListener{
 	private JMenu jSystemMenu = new JMenu("System");
 	private JMenu jDebugMenu = new JMenu("Debug");
 
-	private JTextArea logArea = new JTextArea(10,80);
-	private JScrollPane logScroll = new JScrollPane(logArea);
+	private JTextArea logArea = new JTextArea();
+	private JScrollPane logScroll;
 
 	private JList<Board> lstBoards;	// GUI List for Boards
 	private BoardListDataModel boardList;
@@ -116,6 +116,7 @@ public class Aid extends JFrame implements ActionListener, StatListener{
 
 	public Aid(BoardListDataModel listModel, ActionListener parent){
 		boardList = listModel;
+		
 		Log.setLogArea(logArea);
 		// to prevent the action command from changing when the label is updated
 		btnFilter.setActionCommand("Filter"); 
@@ -191,7 +192,8 @@ public class Aid extends JFrame implements ActionListener, StatListener{
 		mainPanel.add(panControl);
 		////////////////////////////
 
-		logArea.setSize(mainPanel.getWidth()-15, 90);
+		logArea.setBounds(0,150,mainPanel.getWidth()-15,90);
+		logScroll = new JScrollPane(logArea);
 		logScroll.setBounds(0,150,mainPanel.getWidth()-15,90);
 		logArea.setText("");
 		logArea.setEditable(false);
