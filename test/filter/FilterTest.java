@@ -6,17 +6,17 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.matchers.JUnitMatchers.hasItems;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import gui.BlockListDataModel;
-
 import io.ConnectionPoolaid;
 import io.ThumbnailLoader;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
+
+import javax.swing.DefaultListModel;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +27,9 @@ import board.Post;
 public class FilterTest {
 	ConnectionPoolaid mockConnectionPoolaid = mock(ConnectionPoolaid.class);
 	ThumbnailLoader mockThumbnailLoader = mock(ThumbnailLoader.class);
+	
+	DefaultListModel<String> fileNameModel;
+	DefaultListModel<String> postContentModel;
 	
 	Filter filter;
 	TemporaryFolder tempFolder = new TemporaryFolder();
@@ -40,7 +43,10 @@ public class FilterTest {
 			
 	@Before
 	public void setUp() throws Exception {
-		filter = new Filter(mockConnectionPoolaid, new BlockListDataModel(),mockThumbnailLoader);
+		fileNameModel = new DefaultListModel<>();
+		postContentModel = new DefaultListModel<>();
+		
+		filter = new Filter(mockConnectionPoolaid, new BlockListDataModel(),fileNameModel, postContentModel, mockThumbnailLoader);
 		testFile = tempFolder.newFile(TEST_FILE_NAME);
 		testURL = new URL("http://foo.bar/test/12345");
 	}
@@ -52,7 +58,7 @@ public class FilterTest {
 	}
 
 	@Test
-	public void testLoadFilter() {
+	public void testLoadFilter() throws Exception {
 		// add test data
 		for(String s : testName)
 			filter.addFileNameFilterItem(s);
@@ -62,20 +68,30 @@ public class FilterTest {
 		// save test data
 		filter.saveFilter(testFile);
 		
-		// new Filter item to clear data
-		filter = new Filter(mockConnectionPoolaid,new BlockListDataModel(),mockThumbnailLoader);
+		// new Filter & model to clear data
+		setUp();
 		
 		//should be empty now
-		assertThat(new ArrayList<String>(), is(filter.getFileNameFilterItem()));
-		assertThat(new ArrayList<String>(), is(filter.getPostContentFilterItem()));
+		assertThat(fileNameModel.size(), is(0));
+		assertThat(postContentModel.size(), is(0));
 		
 		
 		assertFalse(filter.loadFilter("")); // should not work
 		assertTrue(filter.loadFilter(testFile)); // reload data
 		
 		// check if data is still the same
-		assertThat(filter.getPostContentFilterItem(),hasItems(testContent));
-		assertThat(filter.getFileNameFilterItem(),hasItems(testName));
+		assertThat(postContentModel.size(),is(2));
+		assertThat(fileNameModel.size(),is(2));
+		
+		assertThat(postContentModel.contains("oof"), is(true));
+		assertThat(postContentModel.contains("rab"), is(true));
+		assertThat(postContentModel.contains("foo"), is(false));
+		assertThat(postContentModel.contains("bar"), is(false));
+		
+		assertThat(fileNameModel.contains("foo"), is(true));
+		assertThat(fileNameModel.contains("bar"), is(true));
+		assertThat(fileNameModel.contains("oof"), is(false));
+		assertThat(fileNameModel.contains("rab"), is(false));
 	}
 
 	@Test
