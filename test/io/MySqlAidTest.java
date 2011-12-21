@@ -61,7 +61,7 @@ public class MySqlAidTest extends DatabaseTestCase{
 		assertFalse(sql.addFilter("1", "t", "just testing", FilterState.ALLOW));
 
 		// Assert actual database table match expected table
-		Assertion.assertEquals(getFileTable("filter", "/dbData/addExpected.xml"), getDatabaseTable("filter"));
+		Assertion.assertEqualsIgnoreCols(getFileTable("filter", "/dbData/addExpected.xml"), getDatabaseTable("filter"),IGNORE_CACHE_COL);
 	}
 
 	@Test
@@ -82,7 +82,7 @@ public class MySqlAidTest extends DatabaseTestCase{
 		sql.updateState("3",FilterState.PENDING);
 		sql.updateState("4",FilterState.PENDING);
 
-		Assertion.assertEquals(getFileTable("filter", "/dbData/updateStateExpected.xml"), getDatabaseTable("filter"));
+		Assertion.assertEqualsIgnoreCols(getFileTable("filter", "/dbData/updateStateExpected.xml"), getDatabaseTable("filter"),IGNORE_CACHE_COL);
 	}
 
 	@Test
@@ -93,7 +93,7 @@ public class MySqlAidTest extends DatabaseTestCase{
 		sql.delete("filter", "3");
 		sql.delete("filter", "4");
 
-		Assertion.assertEquals(getFileTable("filter", "/dbData/deleteExpected.xml"), getDatabaseTable("filter"));
+		Assertion.assertEqualsIgnoreCols(getFileTable("filter", "/dbData/deleteExpected.xml"), getDatabaseTable("filter"),IGNORE_CACHE_COL);
 		
 		// hash table
 		sql.delete("hash", "2");
