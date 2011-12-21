@@ -88,6 +88,8 @@ public class WorkQueue{
 	 * @param task a Runnable task
 	 */
 	public void execute(Runnable task) {
+		if(threadPool.getQueue().contains(task))
+			return;
 		threadPool.execute(task);
 	}
 	/**
