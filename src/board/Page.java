@@ -194,4 +194,17 @@ public class Page implements Runnable{
 		}
 		return html;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof Page))
+			return false;
+		
+		Page p = (Page)obj;
+		
+		if(getPageUrl().toString().equals(p.getPageUrl().toString()))
+			return true;
+		
+		return false;
+	}
 }
