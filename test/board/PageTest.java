@@ -19,6 +19,9 @@ import filter.Filter;
 public class PageTest {
 	Page page;
 	
+	Filter mockFilter = mock(Filter.class);
+	ImageLoader mockImageLoader = mock(ImageLoader.class);
+	
 	@Before
 	public void setUp() throws Exception {
 	}
@@ -29,9 +32,6 @@ public class PageTest {
 
 	@Test
 	public void testGetPageUrl() throws MalformedURLException {
-		Filter mockFilter = mock(Filter.class);
-		ImageLoader mockImageLoader = mock(ImageLoader.class);
-		
 		page = new Page(new URL("http://foo.bar/"), 1, mockFilter, mockImageLoader);
 		assertThat(page.getPageUrl(), is(new URL("http://foo.bar/1")));
 		
@@ -53,5 +53,22 @@ public class PageTest {
 	public void testProcessPage() {
 		fail("Not yet implemented");
 	}
-
+	
+	@Test
+	public void testEquals() throws MalformedURLException {
+		Page page0 = new Page(new URL("http://foo.bar/"), 0, mockFilter, mockImageLoader);
+		Page page1 = new Page(new URL("http://foo.bar/"), 1, mockFilter, mockImageLoader);
+		Page page2 = new Page(new URL("http://foo.bar/"), 2, mockFilter, mockImageLoader);
+		Page page_1 = new Page(new URL("http://foo.bar/"), 1, mockFilter, mockImageLoader);
+		Page page_2 = new Page(new URL("http://foo.bar/"), 2, mockFilter, mockImageLoader);
+		
+		assertThat(page0.equals(page1), is(false));
+		assertThat(page1.equals(page0), is(false));
+		
+		assertThat(page1.equals(page_1), is(true));
+		assertThat(page_1.equals(page1), is(true));
+		assertThat(page_2.equals(page1), is(false));
+		
+		assertThat(page2.equals(page_2), is(true));
+	}
 }
