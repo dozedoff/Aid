@@ -34,7 +34,7 @@ public class Post {
 	protected boolean hasImage = false;
 	protected boolean hasComment = false;
 
-	private static final Logger logger = Logger.getLogger(Post.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(Post.class.getName()); // NOPMD by Nicholas Wright on 12/27/11 10:09 AM
 
 	public void processHtml(String html){
 		//TODO make tag finding scalable
@@ -59,7 +59,7 @@ public class Post {
 				imageUrl = new URL(scanner.next());
 				hasImage = true;
 			} catch (MalformedURLException e) {
-				logger.warning("Invalid url: "+e.getMessage());
+				LOGGER.warning("Invalid url: "+e.getMessage());
 				imageUrl = null;
 				hasImage = false;
 			}

@@ -40,7 +40,7 @@ public class Board {
 	private boolean stoppped = true;
 	private final int WAIT_TIME = 60 * 1000 * 60; // 1 hour
 	
-	private static final Logger logger = Logger.getLogger(Board.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(Board.class.getName()); // NOPMD by Nicholas Wright on 12/27/11 10:08 AM
 	
 	public Board(AbstractList<Page> pages, WorkQueue pageQueue, String boardId){
 		this.pages = pages;
@@ -59,7 +59,7 @@ public class Board {
 		
 		lastRun = ""; // looks a bit odd otherwise
 		
-		logger.info("Board "+boardId+" is stopping...");
+		LOGGER.info("Board "+boardId+" is stopping...");
 	}
 
 	@Override

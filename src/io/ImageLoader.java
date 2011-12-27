@@ -14,7 +14,7 @@ import filter.Filter;
 import gui.Stats;
 
 public class ImageLoader extends FileLoader {
-private static final Logger logger = Logger.getLogger(ImageLoader.class.getName());
+private static final Logger LOGGER = Logger.getLogger(ImageLoader.class.getName());
 
 private FileWriter fileWriter;
 private Filter filter;
@@ -76,18 +76,18 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 
 		// the file was unavailable
 		if(responseCode == 404 || responseCode == 500){
-			logger.warning("got a 404 or 500 response for " + ple.getUrl()); // to prevent future attempts to load the file
+			LOGGER.warning("got a 404 or 500 response for " + ple.getUrl()); // to prevent future attempts to load the file
 			try {filter.cache(new URL(ple.getUrl()));
 			} catch (MalformedURLException e) {
-				logger.warning("could not add URL to cache " + ple.getMessage());
+				LOGGER.warning("could not add URL to cache " + ple.getMessage());
 			} 
 		}
 
 		if(responseCode == 503){
-			logger.severe("IP was banned for too many connections"); // :_(  thats what you get if you use too short intervals
+			LOGGER.severe("IP was banned for too many connections"); // :_(  thats what you get if you use too short intervals
 			System.exit(3);
 		}else{
-			logger.info("GetBinary(size) http code "+ple.getMessage());
+			LOGGER.info("GetBinary(size) http code "+ple.getMessage());
 		}
 	}
 }
