@@ -22,10 +22,10 @@ import java.util.logging.Logger;
  * Connection pool for database connections.
  */
 public class ConnectionPoolaid extends ResourcePool<MySQLaid> {
-	Properties dbProps;
+	private Properties dbProps;
 	private final int DEF_WAIT_TIME = 5000;
 
-	Logger logger = Logger.getLogger(ConnectionPoolaid.class.toString());
+	static final Logger logger = Logger.getLogger(ConnectionPoolaid.class.toString());
 	
 	public ConnectionPoolaid(Properties dbProps,int maxResources) {
 		super(maxResources);

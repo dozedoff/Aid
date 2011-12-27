@@ -34,7 +34,7 @@ public class Post {
 	protected boolean hasImage = false;
 	protected boolean hasComment = false;
 
-	private static Logger logger = Logger.getLogger(Post.class.getName());
+	private static final Logger logger = Logger.getLogger(Post.class.getName());
 
 	public void processHtml(String html){
 		//TODO make tag finding scalable

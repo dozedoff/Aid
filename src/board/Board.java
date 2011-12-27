@@ -40,7 +40,7 @@ public class Board {
 	private boolean stoppped = true;
 	private final int WAIT_TIME = 60 * 1000 * 60; // 1 hour
 	
-	private static Logger logger = Logger.getLogger(Board.class.getName());
+	private static final Logger logger = Logger.getLogger(Board.class.getName());
 	
 	public Board(AbstractList<Page> pages, WorkQueue pageQueue, String boardId){
 		this.pages = pages;

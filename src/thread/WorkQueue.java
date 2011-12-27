@@ -27,19 +27,19 @@ import java.util.logging.Logger;
  */
 public class WorkQueue{
 	//Parallel running Threads(Executor) on System
-	int corePoolSize = 5;
+	private int corePoolSize = 5;
 	//Maximum Threads allowed in Pool
-	int maxPoolSize = 8;
+	private int maxPoolSize = 8;
 	//Keep alive time for waiting threads for jobs(Runnable)
-	long keepAliveTime = 60;
+	private long keepAliveTime = 60;
 	//This is the one who manages and start the work
-	ThreadPoolExecutor threadPool = null;
+	private ThreadPoolExecutor threadPool = null;
 	// the size of the job queue
-	int queueSize = 100;
+	private int queueSize = 100;
 	//Working queue for jobs (Runnable)
-	ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<Runnable>(10);
+	private ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<Runnable>(10);
 
-	Logger logger = Logger.getLogger(WorkQueue.class.toString());
+	private static final Logger LOGGER = Logger.getLogger(WorkQueue.class.toString());
 	
 	/**
 	 * Create an new WorkQueue with default settings
@@ -124,7 +124,7 @@ public class WorkQueue{
 	 */
 	public synchronized void clearQueue(){
 		threadPool.getQueue().clear();
-		logger.info("Clearing page queue...");
+		LOGGER.info("Clearing page queue...");
 	}
 	/**
 	 * Returns the number of currently executing tasks.

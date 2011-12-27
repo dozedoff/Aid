@@ -14,7 +14,7 @@ import filter.Filter;
 import gui.Stats;
 
 public class ImageLoader extends FileLoader {
-private Logger logger = Logger.getLogger(ImageLoader.class.getName());
+private static final Logger logger = Logger.getLogger(ImageLoader.class.getName());
 
 private FileWriter fileWriter;
 private Filter filter;
