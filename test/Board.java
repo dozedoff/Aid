@@ -13,6 +13,6 @@ import board.*;
 					PageThreadTest.class,
 					PostTest.class
 })
-public class board {
+public class Board {
 
 }
