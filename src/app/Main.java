@@ -120,10 +120,10 @@ public class Main implements ActionListener{
 		appSettings = loadAppConfig();
 
 		page = appSettings.getProperty("page_threads",DEFAULT_PAGE_THREADS);
-		image = appSettings.getProperty("image_threads","1");
-		writeBlocked = appSettings.getProperty("write_Blocked","false");
-		baseUrl = appSettings.getProperty("base_url","http:/boards.4chan.org/"); //FIXME URL is wrong
-		subPages = appSettings.getProperty("sub_pages","a;15,w;15,wg;15");
+		image = appSettings.getProperty("image_threads",DEFAULT_IMAGE_THREADS);
+		writeBlocked = appSettings.getProperty("write_Blocked",DEFAULT_WRITE_BLOCKED);
+		baseUrl = appSettings.getProperty("base_url",DEFAULT_BASE_URL);
+		subPages = appSettings.getProperty("sub_pages",DEFAULT_SUB_PAGES);
 
 		if(page != null){pageThreads = Integer.parseInt(page);}//TODO add input checking
 		if(image != null){imageThreads = Integer.parseInt(image);}
@@ -224,7 +224,7 @@ public class Main implements ActionListener{
 
 		InputStream is = null;
 		try{
-			is = new FileInputStream("filter.dat");
+			is = new FileInputStream(FILTER_DATA_FILENAME);
 			if(is != null){
 				filter.loadFilter(is); // load list of filtered items
 				is.close();
@@ -295,7 +295,7 @@ public class Main implements ActionListener{
 			
 			// validate loaded parameters
 			String errorMsg;
-			String page = appSettings.getProperty("page_threads","1");
+			String page = appSettings.getProperty("page_threads",DEFAULT_PAGE_THREADS);
 			errorMsg = invalidPropertyMessage("page_threads", APP_CFG_FILENAME, DEFAULT_PAGE_THREADS);
 			try{
 				if(Integer.parseInt(page) < 1){
@@ -307,7 +307,7 @@ public class Main implements ActionListener{
 				appSetting.setProperty("page_threads", DEFAULT_PAGE_THREADS);
 			}
 			
-			String image = appSettings.getProperty("image_threads","1");
+			String image = appSettings.getProperty("image_threads",DEFAULT_IMAGE_THREADS);
 			errorMsg = invalidPropertyMessage("image_threads", APP_CFG_FILENAME, DEFAULT_IMAGE_THREADS);
 			try{
 				if(Integer.parseInt(image) < 1){
@@ -319,14 +319,14 @@ public class Main implements ActionListener{
 				appSetting.setProperty("image_threads", DEFAULT_IMAGE_THREADS);
 			}
 			
-			String writeBlocked = appSettings.getProperty("write_Blocked","false");
+			String writeBlocked = appSettings.getProperty("write_Blocked",DEFAULT_WRITE_BLOCKED);
 			if(!(writeBlocked.equals("true") || writeBlocked.equals("false"))){
 				errorMsg = invalidPropertyMessage("write_Blocked", APP_CFG_FILENAME, DEFAULT_WRITE_BLOCKED);
 				logger.warning(errorMsg);
 				appSetting.setProperty("write_Blocked", DEFAULT_WRITE_BLOCKED);
 			}
 			
-			String baseUrl = appSettings.getProperty("base_url","http:/boards.4chan.org/"); //FIXME URL is wrong
+			String baseUrl = appSettings.getProperty("base_url",DEFAULT_BASE_URL);
 			errorMsg = invalidPropertyMessage("base_url", APP_CFG_FILENAME, DEFAULT_BASE_URL);
 			//TODO is empty String check needed?
 			try{
@@ -336,7 +336,7 @@ public class Main implements ActionListener{
 				appSetting.setProperty("base_url", DEFAULT_BASE_URL);
 			}
 			
-			String subPages = appSettings.getProperty("sub_pages","a;15,w;15,wg;15");
+			String subPages = appSettings.getProperty("sub_pages",DEFAULT_SUB_PAGES);
 			//TODO this will be tricky...
 			
 			return appSetting;
