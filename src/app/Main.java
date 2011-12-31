@@ -125,7 +125,7 @@ public class Main implements ActionListener{
 		baseUrl = appSettings.getProperty("base_url",DEFAULT_BASE_URL);
 		subPages = appSettings.getProperty("sub_pages",DEFAULT_SUB_PAGES);
 
-		if(page != null){pageThreads = Integer.parseInt(page);}//TODO add input checking
+		if(page != null){pageThreads = Integer.parseInt(page);}
 		if(image != null){imageThreads = Integer.parseInt(image);}
 		if(writeBlocked != null){writeBlock = Boolean.parseBoolean(writeBlocked);}
 
@@ -328,7 +328,6 @@ public class Main implements ActionListener{
 			
 			String baseUrl = appSettings.getProperty("base_url",DEFAULT_BASE_URL);
 			errorMsg = invalidPropertyMessage("base_url", APP_CFG_FILENAME, DEFAULT_BASE_URL);
-			//TODO is empty String check needed?
 			try{
 				new URL(baseUrl);
 			}catch(MalformedURLException mue){
@@ -337,7 +336,11 @@ public class Main implements ActionListener{
 			}
 			
 			String subPages = appSettings.getProperty("sub_pages",DEFAULT_SUB_PAGES);
-			//TODO this will be tricky...
+			if(subPages.matches("([a-zA-Z]+;+[0-9]+,)*+[a-zA-Z]+;+[0-9]+$")){
+				errorMsg = invalidPropertyMessage("sub_pages", APP_CFG_FILENAME, DEFAULT_SUB_PAGES);
+				logger.warning(errorMsg);
+				appSetting.setProperty("sub_pages", DEFAULT_SUB_PAGES);
+			}
 			
 			return appSetting;
 		} catch (IOException ioe) {
