@@ -38,6 +38,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.LogManager;
@@ -96,6 +98,12 @@ public class Main implements ActionListener{
 	private final String APP_CFG_FILENAME = "config.ini";
 	private final String FILTER_DATA_FILENAME = "filter.dat";
 	
+	private final String DEFAULT_PAGE_THREADS = "1";
+	private final String DEFAULT_IMAGE_THREADS = "1";
+	private final String DEFAULT_WRITE_BLOCKED = "false";
+	private final String DEFAULT_BASE_URL = "http://boards.4chan.org/";
+	private final String DEFAULT_SUB_PAGES = "a;15,w;15,wg;15";
+	
 	public static void main(String[] args) {
 		new Main().init();
 	}
@@ -111,10 +119,10 @@ public class Main implements ActionListener{
 		//  -------------- Configuration loading starts here --------------
 		appSettings = loadAppConfig(APP_CFG_FILENAME);
 
-		page = appSettings.getProperty("page_threads","1");
+		page = appSettings.getProperty("page_threads",DEFAULT_PAGE_THREADS);
 		image = appSettings.getProperty("image_threads","1");
 		writeBlocked = appSettings.getProperty("write_Blocked","false");
-		baseUrl = appSettings.getProperty("base_url","http:/boards.4chan.org/");
+		baseUrl = appSettings.getProperty("base_url","http:/boards.4chan.org/"); //FIXME URL is wrong
 		subPages = appSettings.getProperty("sub_pages","a;15,w;15,wg;15");
 
 		if(page != null){pageThreads = Integer.parseInt(page);}//TODO add input checking
@@ -270,20 +278,85 @@ public class Main implements ActionListener{
 			return new DefaultMySQLconnection();
 		}
 	}
-
+	
+	/**
+	 * Loads the Application configuration from file.
+	 * If an error occurs whilst loading the configuration, a default config
+	 * is returned.
+	 * @return Property Object containing the configuration.
+	 */
 	public Properties loadAppConfig(String filepath){
 		try {
+			// try to load from file
 			Properties appSetting = new DefaultAppSettings();
 			InputStream is = new FileInputStream(filepath);
 			if(is != null)
 				appSetting.load(is);
+			
+			// validate loaded parameters
+			String errorMsg;
+			String page = appSettings.getProperty("page_threads","1");
+			errorMsg = invalidPropertyMessage("page_threads", APP_CFG_FILENAME, DEFAULT_PAGE_THREADS);
+			try{
+				if(Integer.parseInt(page) < 1){
+					logger.warning(errorMsg);
+					appSetting.setProperty("page_threads", DEFAULT_PAGE_THREADS);
+				}
+			}catch(NumberFormatException nfe){
+				logger.warning(errorMsg);
+				appSetting.setProperty("page_threads", DEFAULT_PAGE_THREADS);
+			}
+			
+			String image = appSettings.getProperty("image_threads","1");
+			errorMsg = invalidPropertyMessage("image_threads", APP_CFG_FILENAME, DEFAULT_IMAGE_THREADS);
+			try{
+				if(Integer.parseInt(image) < 1){
+					logger.warning(errorMsg);
+					appSetting.setProperty("image_threads", DEFAULT_IMAGE_THREADS);
+				}
+			}catch(NumberFormatException nfe){
+				logger.warning(errorMsg);
+				appSetting.setProperty("image_threads", DEFAULT_IMAGE_THREADS);
+			}
+			
+			String writeBlocked = appSettings.getProperty("write_Blocked","false");
+			if(!(writeBlocked.equals("true") || writeBlocked.equals("false"))){
+				errorMsg = invalidPropertyMessage("write_Blocked", APP_CFG_FILENAME, DEFAULT_WRITE_BLOCKED);
+				logger.warning(errorMsg);
+				appSetting.setProperty("write_Blocked", DEFAULT_WRITE_BLOCKED);
+			}
+			
+			String baseUrl = appSettings.getProperty("base_url","http:/boards.4chan.org/"); //FIXME URL is wrong
+			errorMsg = invalidPropertyMessage("base_url", APP_CFG_FILENAME, DEFAULT_BASE_URL);
+			//TODO is empty String check needed?
+			try{
+				new URL(baseUrl);
+			}catch(MalformedURLException mue){
+				logger.warning(errorMsg);
+				appSetting.setProperty("base_url", DEFAULT_BASE_URL);
+			}
+			
+			String subPages = appSettings.getProperty("sub_pages","a;15,w;15,wg;15");
+			//TODO this will be tricky...
+			
 			return appSetting;
 		} catch (IOException ioe) {
 			logger.warning("Error accessing file "+ ioe.getMessage());
 			return new DefaultAppSettings();
 		}
 	}
-
+	
+	/**
+	 * Generates a error message for properties that are invalid.
+	 * @param property property name in the file
+	 * @param filename the config file where the property is located
+	 * @param defaultValue the default value used for the property
+	 * @return
+	 */
+	private String invalidPropertyMessage(String property, String filename, String defaultValue){
+		return "'"+property+"' property in "+filename+" is invalid. Value set to " + defaultValue;
+	}
+	
 	public void actionPerformed(ActionEvent e){
 		if("Clear ImageQueue".equals(e.getActionCommand())){
 			imageLoader.clearQueue();
