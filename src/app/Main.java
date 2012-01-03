@@ -109,7 +109,7 @@ public class Main implements ActionListener{
 		boolean writeBlock = false;
 
 		//  -------------- Configuration loading starts here --------------
-		appSettings = loadAppConfig();
+		appSettings = loadAppConfig(APP_CFG_FILENAME);
 
 		page = appSettings.getProperty("page_threads","1");
 		image = appSettings.getProperty("image_threads","1");
@@ -149,7 +149,7 @@ public class Main implements ActionListener{
 			System.exit(3);
 		}
 
-		sqlProps = loadMySqlConfig();
+		sqlProps = loadMySqlConfig(MYSQL_CFG_FILENAME);
 
 		if(sqlProps == null){
 			logger.severe("Unable to load MySQL config.\nCheck settings and restart the Programm.");
@@ -195,7 +195,7 @@ public class Main implements ActionListener{
 	 */
 	private void init(){
 		// load the logger settings
-		loggerSettings = loadLoggerConfig();
+		loggerSettings = loadLoggerConfig(LOGGER_CFG_FILENAME);
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -235,15 +235,15 @@ public class Main implements ActionListener{
 	/**
 	 * Load the logger settings from the file
 	 */
-	private Properties loadLoggerConfig(){
+	public Properties loadLoggerConfig(String filepath){
 		// Load logger Configuration
 		try{
-			InputStream is = new FileInputStream(LOGGER_CFG_FILENAME);
+			InputStream is = new FileInputStream(filepath);
 			Properties loggerSettings = new Properties();
 			loggerSettings.load(is);
 			is.close();
 
-			is = new FileInputStream(LOGGER_CFG_FILENAME);
+			is = new FileInputStream(filepath);
 			LogManager.getLogManager().readConfiguration(is);
 			logger.info("Logger config Loaded");
 			is.close();
@@ -258,10 +258,10 @@ public class Main implements ActionListener{
 	/**
 	 * Load the mySql settings
 	 */
-	private Properties loadMySqlConfig(){
+	public Properties loadMySqlConfig(String filepath){
 		try {
 			Properties sqlProps = new DefaultMySQLconnection(); 
-			InputStream is = new FileInputStream(MYSQL_CFG_FILENAME);
+			InputStream is = new FileInputStream(filepath);
 			if(is != null)
 				sqlProps.load(is);
 			return sqlProps;
@@ -271,10 +271,10 @@ public class Main implements ActionListener{
 		}
 	}
 
-	private Properties loadAppConfig(){
+	public Properties loadAppConfig(String filepath){
 		try {
 			Properties appSetting = new DefaultAppSettings();
-			InputStream is = new FileInputStream(APP_CFG_FILENAME);
+			InputStream is = new FileInputStream(filepath);
 			if(is != null)
 				appSetting.load(is);
 			return appSetting;
