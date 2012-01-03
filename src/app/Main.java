@@ -118,7 +118,8 @@ public class Main implements ActionListener{
 
 		//  -------------- Configuration loading starts here --------------
 		appSettings = loadAppConfig(APP_CFG_FILENAME);
-
+		appSettings = validateAppSettings(appSettings);
+		
 		page = appSettings.getProperty("page_threads",DEFAULT_PAGE_THREADS);
 		image = appSettings.getProperty("image_threads",DEFAULT_IMAGE_THREADS);
 		writeBlocked = appSettings.getProperty("write_Blocked",DEFAULT_WRITE_BLOCKED);
@@ -293,54 +294,7 @@ public class Main implements ActionListener{
 			if(is != null)
 				appSetting.load(is);
 			
-			// validate loaded parameters
-			String errorMsg;
-			String page = appSetting.getProperty("page_threads",DEFAULT_PAGE_THREADS);
-			errorMsg = invalidPropertyMessage("page_threads", APP_CFG_FILENAME, DEFAULT_PAGE_THREADS);
-			try{
-				if(Integer.parseInt(page) < 1){
-					logger.warning(errorMsg);
-					appSetting.setProperty("page_threads", DEFAULT_PAGE_THREADS);
-				}
-			}catch(NumberFormatException nfe){
-				logger.warning(errorMsg);
-				appSetting.setProperty("page_threads", DEFAULT_PAGE_THREADS);
-			}
 			
-			String image = appSettings.getProperty("image_threads",DEFAULT_IMAGE_THREADS);
-			errorMsg = invalidPropertyMessage("image_threads", APP_CFG_FILENAME, DEFAULT_IMAGE_THREADS);
-			try{
-				if(Integer.parseInt(image) < 1){
-					logger.warning(errorMsg);
-					appSetting.setProperty("image_threads", DEFAULT_IMAGE_THREADS);
-				}
-			}catch(NumberFormatException nfe){
-				logger.warning(errorMsg);
-				appSetting.setProperty("image_threads", DEFAULT_IMAGE_THREADS);
-			}
-			
-			String writeBlocked = appSettings.getProperty("write_Blocked",DEFAULT_WRITE_BLOCKED);
-			if(!(writeBlocked.equals("true") || writeBlocked.equals("false"))){
-				errorMsg = invalidPropertyMessage("write_Blocked", APP_CFG_FILENAME, DEFAULT_WRITE_BLOCKED);
-				logger.warning(errorMsg);
-				appSetting.setProperty("write_Blocked", DEFAULT_WRITE_BLOCKED);
-			}
-			
-			String baseUrl = appSettings.getProperty("base_url",DEFAULT_BASE_URL);
-			errorMsg = invalidPropertyMessage("base_url", APP_CFG_FILENAME, DEFAULT_BASE_URL);
-			try{
-				new URL(baseUrl);
-			}catch(MalformedURLException mue){
-				logger.warning(errorMsg);
-				appSetting.setProperty("base_url", DEFAULT_BASE_URL);
-			}
-			
-			String subPages = appSettings.getProperty("sub_pages",DEFAULT_SUB_PAGES);
-			if(subPages.matches("([a-zA-Z]+;+[0-9]+,)*+[a-zA-Z]+;+[0-9]+$")){
-				errorMsg = invalidPropertyMessage("sub_pages", APP_CFG_FILENAME, DEFAULT_SUB_PAGES);
-				logger.warning(errorMsg);
-				appSetting.setProperty("sub_pages", DEFAULT_SUB_PAGES);
-			}
 			
 			return appSetting;
 		} catch (IOException ioe) {
@@ -385,6 +339,59 @@ public class Main implements ActionListener{
 			fileWriter.clearStats();
 			Log.add("Stats cleared");
 		}
+	}
+	
+	public Properties validateAppSettings(Properties appSetting){
+		// validate loaded parameters
+		String errorMsg;
+		String page = appSetting.getProperty("page_threads",DEFAULT_PAGE_THREADS);
+		errorMsg = invalidPropertyMessage("page_threads", APP_CFG_FILENAME, DEFAULT_PAGE_THREADS);
+	
+		try{
+			if(Integer.parseInt(page) < 1){
+				logger.warning(errorMsg);
+				appSetting.setProperty("page_threads", DEFAULT_PAGE_THREADS);
+			}
+		}catch(NumberFormatException nfe){
+			logger.warning(errorMsg);
+			appSetting.setProperty("page_threads", DEFAULT_PAGE_THREADS);
+		}
+
+		String image = appSettings.getProperty("image_threads",DEFAULT_IMAGE_THREADS);
+		errorMsg = invalidPropertyMessage("image_threads", APP_CFG_FILENAME, DEFAULT_IMAGE_THREADS);
+		try{
+			if(Integer.parseInt(image) < 1){
+				logger.warning(errorMsg);
+				appSetting.setProperty("image_threads", DEFAULT_IMAGE_THREADS);
+			}
+		}catch(NumberFormatException nfe){
+			logger.warning(errorMsg);
+			appSetting.setProperty("image_threads", DEFAULT_IMAGE_THREADS);
+		}
+
+		String writeBlocked = appSettings.getProperty("write_Blocked",DEFAULT_WRITE_BLOCKED);
+		if(!(writeBlocked.equals("true") || writeBlocked.equals("false"))){
+			errorMsg = invalidPropertyMessage("write_Blocked", APP_CFG_FILENAME, DEFAULT_WRITE_BLOCKED);
+			logger.warning(errorMsg);
+			appSetting.setProperty("write_Blocked", DEFAULT_WRITE_BLOCKED);
+		}
+
+		String baseUrl = appSettings.getProperty("base_url",DEFAULT_BASE_URL);
+		errorMsg = invalidPropertyMessage("base_url", APP_CFG_FILENAME, DEFAULT_BASE_URL);
+		try{
+			new URL(baseUrl);
+		}catch(MalformedURLException mue){
+			logger.warning(errorMsg);
+			appSetting.setProperty("base_url", DEFAULT_BASE_URL);
+		}
+
+		String subPages = appSettings.getProperty("sub_pages",DEFAULT_SUB_PAGES);
+		if(subPages.matches("([a-zA-Z]+;+[0-9]+,)*+[a-zA-Z]+;+[0-9]+$")){
+			errorMsg = invalidPropertyMessage("sub_pages", APP_CFG_FILENAME, DEFAULT_SUB_PAGES);
+			logger.warning(errorMsg);
+			appSetting.setProperty("sub_pages", DEFAULT_SUB_PAGES);
+		}
+		return appSetting;
 	}
 
 	public void addPropertyChangeListener(PropertyChangeListener listener){
