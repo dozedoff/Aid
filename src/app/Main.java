@@ -295,7 +295,7 @@ public class Main implements ActionListener{
 			
 			// validate loaded parameters
 			String errorMsg;
-			String page = appSettings.getProperty("page_threads",DEFAULT_PAGE_THREADS);
+			String page = appSetting.getProperty("page_threads",DEFAULT_PAGE_THREADS);
 			errorMsg = invalidPropertyMessage("page_threads", APP_CFG_FILENAME, DEFAULT_PAGE_THREADS);
 			try{
 				if(Integer.parseInt(page) < 1){
