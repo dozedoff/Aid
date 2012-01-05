@@ -52,9 +52,14 @@ public class MainTest {
 	}
 
 	@Test
-	public void testValidateAppSettings() {
+	public void testValidateAppSettingsCorrectValues() {
 		main.validateAppSettings(mockAppSettings);
 		verify(mockAppSettings,times(0)).setProperty(anyString(), anyString());
+	}
+	
+	@Test
+	public void testValidateAppSettingsWrongSettings() {
+		fail("not done yet");
 	}
 
 }
