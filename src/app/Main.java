@@ -386,7 +386,7 @@ public class Main implements ActionListener{
 		}
 
 		String subPages = appSettings.getProperty("sub_pages",DEFAULT_SUB_PAGES);
-		if(subPages.matches("([a-zA-Z]+;+[0-9]+,)*+[a-zA-Z]+;+[0-9]+$")){
+		if(! subPages.matches("([a-zA-Z]+;+[0-9]+,)*+[a-zA-Z]+;+[0-9]+$")){
 			errorMsg = invalidPropertyMessage("sub_pages", APP_CFG_FILENAME, DEFAULT_SUB_PAGES);
 			logger.warning(errorMsg);
 			appSetting.setProperty("sub_pages", DEFAULT_SUB_PAGES);
