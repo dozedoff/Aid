@@ -207,10 +207,10 @@ public class Filterlist extends JFrame implements ActionListener, ListSelectionL
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-		if(e.getSource() == lstFileName || lstFileName.getSelectedIndex() != -1)
+		if(e.getSource() == lstFileName && lstFileName.getSelectedIndex() != -1)
 			editBox.setText(lstFileName.getModel().getElementAt(lstFileName.getSelectedIndex()));
 		
-		if(e.getSource() == lstPostContent || lstPostContent.getSelectedIndex() != -1)
+		if(e.getSource() == lstPostContent && lstPostContent.getSelectedIndex() != -1)
 			editBox.setText(lstPostContent.getModel().getElementAt(lstPostContent.getSelectedIndex()));
 	}
 }
