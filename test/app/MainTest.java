@@ -1,6 +1,7 @@
 package app;
 
 import static org.junit.Assert.*;
+import static org.junit.matchers.JUnitMatchers.hasItems;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,30 +24,30 @@ public class MainTest {
 	Properties appSettings;
 	
 	String pageThreads, imageThreads, writeBlocked, BaseUrl, subpages;
-	int interacions;
 	
 	@Parameters 
 	public static Collection<Object[]> params() {
 		
 	return Arrays.asList(new Object[][] {
-			 {0,	"1", 	"1",	"false",	"http://foo.bar",	"a;15,b;14"},
-			 {1,	"0", 	"1",	"false",	"http://foo.bar",	"a;15,b;14"},
-			 {1,	"-1", 	"1",	"false",	"http://foo.bar",	"a;15,b;14"},
-			 {1,	"1", 	"0",	"false",	"http://foo.bar",	"a;15,b;14"},
-			 {1,	"1", 	"-1",	"false",	"http://foo.bar",	"a;15,b;14"},
-			 {0,	"1", 	"1",	"true",		"http://foo.bar",	"a;15,b;14"},
-			 {1,	"1", 	"1",	"false",	"http:/foo.bar",	"a;15,b;14"},
-			 {1,	"1", 	"1",	"false",	"foo.bar",			"a;15,b;14"},
-			 {1,	"1", 	"1",	"false",	"http://foobar",	"a;15,b;14"},
-			 {1,	"1", 	"1",	"false",	"http://foo.bar",	"a;15b;14"},
-			 {0,	"1", 	"1",	"false",	"http://foo.bar",	"a;15"},
-			 {1,	"1", 	"1",	"false",	"http://foo.bar",	"a,15,b,14"},
-			 {1,	"1", 	"1",	"false",	"http://foo.bar",	"a;15;b;14"}
+			 {"1", 	"1",	"false",	"http://foo.bar",	"a;15,b;14"},
+			 {"0", 	"1",	"false",	"http://foo.bar",	"a;15,b;14"},
+			 {"-1", "1",	"false",	"http://foo.bar",	"a;15,b;14"},
+			 {"1", 	"0",	"false",	"http://foo.bar",	"a;15,b;14"},
+			 {"1", 	"-1",	"false",	"http://foo.bar",	"a;15,b;14"},
+			 {"1", 	"1",	"true",		"http://foo.bar",	"a;15,b;14"},
+			 {"1", 	"1",	"fdfg",		"http://foo.bar",	"a;15,b;14"},
+			 {"1", 	"1",	"3455",		"http://foo.bar",	"a;15,b;14"},
+			 {"1", 	"1",	"false",	"http:/foo.bar",	"a;15,b;14"},
+			 {"1", 	"1",	"false",	"foo.bar",			"a;15,b;14"},
+			 {"1", 	"1",	"false",	"http://foobar",	"a;15,b;14"},
+			 {"1", 	"1",	"false",	"http://foo.bar",	"a;15b;14"},
+			 {"1", 	"1",	"false",	"http://foo.bar",	"a;15"},
+			 {"1", 	"1",	"false",	"http://foo.bar",	"a,15,b,14"},
+			 {"1", 	"1",	"false",	"http://foo.bar",	"a;15;b;14"}
 		});
 	}
 	
-	public MainTest(int interacions, String pageThreads, String imageThreads, String writeBlocked, String baseUrl, String subpages) {
-		this.interacions = interacions;
+	public MainTest(String pageThreads, String imageThreads, String writeBlocked, String baseUrl, String subpages) {
 		this.pageThreads = pageThreads;
 		this.imageThreads = imageThreads;
 		this.writeBlocked = writeBlocked;
@@ -79,12 +80,11 @@ public class MainTest {
 		fail("Not yet implemented");
 	}
 
-	@Test //TODO run this test with datapoints / parameters, also add verification number
+	@Test
 	public void testValidateAppSettings() {
 		appSettings = spy(makeAppSettings(pageThreads, imageThreads, writeBlocked, BaseUrl, subpages));
 		main.validateAppSettings(appSettings);
-		verify(appSettings,times(interacions)).setProperty(anyString(), anyString()); // potential problem, as values aren't checked...
-		//TODO add corrected DefaultAppSetting to verify settings
+		assertThat(appSettings, is((Properties)new DefaultAppSettings()));
 	}
 	
 	/**
