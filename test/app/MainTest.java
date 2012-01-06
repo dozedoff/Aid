@@ -7,30 +7,21 @@ import java.util.Properties;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import config.DefaultAppSettings;
 import static org.mockito.Mockito.*;
+import static org.hamcrest.CoreMatchers.*;
 
 public class MainTest {
 	Main main;
-	Properties mockAppSettings;
+	Properties appSettings;
+	
+	String pageThreads, imageThreads, writeBlocked, BaseUrl, subpages;
+	int interacions;
 	
 	@Before
 	public void setup() throws Exception{
 		main = new Main();
-		
-		mockAppSettings = new Properties();
-		
-		mockAppSettings.setProperty("page_threads","1");
-		mockAppSettings.setProperty("image_threads","1");
-		mockAppSettings.setProperty("write_Blocked","false");
-		mockAppSettings.setProperty("base_url","http://foo.bar/");
-		mockAppSettings.setProperty("sub_pages","a;15,w;15,wg;15");
-		
-		mockAppSettings = spy(mockAppSettings);
-//		when(mockAppSettings.getProperty("page_threads",anyString())).thenReturn("1");
-//		when(mockAppSettings.getProperty("image_threads",anyString())).thenReturn("1");
-//		when(mockAppSettings.getProperty("write_Blocked",anyString())).thenReturn("false");
-//		when(mockAppSettings.getProperty("base_url",anyString())).thenReturn("http://foo.bar/");
-//		when(mockAppSettings.getProperty("sub_pages",anyString())).thenReturn("a;15,w;15,wg;15");
 	}
 	
 	@Test
@@ -51,15 +42,32 @@ public class MainTest {
 		fail("Not yet implemented");
 	}
 
-	@Test
-	public void testValidateAppSettingsCorrectValues() {
-		main.validateAppSettings(mockAppSettings);
-		verify(mockAppSettings,times(0)).setProperty(anyString(), anyString());
+	@Test //TODO run this test with datapoints / parameters, also add verification number
+	public void testValidateAppSettings() {
+		appSettings = spy(makeAppSettings(pageThreads, imageThreads, writeBlocked, BaseUrl, subpages));
+		main.validateAppSettings(appSettings);
+		verify(appSettings,times(interacions)).setProperty(anyString(), anyString()); // potential problem, as values aren't checked...
+		//TODO add corrected DefaultAppSetting to verify settings
 	}
 	
-	@Test
-	public void testValidateAppSettingsWrongSettings() {
-		fail("not done yet");
+	/**
+	 * Construct a new property Object from parameters-
+	 * @param pageThreads
+	 * @param imageThreads
+	 * @param writeBlocked
+	 * @param BaseUrl
+	 * @param subpages
+	 * @return
+	 */
+	private Properties makeAppSettings(String pageThreads, String imageThreads, String writeBlocked, String BaseUrl, String subpages){
+		Properties setting = new Properties();
+		
+		setting.setProperty("page_threads","1");
+		setting.setProperty("image_threads","1");
+		setting.setProperty("write_Blocked","false");
+		setting.setProperty("base_url","http://boards.4chan.org/");
+		setting.setProperty("sub_pages","a;15,w;15,wg;15");
+		
+		return setting;
 	}
-
 }
