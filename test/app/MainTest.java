@@ -2,16 +2,22 @@ package app;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Properties;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import config.DefaultAppSettings;
 import static org.mockito.Mockito.*;
 import static org.hamcrest.CoreMatchers.*;
 
+@RunWith(Parameterized.class)
 public class MainTest {
 	Main main;
 	Properties appSettings;
@@ -19,6 +25,37 @@ public class MainTest {
 	String pageThreads, imageThreads, writeBlocked, BaseUrl, subpages;
 	int interacions;
 	
+	@Parameters 
+	public static Collection<Object[]> params() {
+		
+	return Arrays.asList(new Object[][] {
+			 {0,	"1", 	"1",	"false",	"http://foo.bar",	"a;15,b;14"},
+			 {1,	"0", 	"1",	"false",	"http://foo.bar",	"a;15,b;14"},
+			 {1,	"-1", 	"1",	"false",	"http://foo.bar",	"a;15,b;14"},
+			 {1,	"1", 	"0",	"false",	"http://foo.bar",	"a;15,b;14"},
+			 {1,	"1", 	"-1",	"false",	"http://foo.bar",	"a;15,b;14"},
+			 {0,	"1", 	"1",	"true",		"http://foo.bar",	"a;15,b;14"},
+			 {1,	"1", 	"1",	"false",	"http:/foo.bar",	"a;15,b;14"},
+			 {1,	"1", 	"1",	"false",	"foo.bar",			"a;15,b;14"},
+			 {1,	"1", 	"1",	"false",	"http://foobar",	"a;15,b;14"},
+			 {1,	"1", 	"1",	"false",	"http://foo.bar",	"a;15b;14"},
+			 {0,	"1", 	"1",	"false",	"http://foo.bar",	"a;15"},
+			 {1,	"1", 	"1",	"false",	"http://foo.bar",	"a,15,b,14"},
+			 {1,	"1", 	"1",	"false",	"http://foo.bar",	"a;15;b;14"}
+		});
+	}
+	
+	public MainTest(int interacions, String pageThreads, String imageThreads, String writeBlocked, String baseUrl, String subpages) {
+		this.interacions = interacions;
+		this.pageThreads = pageThreads;
+		this.imageThreads = imageThreads;
+		this.writeBlocked = writeBlocked;
+		BaseUrl = baseUrl;
+		this.subpages = subpages;
+	}
+
+
+
 	@Before
 	public void setup() throws Exception{
 		main = new Main();
