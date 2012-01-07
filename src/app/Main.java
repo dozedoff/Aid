@@ -118,7 +118,17 @@ public class Main implements ActionListener{
 		
 		//  -------------- Configuration loading starts here --------------
 		appSettings = loadAppConfig(APP_CFG_FILENAME);
-		appSettings = validateAppSettings(appSettings);
+
+		appSettings = loadAppConfig(APP_CFG_FILENAME);
+
+		if(! validateAppSettings(appSettings)){
+			logger.warning("One or more program settings are invalid. Please correct them and restart the program.\n"
+					+ " to reset to the default values, delete "+APP_CFG_FILENAME+" and restart the program."
+					);
+
+			//TODO add a pop up message here
+			System.exit(1);
+		}
 		
 		page = appSettings.getProperty("page_threads",DEFAULT_PAGE_THREADS);
 		image = appSettings.getProperty("image_threads",DEFAULT_IMAGE_THREADS);
