@@ -1,5 +1,7 @@
 package app;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -45,12 +47,20 @@ public class SettingValidator {
 
 		String baseUrl = appSettings.getProperty("base_url");
 		errorMsg = invalidPropertyMessage("base_url");
-			if(baseUrl == null || (! baseUrl.matches("http://+([a-zA-Z.-])+\\.([a-zA-Z])*+$"))){
-				logger.severe(errorMsg);
+//			if(baseUrl == null || (! baseUrl.matches("http://([0-9a-zA-Z.-]+\\.)+([a-zA-Z])*/$"))){
+//				logger.warning(errorMsg);
+//				valid = false;
+//			}
+		
+			try {
+				new URI(baseUrl);
+			} catch (URISyntaxException e) {
+				logger.warning(baseUrl);
 				valid = false;
 			}
+			
 		String subPages = appSettings.getProperty("sub_pages");
-		if(subPages == null || (! subPages.matches("([a-zA-Z]+;+[0-9]+,)*+[a-zA-Z]+;+[0-9]+$"))){
+		if(subPages == null || (! subPages.matches("([a-zA-Z]+;[0-9]+,)*+[a-zA-Z]+;[0-9]+$"))){
 			errorMsg = invalidPropertyMessage("sub_pages");
 			logger.warning(errorMsg);
 			valid = false;
