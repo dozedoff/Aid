@@ -42,11 +42,11 @@ public class SettingValidatorTest {
 			 {false,"1", 	"1",	"false",	"foo.bar",			"a;15,b;14"}, // 10
 			 {false,"1", 	"1",	"false",	"http://foobar",	"a;15,b;14"}, // 11
 			 {false,"1", 	"1",	"false",	"http://foo.bar",	"a;15b;14"},  // 12
-			 {false,"1", 	"1",	"false",	"http://foo.bar",	"a;15"},	  // 13
+			 {true,"1", 	"1",	"false",	"http://foo.bar",	"a;15"},	  // 13
 			 {false,"1", 	"1",	"false",	"http://foo.bar",	"a,15,b,14"}, // 14
 			 {false,"1", 	"1",	"false",	"http://foo.bar",	"a;15;b;14"}, // 15
 			 {false,"-4", 	"&",	"**",		"http//foo.bar//",	"5;1gfdh14"}, // 16
-			 {false,"2", 	"2",	"false",	"http://foo.bar",	"a;15,b;14"}, // 17
+			 {true,"2", 	"2",	"false",	"http://foo.bar",	"a;15,b;14"}, // 17
 		});
 	}
 	
