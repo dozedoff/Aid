@@ -115,7 +115,7 @@ public class Main implements ActionListener{
 		String page, image, writeBlocked, baseUrl = "", subPages = "";
 		int pageThreads = 1, imageThreads = 1;
 		boolean writeBlock = false;
-
+		
 		//  -------------- Configuration loading starts here --------------
 		appSettings = loadAppConfig(APP_CFG_FILENAME);
 		appSettings = validateAppSettings(appSettings);
@@ -310,8 +310,8 @@ public class Main implements ActionListener{
 	 * @param defaultValue the default value used for the property
 	 * @return
 	 */
-	private String invalidPropertyMessage(String property, String filename, String defaultValue){
-		return "'"+property+"' property in "+filename+" is invalid. Value set to " + defaultValue;
+	private String invalidPropertyMessage(String property, String filename){
+		return "'"+property+"' property in "+filename+" is invalid.";
 	}
 	
 	public void actionPerformed(ActionEvent e){
@@ -341,57 +341,64 @@ public class Main implements ActionListener{
 		}
 	}
 	
-	public Properties validateAppSettings(Properties appSetting){
+	public boolean validateAppSettings(Properties appSetting){
 		// validate loaded parameters
 		String errorMsg;
-		String page = appSetting.getProperty("page_threads",DEFAULT_PAGE_THREADS);
-		errorMsg = invalidPropertyMessage("page_threads", APP_CFG_FILENAME, DEFAULT_PAGE_THREADS);
-	
+		boolean valid = true;
+		
+		String page = appSetting.getProperty("page_threads");
+		errorMsg = invalidPropertyMessage("page_threads", APP_CFG_FILENAME);
+		
 		try{
-			if(Integer.parseInt(page) < 1){
+			if(page == null || Integer.parseInt(page) < 1){
 				logger.warning(errorMsg);
-				appSetting.setProperty("page_threads", DEFAULT_PAGE_THREADS);
+				valid = false;
 			}
 		}catch(NumberFormatException nfe){
 			logger.warning(errorMsg);
-			appSetting.setProperty("page_threads", DEFAULT_PAGE_THREADS);
+			valid = false;
 		}
 
-		String image = appSettings.getProperty("image_threads",DEFAULT_IMAGE_THREADS);
-		errorMsg = invalidPropertyMessage("image_threads", APP_CFG_FILENAME, DEFAULT_IMAGE_THREADS);
+		String image = appSetting.getProperty("image_threads");
+		errorMsg = invalidPropertyMessage("image_threads", APP_CFG_FILENAME);
 		try{
-			if(Integer.parseInt(image) < 1){
+			if(image == null || Integer.parseInt(image) < 1){
 				logger.warning(errorMsg);
-				appSetting.setProperty("image_threads", DEFAULT_IMAGE_THREADS);
+				valid = false;
 			}
 		}catch(NumberFormatException nfe){
 			logger.warning(errorMsg);
-			appSetting.setProperty("image_threads", DEFAULT_IMAGE_THREADS);
+			valid = false;
 		}
 
-		String writeBlocked = appSettings.getProperty("write_Blocked",DEFAULT_WRITE_BLOCKED);
-		if(!(writeBlocked.equals("true") || writeBlocked.equals("false"))){
-			errorMsg = invalidPropertyMessage("write_Blocked", APP_CFG_FILENAME, DEFAULT_WRITE_BLOCKED);
+		String writeBlocked = appSetting.getProperty("write_Blocked");
+		if(writeBlocked == null || !(writeBlocked.equals("false") || writeBlocked.equals("false"))){
+			errorMsg = invalidPropertyMessage("write_Blocked", APP_CFG_FILENAME);
 			logger.warning(errorMsg);
-			appSetting.setProperty("write_Blocked", DEFAULT_WRITE_BLOCKED);
+			valid = false;
 		}
 
-		String baseUrl = appSettings.getProperty("base_url",DEFAULT_BASE_URL);
-		errorMsg = invalidPropertyMessage("base_url", APP_CFG_FILENAME, DEFAULT_BASE_URL);
+		String baseUrl = appSetting.getProperty("base_url");
+		errorMsg = invalidPropertyMessage("base_url", APP_CFG_FILENAME);
 		try{
-			new URL(baseUrl);
+			if(baseUrl == null){
+				logger.severe(errorMsg);
+				valid = false;
+			}else{
+				new URL(baseUrl);
+			}
 		}catch(MalformedURLException mue){
 			logger.warning(errorMsg);
-			appSetting.setProperty("base_url", DEFAULT_BASE_URL);
+			valid = false;
 		}
 
-		String subPages = appSettings.getProperty("sub_pages",DEFAULT_SUB_PAGES);
-		if(! subPages.matches("([a-zA-Z]+;+[0-9]+,)*+[a-zA-Z]+;+[0-9]+$")){
-			errorMsg = invalidPropertyMessage("sub_pages", APP_CFG_FILENAME, DEFAULT_SUB_PAGES);
+		String subPages = appSetting.getProperty("sub_pages");
+		if(subPages == null || (! subPages.matches("([a-zA-Z]+;+[0-9]+,)*+[a-zA-Z]+;+[0-9]+$"))){
+			errorMsg = invalidPropertyMessage("sub_pages", APP_CFG_FILENAME);
 			logger.warning(errorMsg);
-			appSetting.setProperty("sub_pages", DEFAULT_SUB_PAGES);
+			valid = false;
 		}
-		return appSetting;
+		return valid;
 	}
 
 	public void addPropertyChangeListener(PropertyChangeListener listener){
