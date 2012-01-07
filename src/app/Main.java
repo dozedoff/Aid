@@ -121,7 +121,7 @@ public class Main implements ActionListener{
 
 		appSettings = loadAppConfig(APP_CFG_FILENAME);
 
-		if(! validateAppSettings(appSettings)){
+		if(! SettingValidator.validateAppSettings(appSettings)){
 			logger.warning("One or more program settings are invalid. Please correct them and restart the program.\n"
 					+ " to reset to the default values, delete "+APP_CFG_FILENAME+" and restart the program."
 					);
@@ -313,17 +313,6 @@ public class Main implements ActionListener{
 		}
 	}
 	
-	/**
-	 * Generates a error message for properties that are invalid.
-	 * @param property property name in the file
-	 * @param filename the config file where the property is located
-	 * @param defaultValue the default value used for the property
-	 * @return
-	 */
-	private String invalidPropertyMessage(String property, String filename){
-		return "'"+property+"' property in "+filename+" is invalid.";
-	}
-	
 	public void actionPerformed(ActionEvent e){
 		if("Clear ImageQueue".equals(e.getActionCommand())){
 			imageLoader.clearQueue();
@@ -351,66 +340,6 @@ public class Main implements ActionListener{
 		}
 	}
 	
-	public boolean validateAppSettings(Properties appSetting){
-		// validate loaded parameters
-		String errorMsg;
-		boolean valid = true;
-		
-		String page = appSetting.getProperty("page_threads");
-		errorMsg = invalidPropertyMessage("page_threads", APP_CFG_FILENAME);
-		
-		try{
-			if(page == null || Integer.parseInt(page) < 1){
-				logger.warning(errorMsg);
-				valid = false;
-			}
-		}catch(NumberFormatException nfe){
-			logger.warning(errorMsg);
-			valid = false;
-		}
-
-		String image = appSetting.getProperty("image_threads");
-		errorMsg = invalidPropertyMessage("image_threads", APP_CFG_FILENAME);
-		try{
-			if(image == null || Integer.parseInt(image) < 1){
-				logger.warning(errorMsg);
-				valid = false;
-			}
-		}catch(NumberFormatException nfe){
-			logger.warning(errorMsg);
-			valid = false;
-		}
-
-		String writeBlocked = appSetting.getProperty("write_Blocked");
-		if(writeBlocked == null || !(writeBlocked.equals("false") || writeBlocked.equals("false"))){
-			errorMsg = invalidPropertyMessage("write_Blocked", APP_CFG_FILENAME);
-			logger.warning(errorMsg);
-			valid = false;
-		}
-
-		String baseUrl = appSetting.getProperty("base_url");
-		errorMsg = invalidPropertyMessage("base_url", APP_CFG_FILENAME);
-		try{
-			if(baseUrl == null){
-				logger.severe(errorMsg);
-				valid = false;
-			}else{
-				new URL(baseUrl);
-			}
-		}catch(MalformedURLException mue){
-			logger.warning(errorMsg);
-			valid = false;
-		}
-
-		String subPages = appSetting.getProperty("sub_pages");
-		if(subPages == null || (! subPages.matches("([a-zA-Z]+;+[0-9]+,)*+[a-zA-Z]+;+[0-9]+$"))){
-			errorMsg = invalidPropertyMessage("sub_pages", APP_CFG_FILENAME);
-			logger.warning(errorMsg);
-			valid = false;
-		}
-		return valid;
-	}
-
 	public void addPropertyChangeListener(PropertyChangeListener listener){
 		change.addPropertyChangeListener(listener);
 	}
