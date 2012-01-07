@@ -101,7 +101,7 @@ public class Aid extends JFrame implements ActionListener, StatListener{
 	private JPanel mainPanel = new JPanel();
 	private JPanel panButton = new JPanel();   // group Buttons
 	private JPanel panControl = new JPanel();
-	private DataGraph dg = new DataGraph(100,100,50,2,5);
+	private DataGraph dg = new DataGraph(100,100,50,2,5,true);
 
 	private JTextField txtKeys = new JTextField(20);
 
