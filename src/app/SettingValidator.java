@@ -1,7 +1,5 @@
 package app;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -47,18 +45,10 @@ public class SettingValidator {
 
 		String baseUrl = appSettings.getProperty("base_url");
 		errorMsg = invalidPropertyMessage("base_url");
-		try{
-			if(baseUrl == null){
+			if(baseUrl == null || (! baseUrl.matches("http://+([a-zA-Z.-])+\\.([a-zA-Z])*+$"))){
 				logger.severe(errorMsg);
 				valid = false;
-			}else{
-				new URL(baseUrl);
 			}
-		}catch(MalformedURLException mue){
-			logger.warning(errorMsg);
-			valid = false;
-		}
-
 		String subPages = appSettings.getProperty("sub_pages");
 		if(subPages == null || (! subPages.matches("([a-zA-Z]+;+[0-9]+,)*+[a-zA-Z]+;+[0-9]+$"))){
 			errorMsg = invalidPropertyMessage("sub_pages");
