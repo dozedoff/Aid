@@ -29,26 +29,50 @@ public class SettingValidatorTest {
 	public static Collection<Object[]> params() {
 		
 	return Arrays.asList(new Object[][] {
-			 {true,	"1", 	"1",	"false",	"http://foo.bar",	"a;15,b;14"}, // 0
-			 {false,"1", 	"1",	"false",	"http://foo.bar",	"5;15,6;14"}, // 1
-			 {false,"0", 	"1",	"false",	"http://foo.bar",	"a;15,b;14"}, // 2
-			 {false,"-1", 	"1",	"false",	"http://foo.bar",	"a;15,b;14"}, // 3
-			 {false,"1", 	"0",	"false",	"http://foo.bar",	"a;15,b;14"}, // 4
-			 {false,"1", 	"-1",	"false",	"http://foo.bar",	"a;15,b;14"}, // 5
-			 {false,"1", 	"1",	"true",		"http://foo.bar",	"a;15,b;14"}, // 6
-			 {false,"1", 	"1",	"fdfg",		"http://foo.bar",	"a;15,b;14"}, // 7
-			 {false,"1", 	"1",	"3455",		"http://foo.bar",	"a;15,b;14"}, // 8
-			 {false,"1", 	"1",	"false",	"http:/foo.bar",	"a;15,b;14"}, // 9
-			 {false,"1", 	"1",	"false",	"foo.bar",			"a;15,b;14"}, // 10
-			 {false,"1", 	"1",	"false",	"http://foobar",	"a;15,b;14"}, // 11
-			 {false,"1", 	"1",	"false",	"http://foo.bar",	"a;15b;14"},  // 12
-			 {false,"1", 	"1",	"false",	"http://foo.bar",	"a;15"},	  // 13
-			 {false,"1", 	"1",	"false",	"http://foo.bar",	"a,15,b,14"}, // 14
-			 {false,"1", 	"1",	"false",	"http://foo.bar",	"a;15;b;14"}, // 15
-			 {false,"-4", 	"&",	"**",		"http//foo.bar//",	"5;1gfdh14"}, // 16
-			 {true,"2", 	"2",	"false",	"http://foo.bar",	"a;15,b;14"}, // 17
-			 {false,"2", 	"2",	"false",	"http://foo.bar/",	"a;;15,b;;14"},  // 18
-			 {false,"2", 	"2",	"false",	"http://foo.bar/",	"a;15,,b;14"}  // 19
+				// Test 0 to 2 are sanity tests
+			
+				// Correct
+			 {true,		"1", 	"1",	"false",	"http://foo.bar/",	"a;15,b;14"}, 					// 0
+			 {true,		"5", 	"6",	"true",		"http://f00.b4r.jelly.beans.net/",	"a;10,b;14"}, 	// 1
+			 
+			 	// Wrong
+			 {false,	"-1", 	"0",	"dfg4",		"",	"fxghdfgh%54q456ç%&"}, 							// 2
+			 
+			 	// Page threads
+			 {false,	"0", 	"1",	"false",	"http://foo.bar/",	"a;15,b;14"}, 					// 3
+			 {false,	"-1", 	"1",	"false",	"http://foo.bar/",	"a;15,b;14"},					// 4
+			 
+			 	// Image threads
+			 {false,	"1", 	"0",	"false",	"http://foo.bar/",	"a;15,b;14"},					// 5
+			 {false,	"1", 	"-1",	"false",	"http://foo.bar/",	"a;15,b;14"},					// 6
+			 
+			 	// Write blocked
+			 {false,	"1", 	"1",	"beans",	"http://foo.bar/",	"a;15,b;14"},					// 7
+			 {false,	"1", 	"1",	"32423",	"http://foo.bar/",	"a;15,b;14"},					// 8
+			 
+			 	// base URL
+			 {false,	"1", 	"1",	"FALSE",	"http://foo.bar",	"a;15,b;14"},					// 9
+			 {false,	"1", 	"1",	"TRUE",		"http://foobar/",	"a;15,b;14"},					// 10
+			 {false,	"1", 	"1",	"false",	"http:/foo.bar/",	"a;15,b;14"},					// 11
+			 {false,	"1", 	"1",	"false",	"http//foo.bar/",	"a;15,b;14"},					// 12
+			 {false,	"1", 	"1",	"false",	"htttp://foo.bar/",	"a;15,b;14"},					// 13
+			 {true,		"1", 	"1",	"false",	"http://foo.bar.net/",	"a;15,b;14"},				// 14
+			 {false,	"1", 	"1",	"false",	"http://f00.b4r/",	"a;15,b;14"},					// 15
+			 {true,		"1", 	"1",	"false",	"http://f00.b4r.jelly.net/",	"a;15,b;14"},		// 16
+			 {false,	"1", 	"1",	"false",	"foo.bar/",	"a;15,b;14"},							// 17
+			 {false,	"1", 	"1",	"false",	"http://foo.bar1/",	"a;15,b;14"},					// 18
+			 
+			 	// sub pages
+			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a,15,b;14"},					// 19
+			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;15,,b;14"},					// 20
+			 {true,		"1", 	"1",	"false",	"http://foo.bar/",	"a;15"},						// 21
+			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;;15,b;;14"},					// 22
+			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;15;b;14"},					// 23
+			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;15,b:14"},					// 24
+			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a15,b;14"}, 					// 25
+			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;-15,b;14"}, 					// 26
+			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"aç%;15,b;14"}, 			// 27
+			 
 		});
 	}
 	
