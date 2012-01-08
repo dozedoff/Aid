@@ -1,22 +1,17 @@
 package app;
 
-import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-
-import config.DefaultAppSettings;
-import static org.mockito.Mockito.*;
-import static org.hamcrest.CoreMatchers.*;
 
 @RunWith(Parameterized.class)
 public class SettingValidatorTest {
