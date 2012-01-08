@@ -39,7 +39,7 @@ public class SettingValidator {
 		}
 
 		String writeBlocked = appSettings.getProperty("write_Blocked");
-		if(writeBlocked == null || !(writeBlocked.equals("false") || writeBlocked.equals("false"))){
+		if(writeBlocked == null || !(writeBlocked.equals("false") || writeBlocked.equals("true"))){
 			errorMsg = invalidPropertyMessage("write_Blocked");
 			logger.warning(errorMsg);
 			valid = false;
@@ -47,15 +47,8 @@ public class SettingValidator {
 
 		String baseUrl = appSettings.getProperty("base_url");
 		errorMsg = invalidPropertyMessage("base_url");
-//			if(baseUrl == null || (! baseUrl.matches("http://([0-9a-zA-Z.-]+\\.)+([a-zA-Z])*/$"))){
-//				logger.warning(errorMsg);
-//				valid = false;
-//			}
-		
-			try {
-				new URI(baseUrl);
-			} catch (URISyntaxException e) {
-				logger.warning(baseUrl);
+			if(baseUrl == null || (! baseUrl.matches("(?m)http://([0-9a-zA-Z.-]+\\.)+([a-zA-Z])*/$"))){
+				logger.warning(errorMsg);
 				valid = false;
 			}
 			
