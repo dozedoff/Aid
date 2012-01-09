@@ -165,4 +165,19 @@ public class FileWriterTest {
 		assertThat(filenames,hasItem("foo.txt"));
 		assertThat(filenames,hasItem(both(containsString("foo_")).and(containsString(".txt"))));
 	}
+	
+	@Test
+	public void testFileExistsSameData() throws InvalidActivityException, InterruptedException{
+		fileWriter.add(new File(testDir,"foo.txt"), testData);
+		fileWriter.add(new File(testDir,"foo.txt"), testData);
+		Thread.sleep(15000);
+		ArrayList<String> filenames = new ArrayList<>();
+		
+		for(File file : testDir.listFiles()){
+			filenames.add(file.getName());
+		}
+		
+		assertThat(filenames,hasItem("foo.txt"));
+		assertThat(filenames.size(),is(1)); //TODO write custom matcher for "list does not contain" see: http://stackoverflow.com/q/6520546/891292
+	}
 }
