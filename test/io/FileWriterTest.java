@@ -5,11 +5,13 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.matchers.JUnitMatchers.both;
 import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.junit.matchers.JUnitMatchers.hasItem;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import javax.activity.InvalidActivityException;
 
@@ -132,6 +134,13 @@ public class FileWriterTest {
 	public void testInvalidFileName() throws Exception{
 		fileWriter.add(new File(testPath,"ooops+%ç!<>.txt"), testData);
 		Thread.sleep(10000);
-		assertThat(testPath.listFiles()[0].getName(),both(containsString("renamed_")).and(containsString(".txt")));
+		
+		ArrayList<String> filenames = new ArrayList<>();
+		
+		for(File file : testPath.listFiles()){
+			filenames.add(file.getName());
+		}
+		
+		assertThat(filenames,hasItem(both(containsString("renamed_")).and(containsString(".txt"))));
 	}
 }
