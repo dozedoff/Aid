@@ -11,6 +11,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 
 import javax.activity.InvalidActivityException;
@@ -42,9 +44,7 @@ public class FileWriterTest {
 	@Before
 	public void setUp() throws Exception {
 		fileWriter = new FileWriter(mockFilter);
-		testPath = File.createTempFile("test", null);	// create a temporary file to get the temp location
-		testPath.delete();	// delete the temp file
-		
+		testPath = Files.createTempDirectory("fileWriterTest").toFile();
 		testFiles = new ArrayList<>();
 		
 		for(File file : testFilesRelative){
