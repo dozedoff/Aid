@@ -31,7 +31,8 @@ public class FileWriterTest {
 	FileWriter fileWriter;
 	File testPath;
 	byte[] testData = {12,45,6,12,99};
-	File[] testFiles = {new File(testPath,"a\\test1.txt"),new File(testPath,"a\\test2.txt"),new File(testPath,"b\\test1.txt"),new File(testPath,"c\\test1.txt"),new File(testPath,"c\\test2.txt")};
+	File[] testFilesRelative = {new File("a\\test1.txt"),new File("a\\test2.txt"),new File("b\\test1.txt"),new File("c\\test1.txt"),new File("c\\test2.txt")};
+	ArrayList<File> testFiles;
 	BlockListDataModel bldm;
 
 	/**
@@ -43,6 +44,12 @@ public class FileWriterTest {
 		fileWriter = new FileWriter(mockFilter);
 		testPath = File.createTempFile("test", null);	// create a temporary file to get the temp location
 		testPath.delete();	// delete the temp file
+		
+		testFiles = new ArrayList<>();
+		
+		for(File file : testFilesRelative){
+			testFiles.add(new File(testPath,file.toString()));
+		}
 		
 		testPath = new File(testPath.toString()+"dir");	// create a temp directory based on the obtained path
 		testPath.mkdirs();
