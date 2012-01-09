@@ -78,7 +78,7 @@ public class FileWriterTest {
 		try{Thread.sleep(6000);}catch(InterruptedException ie){} // wait for buffer to clear
 
 		for(File f : testFiles)
-			assertTrue(f.exists());
+			assertTrue("File "+f.toString()+" not found",f.exists());
 	}
 	
 	/**
@@ -93,7 +93,7 @@ public class FileWriterTest {
 		fileWriter.shutdown();
 
 		for(File f : testFiles)
-			assertTrue(f.exists());
+			assertTrue("File "+f.toString()+" not found",f.exists());
 	}
 
 	@Test
