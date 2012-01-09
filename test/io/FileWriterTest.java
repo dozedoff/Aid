@@ -152,7 +152,7 @@ public class FileWriterTest {
 	}
 	
 	@Test
-	public void testFileExists() throws InvalidActivityException, InterruptedException{
+	public void testFileExistsDifferentData() throws InvalidActivityException, InterruptedException{
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
 		fileWriter.add(new File(testDir,"foo.txt"), testData2);
 		Thread.sleep(15000);
