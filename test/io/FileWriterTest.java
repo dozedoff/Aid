@@ -139,7 +139,7 @@ public class FileWriterTest {
 	@Test
 	public void testInvalidFileName() throws Exception{
 		fileWriter.add(new File(testDir,"ooops+%ç!<>.txt"), testData);
-		Thread.sleep(10000);
+		Thread.sleep(15000);
 		
 		ArrayList<String> filenames = new ArrayList<>();
 		
