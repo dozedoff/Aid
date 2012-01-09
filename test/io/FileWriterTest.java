@@ -2,7 +2,9 @@ package io;
 
 import static org.junit.Assert.*;
 
+import java.awt.geom.Area;
 import java.io.File;
+import java.util.ArrayList;
 
 import javax.activity.InvalidActivityException;
 
@@ -130,6 +132,8 @@ public class FileWriterTest {
 	@Test
 	public void testInvalidFileName() throws Exception{
 		fileWriter.add(new File(testPath,"ooops+%ç!<>.txt"), testData);
-		Thread.sleep(6000);
+		Thread.sleep(10000);
+		assertThat(testPath.listFiles()[0].getName(),containsString("renamed_"));
+		assertThat(testPath.listFiles()[0].getName(),containsString(".txt"));
 	}
 }
