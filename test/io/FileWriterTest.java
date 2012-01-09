@@ -32,6 +32,7 @@ public class FileWriterTest {
 	FileWriter fileWriter;
 	File testDir;
 	byte[] testData = {12,45,6,12,99};
+	byte[] testData2 = {99,21,6,45,12};
 	File[] testFilesRelative = {new File("a\\test1.txt"),new File("a\\test2.txt"),new File("b\\test1.txt"),new File("c\\test1.txt"),new File("c\\test2.txt")};
 	ArrayList<File> testFiles;
 	BlockListDataModel bldm;
@@ -148,5 +149,20 @@ public class FileWriterTest {
 		}
 		
 		assertThat(filenames,hasItem(both(containsString("renamed_")).and(containsString(".txt"))));
+	}
+	
+	@Test
+	public void testFileExists() throws InvalidActivityException, InterruptedException{
+		fileWriter.add(new File(testDir,"foo.txt"), testData);
+		fileWriter.add(new File(testDir,"foo.txt"), testData2);
+		Thread.sleep(15000);
+		ArrayList<String> filenames = new ArrayList<>();
+		
+		for(File file : testDir.listFiles()){
+			filenames.add(file.getName());
+		}
+		
+		assertThat(filenames,hasItem("foo.txt"));
+		assertThat(filenames,hasItem(both(containsString("foo_")).and(containsString(".txt"))));
 	}
 }
