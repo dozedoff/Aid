@@ -1,10 +1,15 @@
 package io;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.matchers.JUnitMatchers.both;
+import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import java.awt.geom.Area;
 import java.io.File;
-import java.util.ArrayList;
 
 import javax.activity.InvalidActivityException;
 
@@ -15,13 +20,7 @@ import org.junit.Test;
 import filter.Filter;
 import gui.BlockListDataModel;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.matchers.JUnitMatchers.*;
-import static org.mockito.Mockito.*;
 
-//TODO re-write tests to use temp. folders
-@SuppressWarnings("unused")
 public class FileWriterTest {
 	ConnectionPoolaid mockConnectionPoolaid = mock(ConnectionPoolaid.class);
 	ThumbnailLoader mockThumbnailLoader = mock(ThumbnailLoader.class);
@@ -75,7 +74,7 @@ public class FileWriterTest {
 			fileWriter.add(f, testData);
 
 
-		try{Thread.sleep(6000);}catch(InterruptedException ie){} // wait for buffer to clear
+		Thread.sleep(6000);// wait for buffer to clear
 
 		for(File f : testFiles)
 			assertTrue("File "+f.toString()+" not found",f.exists());
