@@ -133,7 +133,6 @@ public class FileWriterTest {
 	public void testInvalidFileName() throws Exception{
 		fileWriter.add(new File(testPath,"ooops+%ç!<>.txt"), testData);
 		Thread.sleep(10000);
-		assertThat(testPath.listFiles()[0].getName(),containsString("renamed_"));
-		assertThat(testPath.listFiles()[0].getName(),containsString(".txt"));
+		assertThat(testPath.listFiles()[0].getName(),both(containsString("renamed_")).and(containsString(".txt")));
 	}
 }
