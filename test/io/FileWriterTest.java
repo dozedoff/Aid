@@ -1,8 +1,18 @@
 package io;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.matchers.JUnitMatchers.both;
+import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.junit.matchers.JUnitMatchers.hasItem;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.util.ArrayList;
 
 import javax.activity.InvalidActivityException;
 
@@ -13,22 +23,18 @@ import org.junit.Test;
 import filter.Filter;
 import gui.BlockListDataModel;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.matchers.JUnitMatchers.*;
-import static org.mockito.Mockito.*;
 
-//TODO re-write tests to use temp. folders
-@SuppressWarnings("unused")
 public class FileWriterTest {
 	ConnectionPoolaid mockConnectionPoolaid = mock(ConnectionPoolaid.class);
 	ThumbnailLoader mockThumbnailLoader = mock(ThumbnailLoader.class);
 	Filter mockFilter = mock(Filter.class);
 	
 	FileWriter fileWriter;
-	File testPath = new File("D:\\test\\");
+	File testDir;
 	byte[] testData = {12,45,6,12,99};
-	File[] testFiles = {new File(testPath,"a\\test1.txt"),new File(testPath,"a\\test2.txt"),new File(testPath,"b\\test1.txt"),new File(testPath,"c\\test1.txt"),new File(testPath,"c\\test2.txt")};
+	byte[] testData2 = {99,21,6,45,12};
+	File[] testFilesRelative = {new File("a\\test1.txt"),new File("a\\test2.txt"),new File("b\\test1.txt"),new File("c\\test1.txt"),new File("c\\test2.txt")};
+	ArrayList<File> testFiles;
 	BlockListDataModel bldm;
 
 	/**
@@ -38,6 +44,16 @@ public class FileWriterTest {
 	@Before
 	public void setUp() throws Exception {
 		fileWriter = new FileWriter(mockFilter);
+		testDir = Files.createTempDirectory("fileWriterTest").toFile();
+		testFiles = new ArrayList<>();
+		
+		for(File file : testFilesRelative){
+			testFiles.add(new File(testDir,file.toString()));
+		}
+		
+		testDir = new File(testDir.toString()+"dir");	// create a temp directory based on the obtained path
+		testDir.mkdirs();
+		testDir.deleteOnExit();
 	}
 	/**
 	 * Shutdown the Filewriter and delete files created during the test.
@@ -50,11 +66,11 @@ public class FileWriterTest {
 		for(File f : testFiles)
 			f.delete();
 
-		new File(testPath,"\\a").delete();
-		new File(testPath,"\\b").delete();
-		new File(testPath,"\\c").delete();
+		new File(testDir,"\\a").delete();
+		new File(testDir,"\\b").delete();
+		new File(testDir,"\\c").delete();
 
-		testPath.delete();
+		testDir.delete();
 	}
 	/**
 	 * Check that files are written to disk, and also check that buffer flushing works.
@@ -67,10 +83,10 @@ public class FileWriterTest {
 			fileWriter.add(f, testData);
 
 
-		try{Thread.sleep(6000);}catch(InterruptedException ie){} // wait for buffer to clear
+		Thread.sleep(6000);// wait for buffer to clear
 
 		for(File f : testFiles)
-			assertTrue(f.exists());
+			assertTrue("File "+f.toString()+" not found",f.exists());
 	}
 	
 	/**
@@ -85,7 +101,7 @@ public class FileWriterTest {
 		fileWriter.shutdown();
 
 		for(File f : testFiles)
-			assertTrue(f.exists());
+			assertTrue("File "+f.toString()+" not found",f.exists());
 	}
 
 	@Test
@@ -123,7 +139,45 @@ public class FileWriterTest {
 	
 	@Test
 	public void testInvalidFileName() throws Exception{
-		fileWriter.add(new File(testPath,"ooops+%ç!<>.txt"), testData);
-		Thread.sleep(6000);
+		fileWriter.add(new File(testDir,"ooops+%ç!<>.txt"), testData);
+		Thread.sleep(15000);
+		
+		ArrayList<String> filenames = new ArrayList<>();
+		
+		for(File file : testDir.listFiles()){
+			filenames.add(file.getName());
+		}
+		
+		assertThat(filenames,hasItem(both(containsString("renamed_")).and(containsString(".txt"))));
+	}
+	
+	@Test
+	public void testFileExistsDifferentData() throws InvalidActivityException, InterruptedException{
+		fileWriter.add(new File(testDir,"foo.txt"), testData);
+		fileWriter.add(new File(testDir,"foo.txt"), testData2);
+		Thread.sleep(15000);
+		ArrayList<String> filenames = new ArrayList<>();
+		
+		for(File file : testDir.listFiles()){
+			filenames.add(file.getName());
+		}
+		
+		assertThat(filenames,hasItem("foo.txt"));
+		assertThat(filenames,hasItem(both(containsString("foo_")).and(containsString(".txt"))));
+	}
+	
+	@Test
+	public void testFileExistsSameData() throws InvalidActivityException, InterruptedException{
+		fileWriter.add(new File(testDir,"foo.txt"), testData);
+		fileWriter.add(new File(testDir,"foo.txt"), testData);
+		Thread.sleep(15000);
+		ArrayList<String> filenames = new ArrayList<>();
+		
+		for(File file : testDir.listFiles()){
+			filenames.add(file.getName());
+		}
+		
+		assertThat(filenames,hasItem("foo.txt"));
+		assertThat(filenames.size(),is(1)); //TODO write custom matcher for "list does not contain" see: http://stackoverflow.com/q/6520546/891292
 	}
 }
