@@ -1,17 +1,14 @@
 package io;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.matchers.JUnitMatchers.both;
-import static org.junit.matchers.JUnitMatchers.containsString;
-import static org.junit.matchers.JUnitMatchers.hasItem;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+import static org.junit.matchers.JUnitMatchers.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.activity.InvalidActivityException;
@@ -75,9 +72,10 @@ public class FileWriterTest {
 	 * Check that files are written to disk, and also check that buffer flushing works.
 	 * @throws InvalidActivityException
 	 * @throws InterruptedException
+	 * @throws SQLException 
 	 */
 	@Test
-	public void testAdd() throws InvalidActivityException, InterruptedException {
+	public void testAdd() throws InvalidActivityException, InterruptedException, SQLException {
 		for(File f : testFiles)
 			fileWriter.add(f, testData);
 
@@ -86,6 +84,8 @@ public class FileWriterTest {
 
 		for(File f : testFiles)
 			assertTrue("File "+f.toString()+" not found",f.exists());
+		
+		verify(mockFilter,times(5)).addHash(eq("95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815"), anyString(), eq(5));
 	}
 	
 	/**
