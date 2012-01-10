@@ -51,8 +51,6 @@ public class FileWriterTest {
 			testFiles.add(new File(testDir,file.toString()));
 		}
 		
-		testDir = new File(testDir.toString()+"dir");	// create a temp directory based on the obtained path
-		testDir.mkdirs();
 		testDir.deleteOnExit();
 	}
 	/**
