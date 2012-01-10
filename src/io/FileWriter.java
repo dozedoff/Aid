@@ -162,8 +162,9 @@ public class FileWriter extends Thread{
 
 			buffOut.write(data);
 
-			writeMe.close();
+			
 			buffOut.close();
+			writeMe.close();
 			
 			filter.addHash(hash, path, data.length);
 			bytesSaved += data.length; // in bytes
