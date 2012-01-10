@@ -23,9 +23,9 @@ import hash.HashMaker;
 
 
 public class FileWriterTest {
-	ConnectionPoolaid mockConnectionPoolaid = mock(ConnectionPoolaid.class);
-	ThumbnailLoader mockThumbnailLoader = mock(ThumbnailLoader.class);
-	Filter mockFilter = mock(Filter.class);
+	ConnectionPoolaid mockConnectionPoolaid;
+	ThumbnailLoader mockThumbnailLoader;
+	Filter mockFilter;
 	
 	FileWriter fileWriter;
 	File testDir;
@@ -41,6 +41,10 @@ public class FileWriterTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
+		mockConnectionPoolaid = mock(ConnectionPoolaid.class);
+		mockThumbnailLoader = mock(ThumbnailLoader.class);
+		mockFilter = mock(Filter.class);
+		
 		fileWriter = new FileWriter(mockFilter);
 		testDir = Files.createTempDirectory("fileWriterTest").toFile();
 		testFiles = new ArrayList<>();
