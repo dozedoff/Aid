@@ -198,4 +198,40 @@ public class FileWriterTest {
 		assertThat(fileWriter.getBytesSaved(), is(0L));
 		assertThat(fileWriter.getBytesDiscarded(), is(0L));
 	}
+	
+	
+	@Test
+	public void testBlacklistedNoWrite() throws InvalidActivityException, InterruptedException{
+		when(mockFilter.isBlacklisted("95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815")).thenReturn(true);
+		fileWriter.add(new File(testDir,"foo.bar"), testData);
+		fileWriter.shutdown();
+		
+		Thread.sleep(1000);
+		
+		ArrayList<String> filenames = new ArrayList<>();
+		
+		for(File file : testDir.listFiles()){
+			filenames.add(file.getName());
+		}
+		
+		assertThat(filenames, hasItem("WARNING-95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815-foo.bar.txt"));
+	}
+	
+	@Test
+	public void testBlacklistedWrite() throws InvalidActivityException, InterruptedException{
+		when(mockFilter.isBlacklisted("95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815")).thenReturn(true);
+		fileWriter.setWriteBlocked(true);
+		fileWriter.add(new File(testDir,"foo.bar"), testData);
+		fileWriter.shutdown();
+		
+		Thread.sleep(1000);
+		
+		ArrayList<String> filenames = new ArrayList<>();
+		
+		for(File file : testDir.listFiles()){
+			filenames.add(file.getName());
+		}
+		
+		assertThat(filenames, hasItem("WARNING-95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815-foo.bar"));
+	}
 }
