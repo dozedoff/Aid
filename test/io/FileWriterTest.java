@@ -1,12 +1,20 @@
 package io;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.matchers.JUnitMatchers.both;
+import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.junit.matchers.JUnitMatchers.hasItem;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -17,9 +25,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import file.BinaryFileReader;
 import filter.Filter;
 import gui.BlockListDataModel;
-import hash.HashMaker;
 
 
 public class FileWriterTest {
@@ -63,26 +71,25 @@ public class FileWriterTest {
 	public void tearDown() throws Exception {
 		fileWriter.shutdown();
 
-		for(File f : testFiles)
-			f.delete();
-
-		new File(testDir,"\\a").delete();
-		new File(testDir,"\\b").delete();
-		new File(testDir,"\\c").delete();
-
-		testDir.delete();
+//		for(File f : testFiles)
+//			f.delete();
+//
+//		new File(testDir,"\\a").delete();
+//		new File(testDir,"\\b").delete();
+//		new File(testDir,"\\c").delete();
+//
+//		testDir.delete();
 	}
 	/**
 	 * Check that files are written to disk, and also check that buffer flushing works.
-	 * @throws InvalidActivityException
 	 * @throws InterruptedException
 	 * @throws SQLException 
+	 * @throws IOException 
 	 */
 	@Test
-	public void testAdd() throws InvalidActivityException, InterruptedException, SQLException {
+	public void testAdd() throws InterruptedException, SQLException, IOException {
 		for(File f : testFiles)
 			fileWriter.add(f, testData);
-
 
 		Thread.sleep(6000);// wait for buffer to clear
 
@@ -90,6 +97,14 @@ public class FileWriterTest {
 			assertTrue("File "+f.toString()+" not found",f.exists());
 		
 		verify(mockFilter,times(5)).addHash(eq("95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815"), anyString(), eq(5));
+		
+		for(File f : testFiles)
+			assertThat("Test failed for "+f.getPath(),f.length(), is(5L));
+		
+		BinaryFileReader bfr = new BinaryFileReader();
+		for(File f : testFiles){
+			assertThat(bfr.get(f), is(testData));
+		}
 	}
 	
 	/**
