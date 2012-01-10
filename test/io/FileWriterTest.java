@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import filter.Filter;
 import gui.BlockListDataModel;
+import hash.HashMaker;
 
 
 public class FileWriterTest {
@@ -31,8 +32,8 @@ public class FileWriterTest {
 	
 	FileWriter fileWriter;
 	File testDir;
-	byte[] testData = {12,45,6,12,99};
-	byte[] testData2 = {99,21,6,45,12};
+	byte[] testData = {12,45,6,12,99};	// SHA-256: 95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815
+	byte[] testData2 = {99,21,6,45,12}; // SHA-256: 20FC038E00E13585E68E7EBE50D79CBE7D476A74D8FDE71872627DA6CD8FC8BB
 	File[] testFilesRelative = {new File("a\\test1.txt"),new File("a\\test2.txt"),new File("b\\test1.txt"),new File("c\\test1.txt"),new File("c\\test2.txt")};
 	ArrayList<File> testFiles;
 	BlockListDataModel bldm;
@@ -177,5 +178,20 @@ public class FileWriterTest {
 		
 		assertThat(filenames,hasItem("foo.txt"));
 		assertThat(filenames.size(),is(1)); //TODO write custom matcher for "list does not contain" see: http://stackoverflow.com/q/6520546/891292
+	}
+	
+	@Test
+	public void testClearStats() throws InvalidActivityException, InterruptedException{
+		when(mockFilter.exists("20FC038E00E13585E68E7EBE50D79CBE7D476A74D8FDE71872627DA6CD8FC8BB")).thenReturn(true);
+		fileWriter.add(new File(testDir,"foo.txt"), testData);
+		fileWriter.add(new File(testDir,"bar.txt"),testData2);
+		Thread.sleep(6000);
+		assertThat(fileWriter.getBytesSaved(), is(5L));
+		assertThat(fileWriter.getBytesDiscarded(), is(5L));
+		
+		fileWriter.clearStats();
+		
+		assertThat(fileWriter.getBytesSaved(), is(0L));
+		assertThat(fileWriter.getBytesDiscarded(), is(0L));
 	}
 }
