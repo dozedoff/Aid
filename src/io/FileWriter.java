@@ -168,10 +168,6 @@ public class FileWriter extends Thread{
 						add(fullPath, data);
 						return;
 					}
-				}else{
-					//file does not exist, may contain invalid chars
-					fullPath = newFileName(fullPath, true);
-					fullPath.createNewFile();
 				}
 			}
 
