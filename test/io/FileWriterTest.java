@@ -162,6 +162,7 @@ public class FileWriterTest {
 	@Test
 	public void testInvalidFileName() throws Exception{
 		fileWriter.add(new File(testDir,"ooops+%ç!<>.txt"), testData);
+		//fileWriter.shutdown();
 		Thread.sleep(15000);
 		
 		ArrayList<String> filenames = new ArrayList<>();
@@ -177,7 +178,8 @@ public class FileWriterTest {
 	public void testFileExistsDifferentData() throws InvalidActivityException, InterruptedException{
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
 		fileWriter.add(new File(testDir,"foo.txt"), testData2);
-		Thread.sleep(15000);
+		fileWriter.shutdown();
+//		Thread.sleep(15000);
 		ArrayList<String> filenames = new ArrayList<>();
 		
 		for(File file : testDir.listFiles()){
@@ -192,7 +194,8 @@ public class FileWriterTest {
 	public void testFileExistsSameData() throws InvalidActivityException, InterruptedException{
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
-		Thread.sleep(15000);
+		fileWriter.shutdown();
+//		Thread.sleep(15000);
 		ArrayList<String> filenames = new ArrayList<>();
 		
 		for(File file : testDir.listFiles()){
@@ -255,11 +258,13 @@ public class FileWriterTest {
 	}
 	
 	@Test
-	public void testSqlPathAddFail() throws SQLException, InvalidActivityException{
+	public void testSqlPathAddFail() throws SQLException, InvalidActivityException, InterruptedException{
 		doThrow(new SQLException("Incorrect string value")).when(mockFilter).addHash(anyString(), anyString(), eq(5));
 		
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
 		fileWriter.shutdown();
+		
+		Thread.sleep(1000);
 		
 	ArrayList<String> filenames = new ArrayList<>();
 		
