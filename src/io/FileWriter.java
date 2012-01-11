@@ -286,6 +286,7 @@ public class FileWriter extends Thread{
 		this.stop = true;
 		//	interrupt();
 		try {
+			this.interrupt();
 			this.join();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -301,7 +302,7 @@ public class FileWriter extends Thread{
 		setPriority(7);
 
 		while(!stop){
-			try{Thread.sleep(FLUSH_INTERVAL);}catch(InterruptedException ignore){}
+			try{Thread.sleep(FLUSH_INTERVAL);}catch(InterruptedException ignore){interrupt();}
 			flushBuffer();
 		}
 		flushBuffer(); // write buffer to Disk when the Thread is stopped
