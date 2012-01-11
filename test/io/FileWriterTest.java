@@ -267,9 +267,9 @@ public class FileWriterTest {
 		doThrow(new SQLException("Incorrect string value")).when(mockFilter).addHash(anyString(), anyString(), eq(5));
 		
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
-		fileWriter.shutdown();
+//		fileWriter.shutdown();
 		
-		Thread.sleep(1000);
+		Thread.sleep(11000);
 		
 	ArrayList<String> filenames = new ArrayList<>();
 		
@@ -278,5 +278,6 @@ public class FileWriterTest {
 		}
 		
 		assertThat(filenames,hasItem(both(containsString("renamed_")).and(containsString(".txt"))));
+		assertThat(filenames.size(), is(1));
 	}
 }
