@@ -24,10 +24,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.activity.InvalidActivityException;
+import javax.jws.Oneway;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.internal.matchers.EndsWith;
 
 import file.BinaryFileReader;
 import filter.Filter;
@@ -175,7 +177,7 @@ public class FileWriterTest {
 	}
 	
 	@Test
-	public void testFileExistsDifferentData() throws InvalidActivityException, InterruptedException{
+	public void testFileExistsDifferentData() throws InvalidActivityException, InterruptedException, SQLException{
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
 		fileWriter.add(new File(testDir,"foo.txt"), testData2);
 		fileWriter.shutdown();
@@ -188,10 +190,12 @@ public class FileWriterTest {
 		
 		assertThat(filenames,hasItem("foo.txt"));
 		assertThat(filenames,hasItem(both(containsString("foo_")).and(containsString(".txt"))));
+		verify(mockFilter,times(1)).addHash(eq("95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815"),anyString(), eq(5));//TODO replace anyString() with more accurate test
+		verify(mockFilter,times(1)).addHash(eq("20FC038E00E13585E68E7EBE50D79CBE7D476A74D8FDE71872627DA6CD8FC8BB"),anyString(), eq(5));//TODO replace anyString() with more accurate test
 	}
 	
 	@Test
-	public void testFileExistsSameData() throws InvalidActivityException, InterruptedException{
+	public void testFileExistsSameData() throws InvalidActivityException, InterruptedException, SQLException{
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
 		fileWriter.shutdown();
@@ -204,6 +208,7 @@ public class FileWriterTest {
 		
 		assertThat(filenames,hasItem("foo.txt"));
 		assertThat(filenames.size(),is(1)); //TODO write custom matcher for "list does not contain" see: http://stackoverflow.com/q/6520546/891292
+		verify(mockFilter,times(2)).addHash(eq("95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815"),anyString(), eq(5));//TODO replace anyString() with more accurate test
 	}
 	
 	@Test
