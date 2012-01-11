@@ -266,7 +266,7 @@ public class FileWriterTest {
 	
 	@Test
 	public void testSqlPathAddFail() throws SQLException, InvalidActivityException, InterruptedException{
-		doThrow(new SQLException("Incorrect string value")).when(mockFilter).addHash(anyString(), anyString(), eq(5));
+		doThrow(new SQLException("Incorrect string value")).when(mockFilter).addHash(anyString(), eq(new File(testDir,"foo.txt").toString()), eq(5));
 		
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
 //		fileWriter.shutdown();
