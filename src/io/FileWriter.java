@@ -194,17 +194,11 @@ public class FileWriter extends Thread{
 			Stats.saveBytes(data.length);
 		}catch(SQLException se){
 			if(se.getLocalizedMessage().contains("Incorrect string value")){ //TODO instead of writing the file here, add the data back to the buffer
-				File newFile = new File(fullPath.getParent(),"\\renamed"+Calendar.getInstance().getTimeInMillis()+fullPath.toString().substring(fullPath.toString().lastIndexOf(".")));
-				if(fullPath.renameTo(newFile)){
-					logger.warning("renamed "+fullPath.toString()+" to "+newFile.toString());
-					try{Thread.sleep(500);}catch(Exception ie){}
-				}else{
-					try{Thread.sleep(500);}catch(Exception ie){}
-					if(fullPath.renameTo(newFile)){
-						logger.warning("renamed "+fullPath.toString()+" to "+newFile.toString());
-						try{Thread.sleep(500);}catch(Exception ie){}
-					}else
-						logger.warning("failed to rename "+fullPath.toString());
+				fullPath = newFileName(fullPath, false);
+				try {
+					add(fullPath,data);
+				} catch (InvalidActivityException e) {
+					logger.warning("failed to write file: "+e.getMessage());
 				}
 			}else{
 				logger.severe("add hash failed: "+se.getMessage());
