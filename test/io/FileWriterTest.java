@@ -1,6 +1,8 @@
 package io;
 
+import static org.hamcrest.CoreMatchers.anything;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.matchers.JUnitMatchers.both;
@@ -8,6 +10,7 @@ import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,6 +18,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.channels.ShutdownChannelGroupException;
 import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -248,5 +252,21 @@ public class FileWriterTest {
 		}
 		
 		assertThat(filenames, hasItem("WARNING-95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815-foo.bar"));
+	}
+	
+	@Test
+	public void testSqlPathAddFail() throws SQLException, InvalidActivityException{
+		doThrow(new SQLException("Incorrect string value")).when(mockFilter).addHash(anyString(), anyString(), eq(5));
+		
+		fileWriter.add(new File(testDir,"foo.txt"), testData);
+		fileWriter.shutdown();
+		
+	ArrayList<String> filenames = new ArrayList<>();
+		
+		for(File file : testDir.listFiles()){
+			filenames.add(file.getName());
+		}
+		
+		assertThat(filenames,hasItem(both(containsString("renamed_")).and(containsString(".txt"))));
 	}
 }
