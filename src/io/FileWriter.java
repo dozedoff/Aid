@@ -17,6 +17,7 @@
  */
 package io;
 
+import file.BinaryFileReader;
 import filter.Filter;
 import gui.Stats;
 import hash.HashMaker;
@@ -147,9 +148,31 @@ public class FileWriter extends Thread{
 
 		try{
 			if(!fullPath.createNewFile()){
-
-				fullPath = newFileName(fullPath, true);
-				fullPath.createNewFile(); //this should rename the file if it already exists
+				if(fullPath.exists()){
+					//file exits, compare hash values
+					String newFileHash =  hashMaker.hash(data);
+					String existingFileHash = hashMaker.hash(new BinaryFileReader().get(fullPath));
+					
+					if(newFileHash.equals(existingFileHash)){
+						//files are identical, normally this should not happen
+						bytesDiscarded += data.length;
+						try {
+							filter.addHash(existingFileHash, fullPath.toString(), data.length);
+						} catch (SQLException e) {
+							logger.warning("Could not add Hash to database: "+e.getMessage());
+						}
+						return;
+					}else{
+						// same name, different data
+						fullPath = newFileName(fullPath, true); // change name and re-add to queue
+						add(fullPath, data);
+						return;
+					}
+				}else{
+					//file does not exist, may contain invalid chars
+					fullPath = newFileName(fullPath, true);
+					fullPath.createNewFile();
+				}
 			}
 
 		}catch(IOException e){
