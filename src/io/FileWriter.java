@@ -194,6 +194,7 @@ public class FileWriter extends Thread{
 			Stats.saveBytes(data.length);
 		}catch(SQLException se){
 			if(se.getLocalizedMessage().contains("Incorrect string value")){ //TODO instead of writing the file here, add the data back to the buffer
+				logger.warning("Unable to add hash to database due to :"+se.getMessage());
 				fullPath = newFileName(fullPath, false);
 				try {
 					add(fullPath,data);
