@@ -255,7 +255,7 @@ public class FileWriter extends Thread{
 
 					writeToDisk(data, path, hash);
 				}else{
-					path=dir+"\\WARNING-"+hash+".txt"; 
+					path=dir+"\\WARNING-"+hash+"-"+name+".txt"; 
 					(new File(dir)).mkdirs();
 					File file = new File(path);
 
