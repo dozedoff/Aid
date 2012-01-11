@@ -180,8 +180,9 @@ public class FileWriterTest {
 	public void testFileExistsDifferentData() throws InvalidActivityException, InterruptedException, SQLException{
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
 		fileWriter.add(new File(testDir,"foo.txt"), testData2);
+
+		Thread.sleep(6000);
 		fileWriter.shutdown();
-//		Thread.sleep(15000);
 		ArrayList<String> filenames = new ArrayList<>();
 		
 		for(File file : testDir.listFiles()){
@@ -198,8 +199,9 @@ public class FileWriterTest {
 	public void testFileExistsSameData() throws InvalidActivityException, InterruptedException, SQLException{
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
+
+		Thread.sleep(6000);
 		fileWriter.shutdown();
-//		Thread.sleep(15000);
 		ArrayList<String> filenames = new ArrayList<>();
 		
 		for(File file : testDir.listFiles()){

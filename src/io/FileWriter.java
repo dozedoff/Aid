@@ -272,6 +272,13 @@ public class FileWriter extends Thread{
 		bufferSize.set(0);	// reset counter
 	}
 	
+	/**
+	 * Renames the provided file. If the name should be preserved, output will be {name}_{timestamp}.{extension}
+	 * else renamed_{timestamp}.{extension}
+	 * @param filepath the original filename
+	 * @param keepOriginalName keeps name if true, otherwise replaces it with "renamed_"
+	 * @return the new filepath
+	 */
 	private File newFileName(File filepath, boolean keepOriginalName){
 		File newPath;
 		
