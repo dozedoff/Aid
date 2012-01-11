@@ -36,37 +36,39 @@ public class SettingValidatorTest {
 			 	// Page threads
 			 {false,	"0", 	"1",	"false",	"http://foo.bar/",	"a;15,b;14"}, 					// 3
 			 {false,	"-1", 	"1",	"false",	"http://foo.bar/",	"a;15,b;14"},					// 4
+			 {false,	"a", 	"1",	"false",	"http://foo.bar/",	"a;15,b;14"}, 					// 5
 			 
 			 	// Image threads
-			 {false,	"1", 	"0",	"false",	"http://foo.bar/",	"a;15,b;14"},					// 5
-			 {false,	"1", 	"-1",	"false",	"http://foo.bar/",	"a;15,b;14"},					// 6
+			 {false,	"1", 	"0",	"false",	"http://foo.bar/",	"a;15,b;14"},					// 6
+			 {false,	"1", 	"-1",	"false",	"http://foo.bar/",	"a;15,b;14"},					// 7
+			 {false,	"1", 	"a",	"false",	"http://foo.bar/",	"a;15,b;14"}, 					// 8
 			 
 			 	// Write blocked
-			 {false,	"1", 	"1",	"beans",	"http://foo.bar/",	"a;15,b;14"},					// 7
-			 {false,	"1", 	"1",	"32423",	"http://foo.bar/",	"a;15,b;14"},					// 8
+			 {false,	"1", 	"1",	"beans",	"http://foo.bar/",	"a;15,b;14"},					// 9
+			 {false,	"1", 	"1",	"32423",	"http://foo.bar/",	"a;15,b;14"},					// 10
 			 
 			 	// base URL
-			 {false,	"1", 	"1",	"FALSE",	"http://foo.bar",	"a;15,b;14"},					// 9
-			 {false,	"1", 	"1",	"TRUE",		"http://foobar/",	"a;15,b;14"},					// 10
-			 {false,	"1", 	"1",	"false",	"http:/foo.bar/",	"a;15,b;14"},					// 11
-			 {false,	"1", 	"1",	"false",	"http//foo.bar/",	"a;15,b;14"},					// 12
-			 {false,	"1", 	"1",	"false",	"htttp://foo.bar/",	"a;15,b;14"},					// 13
-			 {true,		"1", 	"1",	"false",	"http://foo.bar.net/",	"a;15,b;14"},				// 14
-			 {false,	"1", 	"1",	"false",	"http://f00.b4r/",	"a;15,b;14"},					// 15
-			 {true,		"1", 	"1",	"false",	"http://f00.b4r.jelly.net/",	"a;15,b;14"},		// 16
-			 {false,	"1", 	"1",	"false",	"foo.bar/",	"a;15,b;14"},							// 17
-			 {false,	"1", 	"1",	"false",	"http://foo.bar1/",	"a;15,b;14"},					// 18
+			 {false,	"1", 	"1",	"FALSE",	"http://foo.bar",	"a;15,b;14"},					// 11
+			 {false,	"1", 	"1",	"TRUE",		"http://foobar/",	"a;15,b;14"},					// 12
+			 {false,	"1", 	"1",	"false",	"http:/foo.bar/",	"a;15,b;14"},					// 13
+			 {false,	"1", 	"1",	"false",	"http//foo.bar/",	"a;15,b;14"},					// 14
+			 {false,	"1", 	"1",	"false",	"htttp://foo.bar/",	"a;15,b;14"},					// 15
+			 {true,		"1", 	"1",	"false",	"http://foo.bar.net/",	"a;15,b;14"},				// 16
+			 {false,	"1", 	"1",	"false",	"http://f00.b4r/",	"a;15,b;14"},					// 17
+			 {true,		"1", 	"1",	"false",	"http://f00.b4r.jelly.net/",	"a;15,b;14"},		// 18
+			 {false,	"1", 	"1",	"false",	"foo.bar/",	"a;15,b;14"},							// 19
+			 {false,	"1", 	"1",	"false",	"http://foo.bar1/",	"a;15,b;14"},					// 20
 			 
 			 	// sub pages
-			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a,15,b;14"},					// 19
-			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;15,,b;14"},					// 20
-			 {true,		"1", 	"1",	"false",	"http://foo.bar/",	"a;15"},						// 21
-			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;;15,b;;14"},					// 22
-			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;15;b;14"},					// 23
-			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;15,b:14"},					// 24
-			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a15,b;14"}, 					// 25
-			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;-15,b;14"}, 					// 26
-			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"aç%;15,b;14"}, 			// 27
+			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a,15,b;14"},					// 21
+			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;15,,b;14"},					// 22
+			 {true,		"1", 	"1",	"false",	"http://foo.bar/",	"a;15"},						// 23
+			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;;15,b;;14"},					// 24
+			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;15;b;14"},					// 25
+			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;15,b:14"},					// 26
+			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a15,b;14"}, 					// 27
+			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;-15,b;14"}, 					// 28
+			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"aç%;15,b;14"}, 				// 29
 			 
 		});
 	}
@@ -90,6 +92,11 @@ public class SettingValidatorTest {
 	@Test
 	public void testValidateAppSettings() {
 		assertThat(SettingValidator.validateAppSettings(appSettings), is(expectedResponse));
+	}
+	
+	@Test
+	public void testEmptyPropertyFile(){
+		assertThat(SettingValidator.validateAppSettings(new Properties()), is(false));
 	}
 	
 	/**
