@@ -113,6 +113,54 @@ public class FileWriterTest {
 		}
 	}
 	
+	@Test
+	public void testWriteSmallRandomData() throws IOException{
+		File randomFile = new File(testDir,"randomData.dat");
+		byte[] randomData = generateRandomData(5);
+		BinaryFileReader bfr = new BinaryFileReader();
+		
+		fileWriter.add(randomFile,randomData);
+		fileWriter.shutdown();
+		
+		assertThat(bfr.get(randomFile), is(randomData));
+	}
+	
+	@Test
+	public void testWriteMediumRandomData() throws IOException{
+		File randomFile = new File(testDir,"randomData.dat");
+		byte[] randomData = generateRandomData(1024);
+		BinaryFileReader bfr = new BinaryFileReader();
+		
+		fileWriter.add(randomFile,randomData);
+		fileWriter.shutdown();
+		
+		assertThat(bfr.get(randomFile), is(randomData));
+	}
+	
+	@Test
+	public void testWriteLargeRandomData() throws IOException{
+		File randomFile = new File(testDir,"randomData.dat");
+		byte[] randomData = generateRandomData(256000); // 250 kb
+		BinaryFileReader bfr = new BinaryFileReader();
+		
+		fileWriter.add(randomFile,randomData);
+		fileWriter.shutdown();
+		
+		assertThat(bfr.get(randomFile), is(randomData));
+	}
+	
+	@Test
+	public void testWriteVeryLargeRandomData() throws IOException{
+		File randomFile = new File(testDir,"randomData.dat");
+		byte[] randomData = generateRandomData(3145728); // 3 mb
+		BinaryFileReader bfr = new BinaryFileReader();
+		
+		fileWriter.add(randomFile,randomData);
+		fileWriter.shutdown();
+		
+		assertThat(bfr.get(randomFile), is(randomData));
+	}
+	
 	/**
 	 * Check that shutdown triggers a buffer flush.
 	 * @throws InvalidActivityException
