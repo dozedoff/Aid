@@ -282,4 +282,13 @@ public class FileWriterTest {
 		assertThat(filenames,hasItem(both(containsString("renamed_")).and(containsString(".txt"))));
 		assertThat(filenames.size(), is(1));
 	}
+	
+	private byte[] generateRandomData(int numOfBytes){
+		byte[] randomData = new byte[numOfBytes];
+		for(int i = 0; i<numOfBytes; i++){
+			randomData[i] = (byte)(Math.random()*Byte.MAX_VALUE);
+		}
+		
+		return randomData;
+	}
 }
