@@ -22,6 +22,8 @@ import java.nio.channels.ShutdownChannelGroupException;
 import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.activity.InvalidActivityException;
 import javax.jws.Oneway;
@@ -159,6 +161,31 @@ public class FileWriterTest {
 		fileWriter.shutdown();
 		
 		assertThat(bfr.get(randomFile), is(randomData));
+	}
+	
+	@Test
+	// WARNING: this test can generate up to 25 mb of data per run
+	public void testBulkWrite() throws InterruptedException, IOException{
+		HashMap<File,byte[]> testSet = new HashMap<>();
+		BinaryFileReader bfr = new BinaryFileReader();
+		
+		// generate 100 random files between 0 byte and 250kb
+		for(int i=0; i<100; i++){
+			File filepath = new File(testDir,i+".dat");
+			byte[] data =  generateRandomData((int)(Math.random()*256000));
+			testSet.put(filepath,data);
+			
+			fileWriter.add(filepath, data);
+		}
+		
+		Thread.sleep(7000);
+		
+		Iterator<File> ite = testSet.keySet().iterator();
+		
+		while(ite.hasNext()){
+			File toTest = ite.next();
+			assertThat(bfr.get(toTest), is(testSet.get(toTest)));
+		}
 	}
 	
 	/**
