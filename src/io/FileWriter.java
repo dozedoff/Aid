@@ -19,6 +19,7 @@ package io;
 
 import file.BinaryFileReader;
 import filter.Filter;
+import gui.Log;
 import gui.Stats;
 import hash.HashMaker;
 
@@ -259,7 +260,7 @@ public class FileWriter extends Thread{
 				}
 
 				logger.warning("WARNING! "+ path + " is blacklisted");
-
+				Log.add("WARNING! "+ path + " is blacklisted");
 				continue;
 			}
 
