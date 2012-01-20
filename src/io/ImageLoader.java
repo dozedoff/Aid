@@ -84,8 +84,8 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 		}
 
 		if(responseCode == 503){
-			LOGGER.severe("IP was banned for too many connections"); // :_(  thats what you get if you use too short intervals
-			System.exit(3);
+//			LOGGER.severe("IP was banned for too many connections"); // :_(  thats what you get if you use too short intervals
+//			System.exit(3);
 		}else{
 			LOGGER.info("GetBinary(size) http code "+ple.getMessage());
 		}
