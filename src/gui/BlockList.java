@@ -157,8 +157,8 @@ public class BlockList extends JFrame implements ListSelectionListener,ActionLis
 	
 	private void displayThumbs(){
 		if(lstFilter.getSelectedIndex() == -1)
-		return;
-		
+			return;
+			
 		int selection = lstFilter.getSelectedIndex();
 		try{
 			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(blockListModel.getUrl(selection).toString()),null);
@@ -183,6 +183,13 @@ public class BlockList extends JFrame implements ListSelectionListener,ActionLis
 		panThumbs.repaint();
 	}
 	
+	private void clearThumbs(){
+		panThumbs.removeAll(); // clear thumb display
+		pack();
+		panThumbs.validate();
+		panThumbs.repaint();
+	}
+	
 	private void checkButtons(){
 		if(blockListModel.isEmpty()){
 			btnAllow.setEnabled(false);
@@ -194,6 +201,7 @@ public class BlockList extends JFrame implements ListSelectionListener,ActionLis
 	}
 	
 	private void setSelection(int index){
+		clearThumbs();
 		if(! blockListModel.isEmpty()){
 			if(index >= blockListModel.size()){
 				lstFilter.setSelectedIndex(index-1);
