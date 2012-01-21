@@ -125,15 +125,19 @@ public class BlockList extends JFrame implements ListSelectionListener,ActionLis
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == btnAllow && lstFilter.getSelectedIndex() != -1){
-			filter.setAllow(blockListModel.getUrl(lstFilter.getSelectedIndex()));
-			blockListModel.remove(lstFilter.getSelectedIndex());
+			int selected = lstFilter.getSelectedIndex();
+			filter.setAllow(blockListModel.getUrl(selected));
+			blockListModel.remove(selected);
 			checkButtons();
+			setSelection(selected);
 		}
 		
 		if(e.getSource() == btnDeny && lstFilter.getSelectedIndex() != -1){
-			filter.setDeny(blockListModel.getUrl(lstFilter.getSelectedIndex()));
-			blockListModel.remove(lstFilter.getSelectedIndex());
+			int selected = lstFilter.getSelectedIndex();
+			filter.setDeny(blockListModel.getUrl(selected));
+			blockListModel.remove(selected);
 			checkButtons();
+			setSelection(selected);
 		}
 		
 		if(e.getSource() == btnUpdate){
@@ -186,6 +190,16 @@ public class BlockList extends JFrame implements ListSelectionListener,ActionLis
 		}else{
 			btnAllow.setEnabled(true);
 			btnDeny.setEnabled(true);
+		}
+	}
+	
+	private void setSelection(int index){
+		if(! blockListModel.isEmpty()){
+			if(index >= blockListModel.size()){
+				lstFilter.setSelectedIndex(index-1);
+			}else{
+				lstFilter.setSelectedIndex(index);
+			}
 		}
 	}
 }
