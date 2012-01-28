@@ -7,14 +7,14 @@
 	<cache id="4" />
 
 	<!-- filter Table 0: Deny 1: Pending 2: Allow 3: Unknown -->
-	<filter id="http://foo.bar/1" board="t" reason="just testing" status="0" />
-	<filter id="http://foo.bar/2" board="a" reason="foo bar" status="1" />
-	<filter id="http://foo.bar/3" board="c" reason="yeti!" status="2" />
-	<filter id="http://foo.bar/4" board="m" reason="more test data" status="3" />
-	<filter id="http://foo.bar/5" board="vx" reason="and more" status="1" />
-	<filter id="http://foo.bar/6" board="zb" reason="om nom nom" status="1" />
-	<filter id="http://foo.bar/7" board="sa" reason="rain" status="1" />
-	<filter id="http://foo.bar/8" board="p" reason="snow" status="0" />
+	<filter id="http://foo.bar/1" board="t" reason="just testing" status="0" timestamp="2000-01-01 00:00:00.000000000" />
+	<filter id="http://foo.bar/2" board="a" reason="foo bar" status="1" timestamp="2000-01-01 00:00:01.000000000" />
+	<filter id="http://foo.bar/3" board="c" reason="yeti!" status="2" timestamp="2000-01-01 00:00:02.000000000" />
+	<filter id="http://foo.bar/4" board="m" reason="more test data" status="3" timestamp="2000-01-01 00:00:03.000000000" />
+	<filter id="http://foo.bar/5" board="vx" reason="and more" status="1" timestamp="2000-01-01 00:00:04.000000000" />
+	<filter id="http://foo.bar/6" board="zb" reason="om nom nom" status="1" timestamp="2000-01-01 00:00:05.000000000" />
+	<filter id="http://foo.bar/7" board="sa" reason="rain" status="1" timestamp="2000-01-01 00:00:06.000000000" />
+	<filter id="http://foo.bar/8" board="p" reason="snow" status="0" timestamp="2000-01-01 00:00:07.000000000" />
 
 	<!-- dnw Table -->
 	<dnw hash="1" />
