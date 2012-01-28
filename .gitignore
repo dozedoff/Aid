@@ -1,11 +1,8 @@
 filter.dat
 *.ini
-*.settings
 *.class
-Aid.xml
+*.jar
 bin_test/
 bin/
-*.classpath
-*.project
 /.pmd
 /reports/
