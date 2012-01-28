@@ -2,14 +2,12 @@ package io;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.LinkedList;
 
 import org.dbunit.Assertion;
 import org.dbunit.DatabaseTestCase;
@@ -25,7 +23,6 @@ import org.junit.Test;
 
 import config.DefaultMySQLconnection;
 
-import filter.FilterItem;
 import filter.FilterState;
 
 
@@ -56,12 +53,12 @@ public class MySqlAidTest extends DatabaseTestCase{
 
 	@Test
 	public void testAddFilter() throws Exception {
-		assertTrue(sql.addFilter("http://foo.bar/PENDING","t", "test", FilterState.PENDING));
-		assertTrue(sql.addFilter("http://foo.bar/ALLOW","t", "test", FilterState.ALLOW));
-		assertTrue(sql.addFilter("http://foo.bar/DENY", "t","test", FilterState.DENY));
-		assertTrue(sql.addFilter("http://foo.bar/UNKNOWN","t", "test", FilterState.UNKNOWN));
-		assertFalse(sql.addFilter("http://foo.bar/PENDING", "t", "test", FilterState.PENDING));
-		assertFalse(sql.addFilter("http://foo.bar/1", "t", "just testing", FilterState.ALLOW));
+		assertTrue(sql.addFilter("PENDING","t", "test", FilterState.PENDING));
+		assertTrue(sql.addFilter("ALLOW","t", "test", FilterState.ALLOW));
+		assertTrue(sql.addFilter("DENY", "t","test", FilterState.DENY));
+		assertTrue(sql.addFilter("UNKNOWN","t", "test", FilterState.UNKNOWN));
+		assertFalse(sql.addFilter("PENDING", "t", "test", FilterState.PENDING));
+		assertFalse(sql.addFilter("1", "t", "just testing", FilterState.ALLOW));
 
 		// Assert actual database table match expected table
 		Assertion.assertEqualsIgnoreCols(getFileTable("filter", "/dbData/addExpected.xml"), getDatabaseTable("filter"),IGNORE_CACHE_COL);
@@ -69,8 +66,8 @@ public class MySqlAidTest extends DatabaseTestCase{
 
 	@Test
 	public void testGetFilterState(){
-		assertThat(sql.getFilterState("http://foo.bar/1"), is(FilterState.DENY));
-		assertThat(sql.getFilterState("http://foo.bar/4"), is(FilterState.UNKNOWN));
+		assertThat(sql.getFilterState("1"), is(FilterState.DENY));
+		assertThat(sql.getFilterState("4"), is(FilterState.UNKNOWN));
 	}
 
 	@Test
@@ -80,10 +77,10 @@ public class MySqlAidTest extends DatabaseTestCase{
 
 	@Test
 	public void testUpdateState() throws Exception{
-		sql.updateState("http://foo.bar/1",FilterState.PENDING);
-		sql.updateState("http://foo.bar/2",FilterState.DENY);
-		sql.updateState("http://foo.bar/3",FilterState.PENDING);
-		sql.updateState("http://foo.bar/4",FilterState.PENDING);
+		sql.updateState("1",FilterState.PENDING);
+		sql.updateState("2",FilterState.DENY);
+		sql.updateState("3",FilterState.PENDING);
+		sql.updateState("4",FilterState.PENDING);
 
 		Assertion.assertEqualsIgnoreCols(getFileTable("filter", "/dbData/updateStateExpected.xml"), getDatabaseTable("filter"),IGNORE_CACHE_COL);
 	}
@@ -91,10 +88,10 @@ public class MySqlAidTest extends DatabaseTestCase{
 	@Test
 	public void testDelete() throws Exception{
 		// filter table
-		sql.delete("filter", "http://foo.bar/1");
-		sql.delete("filter", "http://foo.bar/2");
-		sql.delete("filter", "http://foo.bar/3");
-		sql.delete("filter", "http://foo.bar/4");
+		sql.delete("filter", "1");
+		sql.delete("filter", "2");
+		sql.delete("filter", "3");
+		sql.delete("filter", "4");
 
 		Assertion.assertEqualsIgnoreCols(getFileTable("filter", "/dbData/deleteExpected.xml"), getDatabaseTable("filter"),IGNORE_CACHE_COL);
 		
@@ -151,21 +148,21 @@ public class MySqlAidTest extends DatabaseTestCase{
 	@Test
 	public void testgetThumb(){
 		// needs a better test. maybe add resource, write to db and then read back and compare?
-		assertThat(sql.getThumb("http://foo.bar/3").size(), is(4));
+		assertThat(sql.getThumb("3").size(), is(4));
 	}
 	
 	@Test
 	public void testTriggerThumbsUpdate() throws Exception{
-		sql.updateState("http://foo.bar/1", FilterState.ALLOW);
-		sql.updateState("http://foo.bar/2", FilterState.ALLOW);
+		sql.updateState("1", FilterState.ALLOW);
+		sql.updateState("2", FilterState.ALLOW);
 		
 		Assertion.assertEqualsIgnoreCols(getFileTable("thumbs", "/dbData/triggerExpected.xml"), getDatabaseTable("thumbs"), IGNORE_THUMBS_TRIGGER_COL);
 	}
 	
 	@Test
 	public void testTriggerThumbsDelete() throws Exception{
-		sql.delete("filter", "http://foo.bar/1");
-		sql.delete("filter", "http://foo.bar/2");
+		sql.delete("filter", "1");
+		sql.delete("filter", "2");
 		
 		Assertion.assertEqualsIgnoreCols(getFileTable("thumbs", "/dbData/triggerExpected.xml"), getDatabaseTable("thumbs"), IGNORE_THUMBS_TRIGGER_COL);
 	}

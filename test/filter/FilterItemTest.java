@@ -12,7 +12,7 @@ public class FilterItemTest {
 	@Before
 	public void setUp() throws Exception {
 		URL url = new URL("http://foo.bar/test/12345");
-		filterItem = new FilterItem("foo", "bar", url, FilterState.PENDING);
+		filterItem = new FilterItem(url,"foo", "bar",  FilterState.PENDING);
 	}
 
 	@Test

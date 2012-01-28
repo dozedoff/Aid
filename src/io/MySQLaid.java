@@ -114,7 +114,7 @@ public class MySQLaid extends MySQL {
 				URL url;
 				url = new URL(rs.getString("id"));
 
-				result.add(new FilterItem(rs.getString("board"), rs.getString("reason"), url, FilterState.PENDING));
+				result.add(new FilterItem(url, rs.getString("board"), rs.getString("reason"),  FilterState.PENDING));
 			}
 			rs.close();
 			return result;
