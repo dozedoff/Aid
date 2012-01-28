@@ -15,6 +15,7 @@ import filter.FilterState;
 
 public class MySQLaid extends MySQL {
 	final String RS_CLOSE_ERR = "Could not close ResultSet: ";
+	final String SQL_OP_ERR = "MySQL operation failed: ";
 	
 	public MySQLaid(Properties mySqlProps) {
 		super(mySqlProps);
@@ -60,7 +61,7 @@ public class MySQLaid extends MySQL {
 				return true;
 			}
 		} catch (SQLException e) {
-			logger.warning("MySql Filter add failed: "+e.getMessage());
+			logger.warning(SQL_OP_ERR+e.getMessage());
 		}
 	
 		return false;
@@ -74,7 +75,7 @@ public class MySQLaid extends MySQL {
 			updateFilter.setString(2, id);
 			updateFilter.executeUpdate();
 		} catch (SQLException e) {
-			logger.warning("MySql filter update failed: "+e.getMessage());
+			logger.warning(SQL_OP_ERR+e.getMessage());
 		}
 	}
 
@@ -90,7 +91,7 @@ public class MySQLaid extends MySQL {
 				return fs; 
 			}
 		} catch (SQLException e) {
-			logger.warning("MySql filterstate get failed: "+e.getMessage());
+			logger.warning(SQL_OP_ERR+e.getMessage());
 		}finally{
 			if(rs != null){
 				try {
@@ -124,7 +125,7 @@ public class MySQLaid extends MySQL {
 			
 			return result;
 		} catch (SQLException e) {
-			logger.warning("MySql PendingFilter lookup failed: "+e.getMessage());
+			logger.warning(SQL_OP_ERR+e.getMessage());
 		} catch (MalformedURLException e) {
 			logger.warning("Unable to create URL "+e.getMessage());
 		}finally{
@@ -147,7 +148,7 @@ public class MySQLaid extends MySQL {
 			updateTimestamp.setString(2, id);
 			updateTimestamp.executeUpdate();
 		} catch (SQLException e) {
-			logger.warning("Filter timestamp update failed: "+e.getMessage());
+			logger.warning(SQL_OP_ERR+e.getMessage());
 		}
 	}
 	
@@ -167,7 +168,7 @@ public class MySQLaid extends MySQL {
 				return null;
 			}
 		} catch (SQLException e) {
-			logger.warning("MySql filter update failed: "+e.getLocalizedMessage());
+			logger.warning(SQL_OP_ERR+e.getLocalizedMessage());
 		}finally{
 			if(rs != null){
 				try {
