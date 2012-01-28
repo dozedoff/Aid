@@ -14,6 +14,8 @@ import filter.FilterItem;
 import filter.FilterState;
 
 public class MySQLaid extends MySQL {
+	final String RS_CLOSE_ERR = "Could not close ResultSet: ";
+	
 	public MySQLaid(Properties mySqlProps) {
 		super(mySqlProps);
 		// TODO Auto-generated constructor stub
@@ -78,22 +80,25 @@ public class MySQLaid extends MySQL {
 
 	public FilterState getFilterState(String id){
 		reconnect();
-		ResultSet rs;
+		ResultSet rs = null;
 
 		try {
 			getPrepStmt("filterState").setString(1, id);
 			rs = prepStmtQuery("filterState");
-			if(!rs.first()){
-				rs.close();
-				return FilterState.UNKNOWN;
-			}
-			else{
+			if(rs.next()){
 				FilterState fs = FilterState.values()[(int)rs.getShort(1)];
-				rs.close();
 				return fs; 
 			}
 		} catch (SQLException e) {
 			logger.warning("MySql filterstate get failed: "+e.getMessage());
+		}finally{
+			if(rs != null){
+				try {
+					rs.close();
+				} catch (SQLException e) {
+					logger.warning(RS_CLOSE_ERR+e.getMessage());
+				}
+			}
 		}
 		return FilterState.UNKNOWN;
 	}
@@ -105,7 +110,7 @@ public class MySQLaid extends MySQL {
 	public LinkedList<FilterItem> getPendingFilters(){
 		reconnect();
 		PreparedStatement pendingFilter = getPrepStmt("pendingFilter");
-		ResultSet rs;
+		ResultSet rs = null;
 
 		try {
 			rs = pendingFilter.executeQuery();
@@ -116,12 +121,20 @@ public class MySQLaid extends MySQL {
 
 				result.add(new FilterItem(url, rs.getString("board"), rs.getString("reason"),  FilterState.PENDING));
 			}
-			rs.close();
+			
 			return result;
 		} catch (SQLException e) {
 			logger.warning("MySql PendingFilter lookup failed: "+e.getMessage());
 		} catch (MalformedURLException e) {
 			logger.warning("Unable to create URL "+e.getMessage());
+		}finally{
+			try {
+				if(rs != null){
+					rs.close();
+				}
+			} catch (SQLException e) {
+				logger.warning(RS_CLOSE_ERR+e.getMessage());
+			}
 		}
 		return new LinkedList<FilterItem>();
 	}
@@ -155,6 +168,14 @@ public class MySQLaid extends MySQL {
 			}
 		} catch (SQLException e) {
 			logger.warning("MySql filter update failed: "+e.getLocalizedMessage());
+		}finally{
+			if(rs != null){
+				try {
+					rs.close();
+				} catch (SQLException e) {
+					logger.warning(RS_CLOSE_ERR+e.getMessage());
+				}
+			}
 		}
 		return null;
 	}
