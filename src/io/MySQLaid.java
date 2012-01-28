@@ -26,7 +26,7 @@ public class MySQLaid extends MySQL {
 		addPrepStmt("filterState"		, "SELECT status FROM filter WHERE  id = ?");
 		addPrepStmt("pendingFilter"		, "SELECT board, reason, id FROM filter WHERE status = 1 ORDER BY board, reason ASC");
 		addPrepStmt("filterTime"		, "UPDATE filter SET timestamp = ? WHERE id = ?");
-		addPrepStmt("oldestFilter"		, "SELECT id FROM filter WHERE timestamp = (SELECT Min(timestamp) FROM filter)");
+		addPrepStmt("oldestFilter"		, "SELECT id FROM filter ORDER BY timestamp ASC LIMIT 1");
 	}
 	
 	public boolean addFilter(FilterItem fi){
