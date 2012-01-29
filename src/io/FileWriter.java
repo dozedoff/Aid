@@ -177,14 +177,10 @@ public class FileWriter extends Thread{
 		}
 
 		try{
-			FileOutputStream writeMe = new FileOutputStream(fullPath);
-			BufferedOutputStream buffOut = new BufferedOutputStream(writeMe,1024);
+			BufferedOutputStream buffOut = new BufferedOutputStream(new FileOutputStream(fullPath),1024);
 
 			buffOut.write(data);
-
-			
 			buffOut.close();
-			writeMe.close();
 			
 			filter.addHash(hash, path, data.length);
 			bytesSaved += data.length; // in bytes
