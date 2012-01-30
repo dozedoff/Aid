@@ -7,14 +7,14 @@
 	<cache id="4" />
 
 	<!-- filter Table 0: Deny 1: Pending 2: Allow 3: Unknown -->
-	<filter id="1" board="t" reason="just testing" status="0" />
-	<filter id="2" board="a" reason="foo bar" status="1" />
-	<filter id="3" board="c" reason="yeti!" status="2" />
-	<filter id="4" board="m" reason="more test data" status="3" />
-	<filter id="5" board="vx" reason="and more" status="1" />
-	<filter id="6" board="zb" reason="om nom nom" status="1" />
-	<filter id="7" board="sa" reason="rain" status="1" />
-	<filter id="8" board="p" reason="snow" status="0" />
+	<filter id="http://foo.bar/1" board="t" reason="just testing" status="0" timestamp="2000-01-01 00:00:00.000000000" />
+	<filter id="http://foo.bar/2" board="a" reason="foo bar" status="1" timestamp="2000-01-01 00:00:01.000000000" />
+	<filter id="http://foo.bar/3" board="c" reason="yeti!" status="2" timestamp="2000-01-01 00:00:02.000000000" />
+	<filter id="http://foo.bar/4" board="m" reason="more test data" status="3" timestamp="2000-01-01 00:00:03.000000000" />
+	<filter id="http://foo.bar/5" board="vx" reason="and more" status="1" timestamp="2000-01-01 00:00:04.000000000" />
+	<filter id="http://foo.bar/6" board="zb" reason="om nom nom" status="1" timestamp="2000-01-01 00:00:05.000000000" />
+	<filter id="http://foo.bar/7" board="sa" reason="rain" status="1" timestamp="2000-01-01 00:00:06.000000000" />
+	<filter id="http://foo.bar/8" board="p" reason="snow" status="0" timestamp="2000-01-01 00:00:07.000000000" />
 
 	<!-- dnw Table -->
 	<dnw hash="1" />
@@ -51,16 +51,16 @@
 	<hash hash="4" size="542322" 	dir="3" filename="2" />
 	
 	<!-- thumbs Table -->
-	<thumbs id="1"	url="1"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="2"	url="1"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="3"	url="1"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="4"	url="1"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="5"	url="2"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="6"	url="2"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="7"	url="2"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="8"	url="2"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="9"	url="3"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="10"	url="3"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="11"	url="3"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="12"	url="3"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="1"	url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="2"	url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="3"	url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="4"	url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="5"	url="http://foo.bar/2"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="6"	url="http://foo.bar/2"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="7"	url="http://foo.bar/2"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="8"	url="http://foo.bar/2"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="9"	url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="10"	url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="11"	url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="12"	url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
 </dataset>

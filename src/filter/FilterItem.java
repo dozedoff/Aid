@@ -41,7 +41,7 @@ public class FilterItem implements Serializable{
 		displayString = String.format(format, board,pageNr,reason);
 	}
 	
-	public FilterItem(String board, String reason, URL url, FilterState state){
+	public FilterItem( URL url,String board, String reason, FilterState state){
 		this.board = board;
 		this.reason = reason;
 		this.url = url;

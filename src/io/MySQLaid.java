@@ -14,6 +14,9 @@ import filter.FilterItem;
 import filter.FilterState;
 
 public class MySQLaid extends MySQL {
+	final String RS_CLOSE_ERR = "Could not close ResultSet: ";
+	final String SQL_OP_ERR = "MySQL operation failed: ";
+	
 	public MySQLaid(Properties mySqlProps) {
 		super(mySqlProps);
 		// TODO Auto-generated constructor stub
@@ -26,7 +29,7 @@ public class MySQLaid extends MySQL {
 		addPrepStmt("filterState"		, "SELECT status FROM filter WHERE  id = ?");
 		addPrepStmt("pendingFilter"		, "SELECT board, reason, id FROM filter WHERE status = 1 ORDER BY board, reason ASC");
 		addPrepStmt("filterTime"		, "UPDATE filter SET timestamp = ? WHERE id = ?");
-		addPrepStmt("oldestFilter"		, "SELECT id FROM filter WHERE timestamp = (SELECT Min(timestamp) FROM filter)");
+		addPrepStmt("oldestFilter"		, "SELECT id FROM filter ORDER BY timestamp ASC LIMIT 1");
 	}
 	
 	public boolean addFilter(FilterItem fi){
@@ -58,7 +61,7 @@ public class MySQLaid extends MySQL {
 				return true;
 			}
 		} catch (SQLException e) {
-			logger.warning("MySql Filter add failed: "+e.getMessage());
+			logger.warning(SQL_OP_ERR+e.getMessage());
 		}
 	
 		return false;
@@ -72,28 +75,31 @@ public class MySQLaid extends MySQL {
 			updateFilter.setString(2, id);
 			updateFilter.executeUpdate();
 		} catch (SQLException e) {
-			logger.warning("MySql filter update failed: "+e.getMessage());
+			logger.warning(SQL_OP_ERR+e.getMessage());
 		}
 	}
 
 	public FilterState getFilterState(String id){
 		reconnect();
-		ResultSet rs;
+		ResultSet rs = null;
 
 		try {
 			getPrepStmt("filterState").setString(1, id);
 			rs = prepStmtQuery("filterState");
-			if(!rs.first()){
-				rs.close();
-				return FilterState.UNKNOWN;
-			}
-			else{
+			if(rs.next()){
 				FilterState fs = FilterState.values()[(int)rs.getShort(1)];
-				rs.close();
 				return fs; 
 			}
 		} catch (SQLException e) {
-			logger.warning("MySql filterstate get failed: "+e.getMessage());
+			logger.warning(SQL_OP_ERR+e.getMessage());
+		}finally{
+			if(rs != null){
+				try {
+					rs.close();
+				} catch (SQLException e) {
+					logger.warning(RS_CLOSE_ERR+e.getMessage());
+				}
+			}
 		}
 		return FilterState.UNKNOWN;
 	}
@@ -105,7 +111,7 @@ public class MySQLaid extends MySQL {
 	public LinkedList<FilterItem> getPendingFilters(){
 		reconnect();
 		PreparedStatement pendingFilter = getPrepStmt("pendingFilter");
-		ResultSet rs;
+		ResultSet rs = null;
 
 		try {
 			rs = pendingFilter.executeQuery();
@@ -114,14 +120,22 @@ public class MySQLaid extends MySQL {
 				URL url;
 				url = new URL(rs.getString("id"));
 
-				result.add(new FilterItem(rs.getString("board"), rs.getString("reason"), url, FilterState.PENDING));
+				result.add(new FilterItem(url, rs.getString("board"), rs.getString("reason"),  FilterState.PENDING));
 			}
-			rs.close();
+			
 			return result;
 		} catch (SQLException e) {
-			logger.warning("MySql PendingFilter lookup failed: "+e.getMessage());
+			logger.warning(SQL_OP_ERR+e.getMessage());
 		} catch (MalformedURLException e) {
 			logger.warning("Unable to create URL "+e.getMessage());
+		}finally{
+			try {
+				if(rs != null){
+					rs.close();
+				}
+			} catch (SQLException e) {
+				logger.warning(RS_CLOSE_ERR+e.getMessage());
+			}
 		}
 		return new LinkedList<FilterItem>();
 	}
@@ -134,7 +148,7 @@ public class MySQLaid extends MySQL {
 			updateTimestamp.setString(2, id);
 			updateTimestamp.executeUpdate();
 		} catch (SQLException e) {
-			logger.warning("Filter timestamp update failed: "+e.getMessage());
+			logger.warning(SQL_OP_ERR+e.getMessage());
 		}
 	}
 	
@@ -154,7 +168,15 @@ public class MySQLaid extends MySQL {
 				return null;
 			}
 		} catch (SQLException e) {
-			logger.warning("MySql filter update failed: "+e.getLocalizedMessage());
+			logger.warning(SQL_OP_ERR+e.getLocalizedMessage());
+		}finally{
+			if(rs != null){
+				try {
+					rs.close();
+				} catch (SQLException e) {
+					logger.warning(RS_CLOSE_ERR+e.getMessage());
+				}
+			}
 		}
 		return null;
 	}

@@ -151,7 +151,7 @@ public class Page implements Runnable{
 				response = filter.checkPost(p);
 				
 				if(response != null && threadFilterState != FilterState.ALLOW){
-					filter.reviewThread(new FilterItem(pt.getBoardDesignation(), response, pt.getThreadUrl(), FilterState.PENDING));
+					filter.reviewThread(new FilterItem(pt.getThreadUrl(), pt.getBoardDesignation(), response, FilterState.PENDING));
 					filter.downloadThumbs(pt.getThreadUrl().toString(), pt.getPosts());
 					blocked = true;
 					break;

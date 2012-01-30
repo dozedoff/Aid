@@ -10,33 +10,33 @@
 	<cache id="http://squirrel.net" />
 	
 	<!-- filter Table -->
-	<filter id="1" board="t" reason="just testing" status="0" />
-	<filter id="2" board="a" reason="foo bar" status="1" />
-	<filter id="3" board="c" reason="yeti!" status="2" />
-	<filter id="4" board="m" reason="more test data" status="3" />
-	<filter id="5" board="vx" reason="and more" status="1" />
-	<filter id="6" board="zb" reason="om nom nom" status="1" />
-	<filter id="7" board="sa" reason="rain" status="1" />
-	<filter id="8" board="p" reason="snow" status="0" />
+	<filter id="http://foo.bar/1" board="t" reason="just testing" status="0" />
+	<filter id="http://foo.bar/2" board="a" reason="foo bar" status="1" />
+	<filter id="http://foo.bar/3" board="c" reason="yeti!" status="2" />
+	<filter id="http://foo.bar/4" board="m" reason="more test data" status="3" />
+	<filter id="http://foo.bar/5" board="vx" reason="and more" status="1" />
+	<filter id="http://foo.bar/6" board="zb" reason="om nom nom" status="1" />
+	<filter id="http://foo.bar/7" board="sa" reason="rain" status="1" />
+	<filter id="http://foo.bar/8" board="p" reason="snow" status="0" />
 
-	<filter id="ALLOW" board="t" reason="test" status="2" />
-	<filter id="DENY" board="t" reason="test" status="0" />
-	<filter id="PENDING" board="t" reason="test" status="1" />
-	<filter id="UNKNOWN" board="t" reason="test" status="3" />
+	<filter id="http://foo.bar/ALLOW" board="t" reason="test" status="2" />
+	<filter id="http://foo.bar/DENY" board="t" reason="test" status="0" />
+	<filter id="http://foo.bar/PENDING" board="t" reason="test" status="1" />
+	<filter id="http://foo.bar/UNKNOWN" board="t" reason="test" status="3" />
 	
 		<!-- thumbs Table -->
-	<thumbs id="1"	url="1"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="2"	url="1"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="3"	url="1"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="4"	url="1"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="5"	url="2"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="6"	url="2"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="7"	url="2"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="8"	url="2"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="9"	url="3"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="10"	url="3"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="11"	url="3"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="12"	url="3"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="1"	url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="2"	url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="3"	url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="4"	url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="5"	url="http://foo.bar/2"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="6"	url="http://foo.bar/2"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="7"	url="http://foo.bar/2"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="8"	url="http://foo.bar/2"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="9"	url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="10"	url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="11"	url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs id="12"	url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
 	
 	<thumbs id="13"	url="4"		filename="apple.png" 	thumb="MTIzNDU="/>
 	
