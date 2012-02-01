@@ -291,7 +291,7 @@ public class FileWriter extends Thread{
 		}else{
 			newPath = new File(directory,"renamed_" + Calendar.getInstance().getTimeInMillis() + extension);
 		}
-		logger.warning("Renamed "+filepath.toString()+" to "+newPath.toString());
+		logger.info("Renamed "+filepath.toString()+" to "+newPath.toString());
 		return newPath;
 	}
 
