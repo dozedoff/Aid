@@ -236,6 +236,7 @@ public class MySqlAidTest extends DatabaseTestCase{
 		assertThat(pendingItems, hasItem(new FilterItem(new URL("http://foo.bar/7"),"sa", "rain",  FilterState.PENDING)));
 	}
 	
+	@Test
 	public void testGetOldestFilter(){
 		assertThat(sql.getOldestFilter(), is("http://foo.bar/1"));
 		sql.delete("filter", "http://foo.bar/1");
@@ -244,6 +245,7 @@ public class MySqlAidTest extends DatabaseTestCase{
 		assertThat(sql.getOldestFilter(), is("http://foo.bar/3"));
 	}
 	
+	@Test
 	public void testUpdateFilterTimestamp() throws InterruptedException{
 		assertThat(sql.getOldestFilter(), is("http://foo.bar/1"));
 		Thread.sleep(1100);
