@@ -14,9 +14,6 @@ import filter.FilterItem;
 import filter.FilterState;
 
 public class MySQLaid extends MySQL {
-	final String RS_CLOSE_ERR = "Could not close ResultSet: ";
-	final String SQL_OP_ERR = "MySQL operation failed: ";
-	
 	public MySQLaid(Properties mySqlProps) {
 		super(mySqlProps);
 		// TODO Auto-generated constructor stub
