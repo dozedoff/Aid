@@ -106,46 +106,46 @@ public class MySqlAidTest extends DatabaseTestCase{
 	@Test
 	public void testDelete() throws Exception{
 		// filter table
-		sql.delete("filter", "http://foo.bar/1");
-		sql.delete("filter", "http://foo.bar/2");
-		sql.delete("filter", "http://foo.bar/3");
-		sql.delete("filter", "http://foo.bar/4");
+		sql.delete(MySQLtables.Filter, "http://foo.bar/1");
+		sql.delete(MySQLtables.Filter, "http://foo.bar/2");
+		sql.delete(MySQLtables.Filter, "http://foo.bar/3");
+		sql.delete(MySQLtables.Filter, "http://foo.bar/4");
 
 		Assertion.assertEqualsIgnoreCols(getFileTable("filter", "/dbData/deleteExpected.xml"), getDatabaseTable("filter"),IGNORE_CACHE_COL);
 		
 		// hash table
-		sql.delete("hash", "2");
-		sql.delete("hash", "3");
+		sql.delete(MySQLtables.Hash, "2");
+		sql.delete(MySQLtables.Hash, "3");
 		
 		Assertion.assertEquals(getFileTable("hash", "/dbData/deleteExpected.xml"), getDatabaseTable("hash"));
 		
 		// dnw table
-		sql.delete("dnw", "3");
-		sql.delete("dnw", "4");
+		sql.delete(MySQLtables.Dnw, "3");
+		sql.delete(MySQLtables.Dnw, "4");
 		
 		Assertion.assertEquals(getFileTable("dnw", "/dbData/deleteExpected.xml"), getDatabaseTable("dnw"));
 		
 		// block table
-		sql.delete("block", "1");
-		sql.delete("block", "4");
+		sql.delete(MySQLtables.Block, "1");
+		sql.delete(MySQLtables.Block, "4");
 
 		Assertion.assertEquals(getFileTable("block", "/dbData/deleteExpected.xml"), getDatabaseTable("block"));
 		
 		// archive table
-		sql.delete("archive", "3");
-		sql.delete("archive", "4");
+		sql.delete(MySQLtables.Archive, "3");
+		sql.delete(MySQLtables.Archive, "4");
 
 		Assertion.assertEquals(getFileTable("archive", "/dbData/deleteExpected.xml"), getDatabaseTable("archive"));
 	}
 
 	@Test
 	public void testFilterSize(){
-		assertThat(sql.size("filter"), is(8));
+		assertThat(sql.size(MySQLtables.Filter), is(8));
 	}
 
 	@Test
 	public void testCacheSize(){
-		assertThat(sql.size("cache"), is(4));
+		assertThat(sql.size(MySQLtables.Cache), is(4));
 	}
 	
 	@Test
@@ -179,8 +179,8 @@ public class MySqlAidTest extends DatabaseTestCase{
 	
 	@Test
 	public void testTriggerThumbsDelete() throws Exception{
-		sql.delete("filter", "http://foo.bar/1");
-		sql.delete("filter", "http://foo.bar/2");
+		sql.delete(MySQLtables.Filter, "http://foo.bar/1");
+		sql.delete(MySQLtables.Filter, "http://foo.bar/2");
 		
 		Assertion.assertEqualsIgnoreCols(getFileTable("thumbs", "/dbData/triggerExpected.xml"), getDatabaseTable("thumbs"), IGNORE_THUMBS_TRIGGER_COL);
 	}
@@ -239,9 +239,9 @@ public class MySqlAidTest extends DatabaseTestCase{
 	@Test
 	public void testGetOldestFilter(){
 		assertThat(sql.getOldestFilter(), is("http://foo.bar/1"));
-		sql.delete("filter", "http://foo.bar/1");
+		sql.delete(MySQLtables.Filter, "http://foo.bar/1");
 		assertThat(sql.getOldestFilter(), is("http://foo.bar/2"));
-		sql.delete("filter", "http://foo.bar/2");
+		sql.delete(MySQLtables.Filter, "http://foo.bar/2");
 		assertThat(sql.getOldestFilter(), is("http://foo.bar/3"));
 	}
 	

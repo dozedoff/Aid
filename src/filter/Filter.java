@@ -21,6 +21,7 @@ import gui.BlockListDataModel;
 import gui.Stats;
 import io.ConnectionPoolaid;
 import io.MySQLaid;
+import io.MySQLtables;
 import io.ResourceCreationException;
 import io.ThumbnailLoader;
 
@@ -186,7 +187,7 @@ public class Filter implements FilterModifiable{
 	 */
 	public int getSize(){
 		MySQLaid mySql = getSql();
-		int size = mySql.size("filter");
+		int size = mySql.size(MySQLtables.Filter);
 		releaseSql(mySql);
 		return size;
 	}
@@ -303,7 +304,7 @@ public class Filter implements FilterModifiable{
 	public void cache(URL url){
 		MySQLaid mySql = getSql();
 		mySql.addCache(url);
-		Stats.setCacheSize(mySql.size("cache"));
+		Stats.setCacheSize(mySql.size(MySQLtables.Cache));
 		releaseSql(mySql);
 	}
 	
@@ -316,7 +317,7 @@ public class Filter implements FilterModifiable{
 		exp.add(Calendar.HOUR, -3);
 
 		sql.pruneCache(exp.getTimeInMillis()); //keys that are older than 3 Hour
-		Stats.setCacheSize(sql.size("cache"));
+		Stats.setCacheSize(sql.size(MySQLtables.Cache));
 		releaseSql(sql);
 	}
 	
@@ -356,9 +357,9 @@ public class Filter implements FilterModifiable{
 		boolean blocked = sql.isBlacklisted(hash);
 		if(blocked){
 			//remove that hash from other tables
-			sql.delete("hash", hash);
-			sql.delete("archive", hash);
-			sql.delete("dnw", hash);
+			sql.delete(MySQLtables.Hash, hash);
+			sql.delete(MySQLtables.Archive, hash);
+			sql.delete(MySQLtables.Dnw, hash);
 		}
 		releaseSql(sql);
 		return blocked;
@@ -405,7 +406,7 @@ public class Filter implements FilterModifiable{
 
 		try {
 			if (new GetHtml().getResponse(currString) == 404){
-				mySql.delete("filter", currString);
+				mySql.delete(MySQLtables.Filter, currString);
 				releaseSql(mySql);
 				return false;
 			}else{
