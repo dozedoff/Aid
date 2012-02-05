@@ -27,6 +27,10 @@ import gui.Aid;
 import io.ConnectionPoolaid;
 import io.FileWriter;
 import io.ImageLoader;
+import io.MySQLaid;
+import io.ResourceCreationException;
+import io.SchemaUpdateException;
+import io.SchemaUpdater;
 import io.ThumbnailLoader;
 
 import java.awt.event.ActionEvent;
@@ -238,7 +242,17 @@ public class Main implements ActionListener{
 
 		// create all needed classes
 		build();
-
+		MySQLaid cn = null;
+		try {
+			cn = connPool.getResource();
+			SchemaUpdater.update(cn, new InternalSetting());
+		} catch (InterruptedException | ResourceCreationException | SchemaUpdateException e) {
+			connPool.returnResource(cn);
+			logger.severe("Schema update failed: "+e.getMessage());
+			System.exit(5);
+		}
+		
+		connPool.returnResource(cn);
 		InputStream is = null;
 		try{
 			is = new FileInputStream(FILTER_DATA_FILENAME);
