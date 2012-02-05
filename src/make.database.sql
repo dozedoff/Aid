@@ -7,9 +7,10 @@ CREATE DATABASE IF NOT EXISTS `aid` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE 
 USE `aid`;
 
 CREATE TABLE IF NOT EXISTS `settings` (
-	`name` TEXT NOT NULL,
-	`param` TEXT NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=ascii;
+	`name` varchar(20) NOT NULL,
+	`param` TEXT NOT NULL,
+	UNIQUE INDEX `name` (`name`)
+) ENGINE=MyISAM DEFAULT CHARSET=ascii;
 
 INSERT IGNORE INTO settings (name,param) VALUES ('SchemaVersion', '1');
 
