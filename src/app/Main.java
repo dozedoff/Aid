@@ -123,15 +123,11 @@ public class Main implements ActionListener{
 		//  -------------- Configuration loading starts here --------------
 		appSettings = loadAppConfig(APP_CFG_FILENAME);
 
-		appSettings = loadAppConfig(APP_CFG_FILENAME);
-
 		if(! SettingValidator.validateAppSettings(appSettings)){
-			logger.warning("One or more program settings are invalid. Please correct them and restart the program.\n"
-					+ " to reset to the default values, delete "+APP_CFG_FILENAME+" and restart the program."
-					);
-
-			//TODO add a pop up message here
-			System.exit(1);
+			String message = "One or more program settings are invalid. Please correct them and restart the program.\n"
+					+ " to reset to the default values, delete "+APP_CFG_FILENAME+" and restart the program.";
+			logger.severe(message);
+			dieWithError(message, 1);
 		}
 		
 		page = appSettings.getProperty("page_threads",DEFAULT_PAGE_THREADS);
@@ -162,21 +158,21 @@ public class Main implements ActionListener{
 		}
 
 		if((saveDirectory == null)||(saveDirectory.equals(""))){
-			logger.severe(saveDirectory+" is an invalid save location. Quitting...");
-			System.exit(2);
+			String message = saveDirectory+" is an invalid save location. Quitting...";
+			dieWithError(message, 2);
 		}
 
 		File basePath = new File(saveDirectory);
 		if(! basePath.exists()){
-			logger.severe(saveDirectory + " is an invalid save location. Quitting...");
-			System.exit(3);
+			String message = saveDirectory + " is an invalid save location. Quitting...";
+			dieWithError(message, 3);
 		}
 
 		sqlProps = loadMySqlConfig(MYSQL_CFG_FILENAME);
 
 		if(sqlProps == null){
-			logger.severe("Unable to load MySQL config.\nCheck settings and restart the Programm.");
-			return;
+			String message = "Unable to load MySQL config.\nCheck settings and restart the Programm.";
+			dieWithError(message, 4);
 		}
 
 		//  -------------- Class instantiation starts here --------------  //
@@ -222,8 +218,8 @@ public class Main implements ActionListener{
 		
 		String mysqljdbc = "mysql-connector-java-5.1.15-bin.jar";
 		if(! (new File(mysqljdbc)).canRead()) {
-			logger.severe("Required library file " + mysqljdbc + " could not be found.");
-			System.exit(-1);
+			String message = "Required library file " + mysqljdbc + " could not be found.";
+			dieWithError(message, 5);
 		}
 
 		try {
@@ -248,8 +244,8 @@ public class Main implements ActionListener{
 			SchemaUpdater.update(cn, new InternalSetting());
 		} catch (InterruptedException | ResourceCreationException | SchemaUpdateException e) {
 			connPool.returnResource(cn);
-			logger.severe("Schema update failed: "+e.getMessage());
-			System.exit(5);
+			String message = "Schema update failed: "+e.getMessage();
+			dieWithError(message, 6);
 		}
 		
 		connPool.returnResource(cn);
@@ -270,6 +266,13 @@ public class Main implements ActionListener{
 		logger.info("Initialization complete");
 		Log.add("Initialization complete");
 	}
+	
+	private void dieWithError(String message, int errorCode){
+		logger.severe(message);
+		JOptionPane.showMessageDialog(null, message, "Fatal Error", JOptionPane.ERROR_MESSAGE);
+		System.exit(errorCode);
+	}
+
 
 	/**
 	 * Load the logger settings from the file
