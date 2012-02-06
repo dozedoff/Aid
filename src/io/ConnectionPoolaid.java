@@ -15,55 +15,60 @@
  */
 package io;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Logger;
+
+import com.jolbox.bonecp.BoneCP;
+import com.jolbox.bonecp.BoneCPConfig;
 
 /**
  * Connection pool for database connections.
  */
-public class ConnectionPoolaid extends ResourcePool<MySQLaid> {
+public class ConnectionPoolaid implements ConnectionPool {
 	private Properties dbProps;
-	private final int DEF_WAIT_TIME = 5000;
 
 	static final Logger LOGGER = Logger.getLogger(ConnectionPoolaid.class.toString());
+	BoneCP connectionPool = null;
+	BoneCPConfig config = null;
+	Properties sqlConfig;
+	int maxResources;
 	
 	public ConnectionPoolaid(Properties dbProps,int maxResources) {
-		super(maxResources);
 		this.dbProps = dbProps;
+		this.maxResources = maxResources;
+	}
+	
+	public void startPool() throws Exception{
+		Class.forName( "com.mysql.jdbc.Driver" );
+		config = new BoneCPConfig(dbProps);
+		config.setMinConnectionsPerPartition(1);
+		config.setMaxConnectionsPerPartition(maxResources);
+		config.setPartitionCount(1);
+		connectionPool = new BoneCP(config); // setup the connection pool
 	}
 
-	@Override
-	protected MySQLaid createResource() {
-		MySQLaid sql = new MySQLaid(dbProps);
-		sql.init();
-		return sql;
-	}
-	
-	@Override
-	public MySQLaid processBeforReturn(MySQLaid res){
-		if(res == null || !res.isValid())
-			return createResource();
-		else
-			return res;
-	}
-	
-	public void closeAll(){
-		LOGGER.info("Closing all database connections...")
-		;
-		for(MySQLaid m : resources)
-			m.disconnect();
-		
-		LOGGER.info("All database connections closed.");
+	public void stopPool(){
+		LOGGER.info("Closing all database connections...");
+		connectionPool.shutdown();
 	}
 	
 	/**
-	 * Gets a database connection using default values.
+	 * Gets a database connection.
 	 * 
 	 * @return a database connection
-	 * @throws InterruptedException
-	 * @throws ResourceCreationException
+	 * @throws SQLException 
 	 */
-	public MySQLaid getResource() throws InterruptedException, ResourceCreationException {
-		return getResource(DEF_WAIT_TIME);
+	public Connection getConnection() throws SQLException {
+		return connectionPool.getConnection();
+	}
+
+	public void returnConnection(Connection cn) {
+		try {
+			cn.close();
+		} catch (SQLException e) {
+			LOGGER.warning("Error trying to close connection: "+e.getMessage());
+		}
 	}
 }

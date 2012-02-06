@@ -388,7 +388,7 @@ public class Filter implements FilterModifiable{
 	}
 
 	private void releaseSql(MySQLaid mySql){
-		connPool.returnResource(mySql);
+		connPool.returnConnection(mySql);
 	}
 
 	/**

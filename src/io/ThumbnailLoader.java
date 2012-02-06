@@ -103,6 +103,6 @@ public class ThumbnailLoader {
 	}
 	
 	private void releaseSql(MySQLaid mySql){
-		connPool.returnResource(mySql);
+		connPool.returnConnection(mySql);
 	}
 }

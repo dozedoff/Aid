@@ -240,15 +240,15 @@ public class Main implements ActionListener{
 		build();
 		MySQLaid cn = null;
 		try {
-			cn = connPool.getResource();
+			cn = connPool.getConnection();
 			SchemaUpdater.update(cn, new InternalSetting());
 		} catch (InterruptedException | ResourceCreationException | SchemaUpdateException e) {
-			connPool.returnResource(cn);
+			connPool.returnConnection(cn);
 			String message = "Schema update failed: "+e.getMessage();
 			dieWithError(message, 6);
 		}
 		
-		connPool.returnResource(cn);
+		connPool.returnConnection(cn);
 		InputStream is = null;
 		try{
 			is = new FileInputStream(FILTER_DATA_FILENAME);
@@ -401,7 +401,7 @@ public class Main implements ActionListener{
 
 			// close all DB connections
 			if(connPool != null)
-				connPool.closeAll();
+				connPool.stopPool();
 
 			// save the thread filter
 			if(filter != null)
