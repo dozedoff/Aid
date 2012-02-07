@@ -80,10 +80,11 @@ public class MySQLaid extends MySQL {
 
 	public FilterState getFilterState(String id){
 		ResultSet rs = null;
-
+		PreparedStatement ps = null;
 		try {
-			getPrepStmt("filterState").setString(1, id);
-			rs = prepStmtQuery("filterState");
+			ps = getPrepStmt("filterState");
+			ps.setString(1, id);
+			rs = ps.executeQuery();
 			if(rs.next()){
 				FilterState fs = FilterState.values()[(int)rs.getShort(1)];
 				return fs; 
@@ -91,13 +92,7 @@ public class MySQLaid extends MySQL {
 		} catch (SQLException e) {
 			logger.warning(SQL_OP_ERR+e.getMessage());
 		}finally{
-			if(rs != null){
-				try {
-					rs.close();
-				} catch (SQLException e) {
-					logger.warning(RS_CLOSE_ERR+e.getMessage());
-				}
-			}
+			closeAll(ps);
 		}
 		return FilterState.UNKNOWN;
 	}
