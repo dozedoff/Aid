@@ -118,6 +118,8 @@ public class Main implements ActionListener{
 		String page, image, writeBlocked, baseUrl = "", subPages = "";
 		int pageThreads = 1, imageThreads = 1;
 		boolean writeBlock = false;
+	
+		
 		
 		//  -------------- Configuration loading starts here --------------
 		appSettings = loadAppConfig(APP_CFG_FILENAME);
@@ -180,7 +182,8 @@ public class Main implements ActionListener{
 		try {
 			connPool.startPool();
 		} catch (Exception e) {
-			String message = "Unable to connect to database.";
+			String message = "Unable to connect to database:\n"
+						+e.getMessage();
 			dieWithError(message, 7);
 		}
 		blockListModel = new BlockListDataModel();
