@@ -44,8 +44,8 @@ public class MySQLaid extends MySQL {
 	 * @return true if the filter was added, else false
 	 */
 	public boolean addFilter(String id, String board, String reason, FilterState state){
+		PreparedStatement addFilter =getPrepStmt("addFilter");
 		try {
-			PreparedStatement addFilter = getPrepStmt("addFilter");
 			addFilter.setString(1, id);
 			addFilter.setString(2, board);
 			addFilter.setString(3, reason);
@@ -60,6 +60,8 @@ public class MySQLaid extends MySQL {
 			}
 		} catch (SQLException e) {
 			logger.warning(SQL_OP_ERR+e.getMessage());
+		} finally {
+			closeAll(addFilter);
 		}
 	
 		return false;
@@ -74,7 +76,7 @@ public class MySQLaid extends MySQL {
 		} catch (SQLException e) {
 			logger.warning(SQL_OP_ERR+e.getMessage());
 		} finally {
-			silentClose(null, updateFilter, null);
+			closeAll(updateFilter);
 		}
 	}
 
@@ -121,13 +123,7 @@ public class MySQLaid extends MySQL {
 		} catch (MalformedURLException e) {
 			logger.warning("Unable to create URL "+e.getMessage());
 		}finally{
-			try {
-				if(rs != null){
-					rs.close();
-				}
-			} catch (SQLException e) {
-				logger.warning(RS_CLOSE_ERR+e.getMessage());
-			}
+			closeAll(pendingFilter);
 		}
 		return new LinkedList<FilterItem>();
 	}
@@ -140,6 +136,8 @@ public class MySQLaid extends MySQL {
 			updateTimestamp.executeUpdate();
 		} catch (SQLException e) {
 			logger.warning(SQL_OP_ERR+e.getMessage());
+		} finally {
+			closeAll(updateTimestamp);
 		}
 	}
 	
@@ -151,22 +149,14 @@ public class MySQLaid extends MySQL {
 			rs = getOldest.executeQuery();
 			if(rs.next()){
 				String s = rs.getString(1);
-				rs.close();
 				return s;
 			}else {
-				rs.close();
 				return null;
 			}
 		} catch (SQLException e) {
 			logger.warning(SQL_OP_ERR+e.getLocalizedMessage());
 		}finally{
-			if(rs != null){
-				try {
-					rs.close();
-				} catch (SQLException e) {
-					logger.warning(RS_CLOSE_ERR+e.getMessage());
-				}
-			}
+			closeAll(getOldest);
 		}
 		return null;
 	}
