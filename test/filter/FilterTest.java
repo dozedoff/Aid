@@ -9,7 +9,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import gui.BlockListDataModel;
-import io.ConnectionPoolaid;
+import io.BoneConnectionPool;
+import io.MySQLaid;
 import io.ThumbnailLoader;
 
 import java.io.File;
@@ -25,7 +26,7 @@ import org.junit.rules.TemporaryFolder;
 import board.Post;
 
 public class FilterTest {
-	ConnectionPoolaid mockConnectionPoolaid = mock(ConnectionPoolaid.class);
+	MySQLaid mockMySqlAid = mock(MySQLaid.class);
 	ThumbnailLoader mockThumbnailLoader = mock(ThumbnailLoader.class);
 	
 	DefaultListModel<String> fileNameModel;
@@ -46,7 +47,7 @@ public class FilterTest {
 		fileNameModel = new DefaultListModel<>();
 		postContentModel = new DefaultListModel<>();
 		
-		filter = new Filter(mockConnectionPoolaid, new BlockListDataModel(),fileNameModel, postContentModel, mockThumbnailLoader);
+		filter = new Filter(mockMySqlAid, new BlockListDataModel(),fileNameModel, postContentModel, mockThumbnailLoader);
 		testFile = tempFolder.newFile(TEST_FILE_NAME);
 		testURL = new URL("http://foo.bar/test/12345");
 	}

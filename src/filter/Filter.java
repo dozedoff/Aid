@@ -19,10 +19,8 @@ package filter;
 
 import gui.BlockListDataModel;
 import gui.Stats;
-import io.ConnectionPoolaid;
 import io.MySQLaid;
 import io.MySQLtables;
-import io.ResourceCreationException;
 import io.ThumbnailLoader;
 
 import java.awt.Image;
@@ -65,11 +63,11 @@ public class Filter implements FilterModifiable{
 	private DefaultListModel<String> postContentModel;
 	private ThumbnailLoader thumbLoader;
 
-	private ConnectionPoolaid connPool; //TODO there is a MySql.ConnectionPool - check it out
+	private MySQLaid sql;
 	private Timer filterUpdateTimer = new Timer("Filter update daemon", true);
 	
-	public Filter(ConnectionPoolaid connPool, BlockListDataModel blockListModel,DefaultListModel<String> fileNameModel, DefaultListModel<String> postContentModel, ThumbnailLoader thumbLoader){
-		this.connPool = connPool;
+	public Filter(MySQLaid sql, BlockListDataModel blockListModel,DefaultListModel<String> fileNameModel, DefaultListModel<String> postContentModel, ThumbnailLoader thumbLoader){
+		this.sql = sql;
 		this.blocklistModel = blockListModel;
 		this.fileNameModel = fileNameModel;
 		this.postContentModel = postContentModel;
@@ -171,12 +169,10 @@ public class Filter implements FilterModifiable{
 	 * @param urlToTest The URL to check against the database.
 	 */
 	public FilterState getFilterState(URL urlToTest){
-		MySQLaid mySql = getSql();
 
 		FilterState state = FilterState.UNKNOWN;
 
-		state = mySql.getFilterState(urlToTest.toString());
-		releaseSql(mySql);
+		state = sql.getFilterState(urlToTest.toString());
 		return state;
 	}
 
@@ -186,9 +182,7 @@ public class Filter implements FilterModifiable{
 	 * @return Number of items in the filter.
 	 */
 	public int getSize(){
-		MySQLaid mySql = getSql();
-		int size = mySql.size(MySQLtables.Filter);
-		releaseSql(mySql);
+		int size = sql.size(MySQLtables.Filter);
 		return size;
 	}
 
@@ -198,12 +192,7 @@ public class Filter implements FilterModifiable{
 	 * @return Number of "Pending" filter items.
 	 */
 	public int getPending(){
-		MySQLaid mySql = getSql();
-
-		int pending = mySql.getPending();
-
-		releaseSql(mySql);
-
+		int pending = sql.getPending();
 		return pending;
 	}
 
@@ -212,13 +201,10 @@ public class Filter implements FilterModifiable{
 	 * @param filteritem FilterItem to add.
 	 */
 	public void reviewThread(FilterItem filterItem){
-		MySQLaid mySql = getSql();
-
-		mySql.addFilter(filterItem.getUrl().toString(),  filterItem.getBoard(), filterItem.getReason(), filterItem.getState());
+		sql.addFilter(filterItem.getUrl().toString(),  filterItem.getBoard(), filterItem.getReason(), filterItem.getState());
 		blocklistModel.addElement(filterItem);
 		filterNr++;
 		Stats.setFilterSize(filterNr);
-		releaseSql(mySql);
 	}
 
 	/**
@@ -228,9 +214,7 @@ public class Filter implements FilterModifiable{
 	 * @param url URL to allow.
 	 */
 	public void setAllow(URL url){
-		MySQLaid mySql = getSql();
-		mySql.updateState(url.toString(), FilterState.ALLOW);
-		releaseSql(mySql);
+		sql.updateState(url.toString(), FilterState.ALLOW);
 		filterNr--;
 		Stats.setFilterSize(filterNr);
 	}
@@ -240,9 +224,7 @@ public class Filter implements FilterModifiable{
 	 * Files in this thread will not be processed.
 	 */
 	public void setDeny(URL url){
-		MySQLaid mySql = getSql();
-		mySql.updateState(url.toString(), FilterState.DENY);
-		releaseSql(mySql);
+		sql.updateState(url.toString(), FilterState.DENY);
 		filterNr--;
 		Stats.setFilterSize(filterNr);
 	}
@@ -290,11 +272,7 @@ public class Filter implements FilterModifiable{
 	 * @return true if found, else false.
 	 */
 	public boolean isCached(URL url){
-		MySQLaid mySql = getSql();
-
-		boolean known = mySql.isCached(url);
-
-		releaseSql(mySql);
+		boolean known = sql.isCached(url);
 		return known;
 	}
 	/**
@@ -302,23 +280,19 @@ public class Filter implements FilterModifiable{
 	 * @param url URL to add.
 	 */
 	public void cache(URL url){
-		MySQLaid mySql = getSql();
-		mySql.addCache(url);
-		Stats.setCacheSize(mySql.size(MySQLtables.Cache));
-		releaseSql(mySql);
+		sql.addCache(url);
+		Stats.setCacheSize(sql.size(MySQLtables.Cache));
 	}
 	
 	/**
 	 * Remove all cache entries with timestamps older than 3 hours.<br/>
 	 */
 	public void pruneCache(){
-		MySQLaid sql = getSql();
 		Calendar exp = Calendar.getInstance();
 		exp.add(Calendar.HOUR, -3);
 
 		sql.pruneCache(exp.getTimeInMillis()); //keys that are older than 3 Hour
 		Stats.setCacheSize(sql.size(MySQLtables.Cache));
-		releaseSql(sql);
 	}
 	
 	/**
@@ -328,22 +302,12 @@ public class Filter implements FilterModifiable{
 	 * Returns true on error.
 	 */
 	public boolean exists(String hash){
-		MySQLaid sql = getSql();
 		boolean exists = sql.isArchived(hash)||sql.isDnw(hash)||sql.isHashed(hash);
-		releaseSql(sql);
 		return exists;
 	}
 	
 	public void addHash(String hash, String path, int size) throws SQLException{
-		MySQLaid sql = getSql();
-
-			try {
 				sql.addHash(hash, path, size);
-			} catch (SQLException e) {
-				releaseSql(sql);
-				throw e;
-			}
-		releaseSql(sql);
 	}
 	
 	/**
@@ -353,7 +317,6 @@ public class Filter implements FilterModifiable{
 	 * Returns false on error.
 	 */
 	public boolean isBlacklisted(String hash){
-		MySQLaid sql = getSql();
 		boolean blocked = sql.isBlacklisted(hash);
 		if(blocked){
 			//remove that hash from other tables
@@ -361,7 +324,6 @@ public class Filter implements FilterModifiable{
 			sql.delete(MySQLtables.Archive, hash);
 			sql.delete(MySQLtables.Dnw, hash);
 		}
-		releaseSql(sql);
 		return blocked;
 	}
 	
@@ -378,19 +340,6 @@ public class Filter implements FilterModifiable{
 		thumbLoader.downloadThumbs(url, postList);
 	}
 
-	private MySQLaid getSql(){
-		MySQLaid mySql = null;
-		try {mySql = (MySQLaid) connPool.getResource(5000);
-		} catch (InterruptedException e1) {
-		} catch (ResourceCreationException e1) {
-			logger.severe(e1.getMessage());}
-		return mySql;
-	}
-
-	private void releaseSql(MySQLaid mySql){
-		connPool.returnConnection(mySql);
-	}
-
 	/**
 	 * Attempts to connect to the URL.
 	 * If it exists, update the FilterItem timestamp, else delete it.
@@ -402,16 +351,13 @@ public class Filter implements FilterModifiable{
 	 */
 	private boolean refreshFilterItem(URL url){
 		String currString = url.toString();
-		MySQLaid mySql = getSql();
 
 		try {
 			if (new GetHtml().getResponse(currString) == 404){
-				mySql.delete(MySQLtables.Filter, currString);
-				releaseSql(mySql);
+				sql.delete(MySQLtables.Filter, currString);
 				return false;
 			}else{
-				mySql.updateFilterTimestamp(currString);
-				releaseSql(mySql);
+				sql.updateFilterTimestamp(currString);
 				return true;
 			}
 		} catch (MalformedURLException e2) {
@@ -419,7 +365,6 @@ public class Filter implements FilterModifiable{
 		} catch (Exception e) {
 			logger.warning("Refresh failed,  Reason: "+e.getMessage());
 		}
-		releaseSql(mySql);
 		return false;
 	}
 	
@@ -429,10 +374,9 @@ public class Filter implements FilterModifiable{
 	class RefreshList extends Thread{
 		@Override
 		public void run() {
-			MySQLaid mySql = getSql();
 			LinkedList<FilterItem> filterList = new LinkedList<>();
 			filterNr = 0;
-			filterList.addAll(mySql.getPendingFilters());
+			filterList.addAll(sql.getPendingFilters());
 			blocklistModel.clear();
 			for(FilterItem fi : filterList){
 				if(refreshFilterItem(fi.getUrl())){
@@ -440,7 +384,6 @@ public class Filter implements FilterModifiable{
 					filterNr++;
 				}
 			}
-			releaseSql(mySql);
 			Stats.setFilterSize(filterNr);
 		}
 	}
@@ -448,11 +391,9 @@ public class Filter implements FilterModifiable{
 	class FilterUpdater extends TimerTask{
 		@Override
 		public void run(){
-			MySQLaid mySql = getSql();
 			
-			String currString = mySql.getOldestFilter();
+			String currString = sql.getOldestFilter();
 			if(currString == null){
-				releaseSql(mySql);
 				return;
 			}
 			
@@ -461,8 +402,6 @@ public class Filter implements FilterModifiable{
 			} catch (MalformedURLException e) {
 				logger.warning("Filter refresh failed due to "+e.getMessage());
 			}
-			
-			releaseSql(mySql);
 		}
 	}
 }

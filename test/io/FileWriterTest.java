@@ -37,7 +37,7 @@ import gui.BlockListDataModel;
 
 
 public class FileWriterTest {
-	ConnectionPoolaid mockConnectionPoolaid;
+	BoneConnectionPool mockConnectionPoolaid;
 	ThumbnailLoader mockThumbnailLoader;
 	Filter mockFilter;
 	
@@ -55,7 +55,7 @@ public class FileWriterTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		mockConnectionPoolaid = mock(ConnectionPoolaid.class);
+		mockConnectionPoolaid = mock(BoneConnectionPool.class);
 		mockThumbnailLoader = mock(ThumbnailLoader.class);
 		mockFilter = mock(Filter.class);
 		

@@ -19,6 +19,8 @@ package io;
 
 import java.awt.Image;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -32,9 +34,9 @@ public class ThumbnailLoader {
 	private static Logger logger = Logger.getLogger(ThumbnailLoader.class.getName());
 	private final int NUM_OF_THUMBS = 17;
 	private final int SQL_MAX_WAITTIME = 5000;
-	private ConnectionPoolaid connPool;
-	public ThumbnailLoader(ConnectionPoolaid connPool){
-		this.connPool = connPool;
+	private MySQLaid sql;
+	public ThumbnailLoader(MySQLaid sql){
+		this.sql = sql;
 	}
 	/**
 	 * Download thumbnails and store them in the database.
@@ -57,7 +59,6 @@ public class ThumbnailLoader {
 			thumbUrl = thumbUrl.replace("src", "thumb");
 			thumbUrl = thumbUrl.replace(".jpg", "s.jpg");
 
-			MySQLaid sql = null;
 			try {
 				byte data[] = gb.get(thumbUrl); // get thumbnail
 
@@ -65,13 +66,11 @@ public class ThumbnailLoader {
 				String filename = thumbUrl.substring(split); // get the filename (used for sorting)
 
 				logger.info("adding thumbnail  " + thumbUrl +", "+filename+ "  datasize: "+data.length);
-				sql = aquireSql();
 				sql.addThumb(url,filename, data); // add data to DB
 			} catch (IOException e) {
 				logger.info("could not load thumbnail: "+e.getMessage());		
 			}finally{
 				counter++;
-				releaseSql(sql);
 			}
 			// only the first few thumbs are needed for a preview
 			if (counter > (NUM_OF_THUMBS-1))
@@ -85,24 +84,7 @@ public class ThumbnailLoader {
 	 * @return Array of Binary data
 	 */
 	public ArrayList<Image> getThumbs(String id){
-		MySQLaid mySql = aquireSql();
-		
-		ArrayList<Image> images = new ArrayList<>(mySql.getThumb(id));
-		releaseSql(mySql);
-		
+		ArrayList<Image> images = new ArrayList<>(sql.getThumb(id));
 		return images;
-	}
-
-	private MySQLaid aquireSql(){
-		try {
-			return connPool.getResource(SQL_MAX_WAITTIME);
-		} catch (InterruptedException e) {
-		} catch (ResourceCreationException e) {
-			logger.severe(e.getMessage());}
-		return null;
-	}
-	
-	private void releaseSql(MySQLaid mySql){
-		connPool.returnConnection(mySql);
 	}
 }

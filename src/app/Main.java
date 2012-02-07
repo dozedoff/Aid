@@ -17,18 +17,19 @@
  */
 package app;
 
+import gui.Aid;
 import gui.BlockList;
 import gui.BlockListDataModel;
 import gui.BoardListDataModel;
 import gui.Filterlist;
 import gui.Log;
 import gui.Stats;
-import gui.Aid;
-import io.ConnectionPoolaid;
+import io.BoneConnectionPool;
+import io.ConnectionPool;
 import io.FileWriter;
 import io.ImageLoader;
+import io.MySQL;
 import io.MySQLaid;
-import io.ResourceCreationException;
 import io.SchemaUpdateException;
 import io.SchemaUpdater;
 import io.ThumbnailLoader;
@@ -42,8 +43,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.LogManager;
@@ -53,14 +52,13 @@ import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
-import config.DefaultAppSettings;
-import config.DefaultLoggerSettings;
-import config.DefaultMySQLconnection;
-
 import thread.WorkQueue;
 import board.Board;
 import board.Page;
 import board.PageFactory;
+import config.DefaultAppSettings;
+import config.DefaultLoggerSettings;
+import config.DefaultMySQLconnection;
 
 /**
  * This is a Image board downloader that will check for new files at regular intervals
@@ -89,7 +87,8 @@ public class Main implements ActionListener{
 	private WorkQueue pageQueue;
 	private BlockListDataModel blockListModel;
 	private ThumbnailLoader thumbLoader;
-	private ConnectionPoolaid connPool;
+	private ConnectionPool connPool;
+	private MySQLaid mySQL;
 
 	private BoardListDataModel boards = new BoardListDataModel();
 	Properties appSettings = new DefaultAppSettings();
@@ -177,12 +176,19 @@ public class Main implements ActionListener{
 
 		//  -------------- Class instantiation starts here --------------  //
 		pageQueue = new WorkQueue(pageThreads, pageThreads, 100);
-		connPool = new ConnectionPoolaid(sqlProps,10); // connection pool for database connections
+		connPool = new BoneConnectionPool(sqlProps,10); // connection pool for database connections
+		try {
+			connPool.startPool();
+		} catch (Exception e) {
+			String message = "Unable to connect to database.";
+			dieWithError(message, 7);
+		}
 		blockListModel = new BlockListDataModel();
-		thumbLoader = new ThumbnailLoader(connPool);
+		mySQL = new MySQLaid(connPool);
+		thumbLoader = new ThumbnailLoader(mySQL);
 		DefaultListModel<String> fileNameModel = new DefaultListModel<>();
 		DefaultListModel<String> postContentModel = new DefaultListModel<>();
-		filter = new filter.Filter(connPool,blockListModel,fileNameModel, postContentModel, thumbLoader); // filter handler
+		filter = new filter.Filter(mySQL,blockListModel,fileNameModel, postContentModel, thumbLoader); // filter handler
 		filterlist = new Filterlist(filter, fileNameModel, postContentModel); // filter GUI
 		fileWriter = new FileWriter(filter); // disk IO
 
@@ -238,17 +244,13 @@ public class Main implements ActionListener{
 
 		// create all needed classes
 		build();
-		MySQLaid cn = null;
 		try {
-			cn = connPool.getConnection();
-			SchemaUpdater.update(cn, new InternalSetting());
-		} catch (InterruptedException | ResourceCreationException | SchemaUpdateException e) {
-			connPool.returnConnection(cn);
+			SchemaUpdater.update(new MySQL(connPool), new InternalSetting());
+		} catch (SchemaUpdateException e) {
 			String message = "Schema update failed: "+e.getMessage();
 			dieWithError(message, 6);
 		}
 		
-		connPool.returnConnection(cn);
 		InputStream is = null;
 		try{
 			is = new FileInputStream(FILTER_DATA_FILENAME);

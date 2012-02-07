@@ -14,13 +14,15 @@ import filter.FilterItem;
 import filter.FilterState;
 
 public class MySQLaid extends MySQL {
-	public MySQLaid(Properties mySqlProps) {
+	public MySQLaid(ConnectionPool mySqlProps) {
 		super(mySqlProps);
-		// TODO Auto-generated constructor stub
 	}
 	
-	public void init(){
-		super.init();
+	static{
+		init();
+	}
+	
+	private static void init(){
 		addPrepStmt("addFilter"			, "INSERT IGNORE INTO filter (id, board, reason, status) VALUES (?,?,?,?)");
 		addPrepStmt("updateFilter"		, "UPDATE filter SET status = ? WHERE id = ?");
 		addPrepStmt("filterState"		, "SELECT status FROM filter WHERE  id = ?");
@@ -42,7 +44,6 @@ public class MySQLaid extends MySQL {
 	 * @return true if the filter was added, else false
 	 */
 	public boolean addFilter(String id, String board, String reason, FilterState state){
-		reconnect();
 		try {
 			PreparedStatement addFilter = getPrepStmt("addFilter");
 			addFilter.setString(1, id);
@@ -65,7 +66,6 @@ public class MySQLaid extends MySQL {
 	}
 	
 	public void updateState(String id, FilterState state){
-		reconnect();
 		PreparedStatement updateFilter = getPrepStmt("updateFilter");
 		try {
 			updateFilter.setShort(1, (short)state.ordinal());
@@ -73,11 +73,12 @@ public class MySQLaid extends MySQL {
 			updateFilter.executeUpdate();
 		} catch (SQLException e) {
 			logger.warning(SQL_OP_ERR+e.getMessage());
+		} finally {
+			silentClose(null, updateFilter, null);
 		}
 	}
 
 	public FilterState getFilterState(String id){
-		reconnect();
 		ResultSet rs = null;
 
 		try {
@@ -106,7 +107,6 @@ public class MySQLaid extends MySQL {
 	 * @return a list of all pending filter items
 	 */
 	public LinkedList<FilterItem> getPendingFilters(){
-		reconnect();
 		PreparedStatement pendingFilter = getPrepStmt("pendingFilter");
 		ResultSet rs = null;
 
@@ -138,7 +138,6 @@ public class MySQLaid extends MySQL {
 	}
 	
 	public void updateFilterTimestamp(String id){
-		reconnect();
 		PreparedStatement updateTimestamp = getPrepStmt("filterTime");
 		try {
 			updateTimestamp.setTimestamp(1, new Timestamp(Calendar.getInstance().getTimeInMillis()));
@@ -150,7 +149,6 @@ public class MySQLaid extends MySQL {
 	}
 	
 	public String getOldestFilter(){
-		reconnect();
 		ResultSet rs = null;
 		PreparedStatement getOldest = getPrepStmt("oldestFilter");
 

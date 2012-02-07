@@ -32,6 +32,7 @@ import filter.FilterState;
 
 public class MySqlAidTest extends DatabaseTestCase{
 	MySQLaid sql;
+	BoneConnectionPool bcp;
 	final String[] IGNORE_CACHE_COL = {"timestamp"};
 	final String[] IGNORE_THUMBS_DATA_COL = {"id"};
 	final String[] IGNORE_THUMBS_TRIGGER_COL = {"id","thumb"};
@@ -44,15 +45,16 @@ public class MySqlAidTest extends DatabaseTestCase{
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		sql = new MySQLaid(new DefaultMySQLconnection("127.0.0.1", 3306, "test", "test", "test"));
-		sql.init();
+		bcp = new BoneConnectionPool(new DefaultMySQLconnection("127.0.0.1", 3306, "test", "test", "test"), 10);
+		bcp.startPool();
+		sql = new MySQLaid(bcp);
 	}
 
 	@After
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		sql.disconnect();
+		bcp.stopPool();
 	}
 
 	@Test
