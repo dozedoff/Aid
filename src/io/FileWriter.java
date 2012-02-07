@@ -59,7 +59,7 @@ public class FileWriter extends Thread{
 	long bytesSaved = 0;		// bytes written to disk
 	long bytesDiscarded = 0;  // bytes discarded (Hash found in mySQL Database)
 	
-	private final int FLUSH_INTERVAL = 5000; // time between buffer flushes, in ms.
+	private final int FLUSH_INTERVAL = 1000; // time between buffer flushes, in ms.
 
 	public FileWriter(Filter filter){
 		super("FileWriter");
