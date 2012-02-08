@@ -12,10 +12,10 @@ CREATE TABLE IF NOT EXISTS `settings` (
 	UNIQUE INDEX `name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=ascii;
 
-INSERT IGNORE INTO settings (name,param) VALUES ('SchemaVersion', '1');
+INSERT IGNORE INTO settings (name,param) VALUES ('SchemaVersion', '2');
 
 CREATE TABLE IF NOT EXISTS `archive` (
-  `hash` varchar(64) CHARACTER SET ascii NOT NULL,
+  `id` varchar(64) CHARACTER SET ascii NOT NULL,
   `size` bigint(20) NOT NULL,
   `dir` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `filename` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `archive` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='files in storage';
 
 CREATE TABLE IF NOT EXISTS `block` (
-  `hash` varchar(64) NOT NULL,
+  `id` varchar(64) NOT NULL,
   PRIMARY KEY (`hash`),
   UNIQUE KEY `hash` (`hash`)
 ) ENGINE=MyISAM DEFAULT CHARSET=ascii COMMENT='blocked Items. Programm will tag files.';
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `dirlist` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `dnw` (
-  `hash` varchar(64) NOT NULL,
+  `id` varchar(64) NOT NULL,
   PRIMARY KEY (`hash`),
   UNIQUE KEY `hash` (`hash`)
 ) ENGINE=MyISAM DEFAULT CHARSET=ascii COMMENT='unwanted files';
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS `filter` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='filtered threads';
 
 CREATE TABLE IF NOT EXISTS `hash` (
-  `hash` varchar(64) CHARACTER SET ascii NOT NULL,
+  `id` varchar(64) CHARACTER SET ascii NOT NULL,
   `size` bigint(20) NOT NULL,
   `dir` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `filename` mediumint(8) unsigned NOT NULL DEFAULT '0',
