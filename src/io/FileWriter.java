@@ -232,6 +232,11 @@ public class FileWriter extends Thread{
 
 			path = fi.getPath().toString();
 			data = fi.getData();
+			
+			if(data.length == 0){
+				Log.add("Zero size file ignored: "+path);
+				continue;
+			}
 
 			hash = hashMaker.hash(data);
 			if (filter.isBlacklisted(hash)){ // files will be renamed to WARNING-{hash value}-{filename}{file extension}
