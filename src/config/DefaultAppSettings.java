@@ -28,5 +28,7 @@ public class DefaultAppSettings extends Properties {
 		this.setProperty("write_Blocked","false");
 		this.setProperty("base_url","http://boards.4chan.org/");
 		this.setProperty("sub_pages","a;15,w;15,wg;15");
+		this.setProperty("xpos", "0");
+		this.setProperty("ypos", "0");
 	}
 }

@@ -73,6 +73,31 @@ public class SettingValidator {
 			logger.warning(errorMsg);
 			valid = false;
 		}
+		
+		String xpos = appSettings.getProperty("xpos");
+		errorMsg = invalidPropertyMessage("xpos");
+		try{
+			if(xpos == null || Integer.parseInt(xpos) < 0){
+				logger.warning(errorMsg);
+				valid = false;
+			}
+		}catch(NumberFormatException nfe){
+			logger.warning(errorMsg);
+			valid = false;
+		}
+		
+		String ypos = appSettings.getProperty("ypos");
+		errorMsg = invalidPropertyMessage("ypos");
+		try{
+			if(ypos == null || Integer.parseInt(ypos) < 0){
+				logger.warning(errorMsg);
+				valid = false;
+			}
+		}catch(NumberFormatException nfe){
+			logger.warning(errorMsg);
+			valid = false;
+		}
+		
 		return valid;
 	}
 

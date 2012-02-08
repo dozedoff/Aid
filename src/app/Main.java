@@ -136,11 +136,12 @@ public class Main implements ActionListener{
 		writeBlocked = appSettings.getProperty("write_Blocked",DEFAULT_WRITE_BLOCKED);
 		baseUrl = appSettings.getProperty("base_url",DEFAULT_BASE_URL);
 		subPages = appSettings.getProperty("sub_pages",DEFAULT_SUB_PAGES);
+	 
 
 		if(page != null){pageThreads = Integer.parseInt(page);}
 		if(image != null){imageThreads = Integer.parseInt(image);}
 		if(writeBlocked != null){writeBlock = Boolean.parseBoolean(writeBlocked);}
-
+		
 		defaultDirectory = appSettings.getProperty("default_directory",null);
 
 		if(defaultDirectory == null){
@@ -216,6 +217,13 @@ public class Main implements ActionListener{
 		aid = new Aid(boards,this);
 		Stats.addStatListener(aid);
 		fileWriter.setWriteBlocked(writeBlock);
+		
+		int x = 0, y = 0;
+		
+		x = Integer.parseInt(appSettings.getProperty("xpos"));
+		y = Integer.parseInt(appSettings.getProperty("ypos"));
+		
+		aid.setLocation(x,y);
 	}
 
 	/**
@@ -412,6 +420,10 @@ public class Main implements ActionListener{
 			if(filter != null)
 				filter.saveFilter(new File(PWD,FILTER_DATA_FILENAME));
 
+			// update window position
+			appSettings.put("xpos", String.valueOf(aid.getX()));
+			appSettings.put("ypos", String.valueOf(aid.getY()));
+			
 			// save program settings
 			try {
 				appSettings.store(new FileOutputStream(APP_CFG_FILENAME), "General application settings");
