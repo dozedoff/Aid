@@ -53,10 +53,10 @@
 	<filelist id="4" filename="panda.png" />
 
 	<!--hash Table -->
-	<hash hash="1" size="34568" 	dir="1" filename="1" />
-	<hash hash="2" size="790332" 	dir="2" filename="2" />
-	<hash hash="3" size="5789699" 	dir="3" filename="3" />
-	<hash hash="4" size="542322" 	dir="3" filename="2" />
+	<hash id="1" size="34568" 	dir="1" filename="1" />
+	<hash id="2" size="790332" 	dir="2" filename="2" />
+	<hash id="3" size="5789699" 	dir="3" filename="3" />
+	<hash id="4" size="542322" 	dir="3" filename="2" />
 	
-	<hash hash="54321" size="123455" 	dir="3" filename="2" />
+	<hash id="54321" size="123455" 	dir="3" filename="2" />
 </dataset>

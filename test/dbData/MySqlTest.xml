@@ -17,22 +17,22 @@
 	<filter id="http://foo.bar/8" board="p" reason="snow" status="0" timestamp="2000-01-01 00:00:07.000000000" />
 
 	<!-- dnw Table -->
-	<dnw hash="1" />
-	<dnw hash="2" />
-	<dnw hash="3" />
-	<dnw hash="4" />
+	<dnw id="1" />
+	<dnw id="2" />
+	<dnw id="3" />
+	<dnw id="4" />
 
 	<!-- block Table -->
-	<block hash="1" />
-	<block hash="2" />
-	<block hash="3" />
-	<block hash="4" />
+	<block id="1" />
+	<block id="2" />
+	<block id="3" />
+	<block id="4" />
 	
 	<!--archive Table -->
-	<archive hash="1" size="34568" 		dir="1" filename="1" />
-	<archive hash="2" size="790332" 	dir="2" filename="2" />
-	<archive hash="3" size="5789699" 	dir="3" filename="3" />
-	<archive hash="4" size="542322" 	dir="3" filename="2" />
+	<archive id="1" size="34568" 		dir="1" filename="1" />
+	<archive id="2" size="790332" 	dir="2" filename="2" />
+	<archive id="3" size="5789699" 	dir="3" filename="3" />
+	<archive id="4" size="542322" 	dir="3" filename="2" />
 
 	<!-- dirlist Table -->
 	<dirlist id="1" dirpath="D:\foo\bar\" />
@@ -45,10 +45,10 @@
 	<filelist id="3" filename="meerkat.gif" />
 
 	<!--hash Table -->
-	<hash hash="1" size="34568" 	dir="1" filename="1" />
-	<hash hash="2" size="790332" 	dir="2" filename="2" />
-	<hash hash="3" size="5789699" 	dir="3" filename="3" />
-	<hash hash="4" size="542322" 	dir="3" filename="2" />
+	<hash id="1" size="34568" 	dir="1" filename="1" />
+	<hash id="2" size="790332" 	dir="2" filename="2" />
+	<hash id="3" size="5789699" 	dir="3" filename="3" />
+	<hash id="4" size="542322" 	dir="3" filename="2" />
 	
 	<!-- thumbs Table -->
 	<thumbs id="1"	url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
