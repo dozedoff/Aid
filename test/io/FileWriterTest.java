@@ -288,7 +288,7 @@ public class FileWriterTest {
 		
 		Thread.sleep(11000);
 		
-	ArrayList<String> filenames = new ArrayList<>();
+		ArrayList<String> filenames = new ArrayList<>();
 		
 		for(File file : testDir.listFiles()){
 			filenames.add(file.getName());
@@ -296,5 +296,26 @@ public class FileWriterTest {
 		
 		assertThat(filenames,hasItem(both(containsString("renamed_")).and(containsString(".txt"))));
 		assertThat(filenames.size(), is(1));
+	}
+	
+	@Test
+	public void testEmptyFileWrite() throws InvalidActivityException{
+		byte[] empty = {};
+		
+		fileWriter.add(new File(testDir, "foo.txt"), testData);
+		fileWriter.add(new File(testDir, "empty.txt"), empty);
+		fileWriter.add(new File(testDir, "bar.txt"), testData2);
+		fileWriter.shutdown();
+		
+		assertThat(testDir.listFiles().length, is(2));
+		
+		ArrayList<String> filenames = new ArrayList<>();
+		
+		for(File file : testDir.listFiles()){
+			filenames.add(file.getName());
+		}
+		
+		assertThat(filenames, hasItem("foo.txt"));
+		assertThat(filenames, hasItem("bar.txt"));
 	}
 }
