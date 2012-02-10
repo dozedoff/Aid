@@ -12,8 +12,7 @@ import java.util.logging.Logger;
 import net.GetHtml;
 
 public class CachePrune {
-	ConnectionPool connPool;
-	GetHtml getHtml;
+	GetHtml getHtml = new GetHtml();
 	URL testAliveUrl;
 	int refreshInterMin = 1;
 	int startupDelayMin = 1;
@@ -23,15 +22,12 @@ public class CachePrune {
 
 	static final Logger logger = Logger.getLogger(CachePrune.class.getName());
 
-	public CachePrune(ConnectionPool connPool, URL testAliveUrl, int refreshInterMin, int startupDelayMin, int maximumAgeMin) {
-		this.connPool = connPool;
+	public CachePrune(MySQLaid sql, URL testAliveUrl, int refreshInterMin, int startupDelayMin, int maximumAgeMin) {
 		this.testAliveUrl = testAliveUrl;
 
 		this.refreshInterMin = refreshInterMin * 60 * 1000;
 		this.startupDelayMin = startupDelayMin * 60 * 1000;
 		this.maximumAgeMin = maximumAgeMin;
-
-		sql = new MySQLaid(connPool);
 	}
 
 	public boolean start(){
