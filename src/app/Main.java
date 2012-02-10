@@ -25,6 +25,7 @@ import gui.Filterlist;
 import gui.Log;
 import gui.Stats;
 import io.BoneConnectionPool;
+import io.CachePrune;
 import io.ConnectionPool;
 import io.FileWriter;
 import io.ImageLoader;
@@ -43,6 +44,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.LogManager;
@@ -89,6 +92,7 @@ public class Main implements ActionListener{
 	private ThumbnailLoader thumbLoader;
 	private ConnectionPool connPool;
 	private MySQLaid mySQL;
+	private CachePrune cachePrune;
 
 	private BoardListDataModel boards = new BoardListDataModel();
 	Properties appSettings = new DefaultAppSettings();
@@ -199,7 +203,22 @@ public class Main implements ActionListener{
 		imageLoader = new ImageLoader(fileWriter, filter, basePath,imageThreads);
 		logger.info("Saving files to the basePath "+basePath.toString());
 		blockList = new BlockList(filter,blockListModel);
+		
+		URL checkAliveUrl = null;
+		String message = "URL is invalid: ";
+		try{checkAliveUrl = new URL(baseUrl);} catch (MalformedURLException e){logger.warning(message+e.getMessage());}
 
+		if(checkAliveUrl == null){
+			try{checkAliveUrl = new URL(baseUrl);} catch (MalformedURLException e){logger.warning(message+e.getMessage());}
+		}
+		 
+		if(checkAliveUrl == null){
+			dieWithError("No valid baseUrl was specified: "+baseUrl
+							+", will now exit...", 8);
+		}
+		
+//		cachePrune = new CachePrune(connPool, checkAliveUrl, 15, 120, 180);
+		cachePrune = new CachePrune(mySQL, checkAliveUrl, 1, 1, 180); //DEBUG
 		// parse subpages
 		String[] subP = subPages.split(",");
 
@@ -274,6 +293,7 @@ public class Main implements ActionListener{
 		}
 
 		filter.startUpdater();
+		cachePrune.start();
 		aid.setVisible(true);
 
 		logger.info("Initialization complete");
@@ -411,6 +431,10 @@ public class Main implements ActionListener{
 					fileWriter.join();
 				}
 			} catch (InterruptedException e) {}
+			
+			// stop cache pruning
+			if(cachePrune != null)
+				cachePrune.stop();
 
 			// close all DB connections
 			if(connPool != null)
