@@ -24,6 +24,7 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.LinkedList;
 
 import org.dbunit.Assertion;
@@ -271,6 +272,12 @@ public class MySqlAidTest extends DatabaseTestCase{
 		Thread.sleep(1100);
 		sql.updateFilterTimestamp(sql.getOldestFilter());
 		assertThat(sql.getOldestFilter(), is("http://foo.bar/3"));
+	}
+	
+	@Test
+	public void testCachePrune(){
+		sql.pruneCache(Calendar.getInstance().getTimeInMillis());
+		assertThat(sql.size(MySQLtables.Cache), is(1));
 	}
 	
 	// ---------- Database Setup related methods ---------- //
