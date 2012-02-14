@@ -278,6 +278,7 @@ public class MySqlAidTest extends DatabaseTestCase{
 	public void testCachePrune(){
 		sql.pruneCache(Calendar.getInstance().getTimeInMillis());
 		assertThat(sql.size(MySQLtables.Cache), is(1));
+		assertThat(sql.isCached("1"), is(true));
 	}
 	
 	// ---------- Database Setup related methods ---------- //
