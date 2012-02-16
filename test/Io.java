@@ -20,7 +20,8 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ FileWriterTest.class,
+@SuiteClasses({ CachePruneTest.class,
+				FileWriterTest.class,
 				ImageItemTest.class,
 				MySqlAidTest.class,
 				ThumbnailLoaderTest.class
