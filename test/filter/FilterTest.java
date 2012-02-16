@@ -31,10 +31,12 @@ import io.ThumbnailLoader;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 
 import javax.swing.DefaultListModel;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
@@ -48,22 +50,28 @@ public class FilterTest {
 	DefaultListModel<String> postContentModel;
 	
 	Filter filter;
-	TemporaryFolder tempFolder = new TemporaryFolder();
-	final String TEST_FILE_NAME = "test_file";
-	File testFile;
+	static File tempFolder;
+	final static String TEST_FILE_NAME = "test_file";
+	static File testFile;
 	
 	String testName[] = {"foo","bar"};
 	String testContent[] = {"oof","rab"};
 	
 	URL testURL;
+	
+	@BeforeClass
+	public static void createTestFile() throws IOException{
+		tempFolder = Files.createTempDirectory("FilterTest").toFile();
+		testFile = new File(tempFolder,TEST_FILE_NAME);
+		testFile.createNewFile();
+	}
 			
 	@Before
 	public void setUp() throws Exception {
 		fileNameModel = new DefaultListModel<>();
 		postContentModel = new DefaultListModel<>();
-		
 		filter = new Filter(mockMySqlAid, new BlockListDataModel(),fileNameModel, postContentModel, mockThumbnailLoader);
-		testFile = tempFolder.newFile(TEST_FILE_NAME);
+
 		testURL = new URL("http://foo.bar/test/12345");
 	}
 
