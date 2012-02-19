@@ -217,7 +217,7 @@ public class Main implements ActionListener{
 							+", will now exit...", 8);
 		}
 		
-		cachePrune = new CachePrune(mySQL, checkAliveUrl, 15, 120, 180);
+		cachePrune = new CachePrune(mySQL, checkAliveUrl, 15, 120, 240);
 
 		// parse subpages
 		String[] subP = subPages.split(",");
