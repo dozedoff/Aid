@@ -273,6 +273,9 @@ public class Filter implements FilterModifiable{
 	 */
 	public boolean isCached(URL url){
 		boolean known = sql.isCached(url);
+		if(known)
+			Stats.addCacheHit();
+		
 		return known;
 	}
 	/**

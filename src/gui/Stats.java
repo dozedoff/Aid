@@ -31,7 +31,7 @@ public class Stats {
 	private static long bytesSaved, bytesDiscarded;
 	private static int filterSize;
 	private static String pageQueueSize, fileQueueSize;
-	private static AtomicInteger timeGraphValue;
+	private static AtomicInteger timeGraphValue, cacheHits;
 	
 	static{
 		cacheSize = -1;
@@ -39,6 +39,7 @@ public class Stats {
 		bytesSaved = 0;
 		filterSize = 0;
 		timeGraphValue = new AtomicInteger();
+		cacheHits = new AtomicInteger();
 		
 		pageQueueSize = "";
 		fileQueueSize = "";
@@ -108,6 +109,11 @@ public class Stats {
 		statChanged("timeGraphValue");
 	}
 	
+	public static void addCacheHit(){
+		cacheHits.incrementAndGet();
+		statChanged("cacheHit");
+	}
+	
 	// Fetch stats
 	
 	public static double getBytesSaved(){
@@ -137,5 +143,9 @@ public class Stats {
 	public static int getTimeGraphValue(){
 		int value = timeGraphValue.getAndSet(0);
 		return value;
+	}
+	
+	public static int getCacheHits(){
+		return cacheHits.get();
 	}
 }

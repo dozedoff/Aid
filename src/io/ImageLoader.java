@@ -85,7 +85,6 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
 		}
 	}
 	

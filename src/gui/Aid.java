@@ -65,7 +65,7 @@ public class Aid extends JFrame implements ActionListener, StatListener{
 			else
 				g.drawString("Data discarded: "+df.format(Stats.getBytesDiscarded()/1048576.0/1024.0)+" gb", 5, 135);
 
-			//	g.drawString("pending : "+fileWriter.getPendingWrites(), 160, 125);
+				g.drawString("Cache hits: "+Stats.getCacheHits(), 5, 115);
 		}
 	}
 
