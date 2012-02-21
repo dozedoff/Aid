@@ -73,6 +73,8 @@ public class Stats {
 	public static void resetStats(){
 		bytesSaved = 0;
 		bytesDiscarded = 0;
+		cacheHit.set(0);
+		cacheMiss.set(0);
 	}
 	
 	public static void saveBytes(long saved){
