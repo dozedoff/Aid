@@ -275,6 +275,8 @@ public class Filter implements FilterModifiable{
 		boolean known = sql.isCached(url);
 		if(known)
 			Stats.addCacheHit();
+		else
+			Stats.addCacheMiss();
 		
 		return known;
 	}
