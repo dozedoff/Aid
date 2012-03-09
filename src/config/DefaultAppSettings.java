@@ -18,17 +18,18 @@
 package config;
 
 import java.util.Properties;
+import static config.AppSetting.*;
 
 public class DefaultAppSettings extends Properties {
 	private static final long serialVersionUID = 1L;
 
 	public DefaultAppSettings() {
-		this.setProperty("page_threads","1");
-		this.setProperty("image_threads","1");
-		this.setProperty("write_Blocked","false");
-		this.setProperty("base_url","http://boards.4chan.org/");
-		this.setProperty("sub_pages","a;15,w;15,wg;15");
-		this.setProperty("xpos", "0");
-		this.setProperty("ypos", "0");
+		this.setProperty(page_threads.toString(),"1");
+		this.setProperty(image_threads.toString(),"1");
+		this.setProperty(write_blocked.toString(),"false");
+		this.setProperty(base_url.toString(),"http://boards.4chan.org/");
+		this.setProperty(sub_pages.toString(),"a;15,w;15,wg;15");
+		this.setProperty(xpos.toString(), "0");
+		this.setProperty(ypos.toString(), "0");
 	}
 }

@@ -59,6 +59,7 @@ import thread.WorkQueue;
 import board.Board;
 import board.Page;
 import board.PageFactory;
+import config.AppSetting;
 import config.DefaultAppSettings;
 import config.DefaultLoggerSettings;
 import config.DefaultMySQLconnection;
@@ -239,8 +240,8 @@ public class Main implements ActionListener{
 		
 		int x = 0, y = 0;
 		
-		x = Integer.parseInt(appSettings.getProperty("xpos"));
-		y = Integer.parseInt(appSettings.getProperty("ypos"));
+		x = Integer.parseInt(appSettings.getProperty(AppSetting.xpos.toString()));
+		y = Integer.parseInt(appSettings.getProperty(AppSetting.ypos.toString()));
 		
 		aid.setLocation(x,y);
 	}

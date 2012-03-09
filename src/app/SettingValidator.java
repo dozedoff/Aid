@@ -17,10 +17,9 @@
  */
 package app;
 
+import static config.AppSetting.*;
 import java.util.Properties;
 import java.util.logging.Logger;
-
-import sun.misc.Regexp;
 
 public class SettingValidator {
 	private static final Logger logger = Logger.getLogger(SettingValidator.class.getName());
@@ -47,7 +46,7 @@ public class SettingValidator {
 	 * @return
 	 */
 	protected static boolean validateYpos(Properties appSettings) {
-		return testLessThan(appSettings, "ypos", 0);
+		return testLessThan(appSettings, ypos.toString(), 0);
 	}
 
 	/**
@@ -56,7 +55,7 @@ public class SettingValidator {
 	 */
 	protected static boolean validateXpos(Properties appSettings) {
 		// validate window position (x,y)
-		return testLessThan(appSettings, "xpos", 0);
+		return testLessThan(appSettings, xpos.toString(), 0);
 	}
 
 	/**
@@ -65,7 +64,7 @@ public class SettingValidator {
 	 */
 	protected static boolean validateSubPages(Properties appSettings) {
 		// validate sub-pages
-		return testRegexMatch(appSettings, "sub_pages", SUBPAGE_REGEX);
+		return testRegexMatch(appSettings, sub_pages.toString(), SUBPAGE_REGEX);
 	}
 
 	/**
@@ -74,7 +73,7 @@ public class SettingValidator {
 	 */
 	protected static boolean validateBaseUrl(Properties appSettings) {
 		// validate base URL
-		return testRegexMatch(appSettings, "base_url", BASEURL_REGEX);
+		return testRegexMatch(appSettings, base_url.toString(), BASEURL_REGEX);
 	}
 
 	/**
@@ -82,9 +81,9 @@ public class SettingValidator {
 	 */
 	protected static boolean validateWriteBlocked(Properties appSettings) {
 		// validate "write blocked" flag
-		String writeBlocked = appSettings.getProperty("write_Blocked");
+		String writeBlocked = appSettings.getProperty(write_blocked.toString());
 		if(writeBlocked == null || !(writeBlocked.equals("false") || writeBlocked.equals("true"))){
-			String errorMsg = invalidPropertyMessage("write_Blocked");
+			String errorMsg = invalidPropertyMessage(writeBlocked.toString());
 			logger.warning(errorMsg);
 			return false;
 		}
@@ -96,12 +95,12 @@ public class SettingValidator {
 	 */
 	protected static boolean validateImageThreads(Properties appSettings) {
 		// validate number of image threads
-		return testLessThan(appSettings, "image_threads", 1);
+		return testLessThan(appSettings, image_threads.toString(), 1);
 	}
 
 	protected static boolean validatePageThreads(Properties appSettings) {
 		// validate number of page threads
-		return testLessThan(appSettings, "page_threads", 1);
+		return testLessThan(appSettings, page_threads.toString(), 1);
 	}
 
 	/**
