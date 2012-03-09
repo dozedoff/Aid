@@ -47,10 +47,7 @@ public class SettingValidator {
 	 * @return
 	 */
 	protected static boolean validateYpos(Properties appSettings) {
-		String errorMsg;
-		String ypos = appSettings.getProperty("ypos");
-		errorMsg = invalidPropertyMessage("ypos");
-		return testLessThan(ypos, errorMsg, 0);
+		return testLessThan(appSettings, "ypos", 0);
 	}
 
 	/**
@@ -58,11 +55,8 @@ public class SettingValidator {
 	 * @return
 	 */
 	protected static boolean validateXpos(Properties appSettings) {
-		String errorMsg;
 		// validate window position (x,y)
-		String xpos = appSettings.getProperty("xpos");
-		errorMsg = invalidPropertyMessage("xpos");
-		return testLessThan(xpos, errorMsg, 0);
+		return testLessThan(appSettings, "xpos", 0);
 	}
 
 	/**
@@ -70,11 +64,8 @@ public class SettingValidator {
 	 * @return
 	 */
 	protected static boolean validateSubPages(Properties appSettings) {
-		String errorMsg;
 		// validate sub-pages
-		String subPages = appSettings.getProperty("sub_pages");
-		errorMsg = invalidPropertyMessage("sub_pages");
-		return testRegexMatch(subPages, errorMsg, SUBPAGE_REGEX);
+		return testRegexMatch(appSettings, "sub_pages", SUBPAGE_REGEX);
 	}
 
 	/**
@@ -82,11 +73,8 @@ public class SettingValidator {
 	 * @return
 	 */
 	protected static boolean validateBaseUrl(Properties appSettings) {
-		String errorMsg;
 		// validate base URL
-		String baseUrl = appSettings.getProperty("base_url");
-		errorMsg = invalidPropertyMessage("base_url");
-		return testRegexMatch(baseUrl, errorMsg, BASEURL_REGEX);
+		return testRegexMatch(appSettings, "base_url", BASEURL_REGEX);
 	}
 
 	/**
@@ -107,17 +95,13 @@ public class SettingValidator {
 	 * @param appSettings
 	 */
 	protected static boolean validateImageThreads(Properties appSettings) {
-		String errorMsg;
 		// validate number of image threads
-		String image = appSettings.getProperty("image_threads");
-		errorMsg = invalidPropertyMessage("image_threads");
-		return testLessThan(image, errorMsg, 1);
+		return testLessThan(appSettings, "image_threads", 1);
 	}
 
 	protected static boolean validatePageThreads(Properties appSettings) {
 		// validate number of page threads
-		String setting = "page_threads";
-		return testLessThan(appSettings.getProperty(setting), invalidPropertyMessage("page_threads"), 1);
+		return testLessThan(appSettings, "page_threads", 1);
 	}
 
 	/**
@@ -127,7 +111,9 @@ public class SettingValidator {
 	 * @param regex regex to use for test
 	 * @return
 	 */
-	private static boolean testRegexMatch(String toTest, String errorMsg, String regex) {
+	private static boolean testRegexMatch(Properties appSettings, String property, String regex) {
+		String toTest = appSettings.getProperty(property);
+		String errorMsg = invalidPropertyMessage(property);
 		if(toTest == null || (! toTest.matches(regex))){
 			logger.warning(errorMsg);
 			return false;
@@ -142,7 +128,9 @@ public class SettingValidator {
 	 * @param lessThan value to test against
 	 * @return true if less, else false
 	 */
-	private static boolean testLessThan(String toTest, String errorMsg, int lessThan) {
+	private static boolean testLessThan(Properties appSettings, String property ,  int lessThan) {
+		String toTest = appSettings.getProperty(property);
+		String errorMsg = invalidPropertyMessage(property);
 		try{
 			if(toTest == null || Integer.parseInt(toTest) < lessThan){
 				logger.warning(errorMsg);
