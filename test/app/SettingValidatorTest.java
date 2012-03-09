@@ -18,120 +18,275 @@ package app;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Properties;
+import static org.mockito.Mockito.*;
+import static config.AppSetting.*;
+import static app.SettingValidator.*;
 
+import java.util.Properties;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
-@RunWith(Parameterized.class)
 public class SettingValidatorTest {
 	Properties appSettings;
 	
-	String pageThreads, imageThreads, writeBlocked, BaseUrl, subpages;
-	boolean expectedResponse;
-	
-	@Parameters 
-	public static Collection<Object[]> params() {
-		
-	return Arrays.asList(new Object[][] {
-				// Test 0 to 2 are sanity tests
-			
-				// Correct
-			 {true,		"1", 	"1",	"false",	"http://foo.bar/",	"a;15,b;14"}, 					// 0
-			 {true,		"5", 	"6",	"true",		"http://f00.b4r.jelly.beans.net/",	"a;10,b;14"}, 	// 1
-			 
-			 	// Wrong
-			 {false,	"-1", 	"0",	"dfg4",		"",	"fxghdfgh%54q456ç%&"}, 							// 2
-			 
-			 	// Page threads
-			 {false,	"0", 	"1",	"false",	"http://foo.bar/",	"a;15,b;14"}, 					// 3
-			 {false,	"-1", 	"1",	"false",	"http://foo.bar/",	"a;15,b;14"},					// 4
-			 {false,	"a", 	"1",	"false",	"http://foo.bar/",	"a;15,b;14"}, 					// 5
-			 
-			 	// Image threads
-			 {false,	"1", 	"0",	"false",	"http://foo.bar/",	"a;15,b;14"},					// 6
-			 {false,	"1", 	"-1",	"false",	"http://foo.bar/",	"a;15,b;14"},					// 7
-			 {false,	"1", 	"a",	"false",	"http://foo.bar/",	"a;15,b;14"}, 					// 8
-			 
-			 	// Write blocked
-			 {false,	"1", 	"1",	"beans",	"http://foo.bar/",	"a;15,b;14"},					// 9
-			 {false,	"1", 	"1",	"32423",	"http://foo.bar/",	"a;15,b;14"},					// 10
-			 
-			 	// base URL
-			 {false,	"1", 	"1",	"FALSE",	"http://foo.bar",	"a;15,b;14"},					// 11
-			 {false,	"1", 	"1",	"TRUE",		"http://foobar/",	"a;15,b;14"},					// 12
-			 {false,	"1", 	"1",	"false",	"http:/foo.bar/",	"a;15,b;14"},					// 13
-			 {false,	"1", 	"1",	"false",	"http//foo.bar/",	"a;15,b;14"},					// 14
-			 {false,	"1", 	"1",	"false",	"htttp://foo.bar/",	"a;15,b;14"},					// 15
-			 {true,		"1", 	"1",	"false",	"http://foo.bar.net/",	"a;15,b;14"},				// 16
-			 {false,	"1", 	"1",	"false",	"http://f00.b4r/",	"a;15,b;14"},					// 17
-			 {true,		"1", 	"1",	"false",	"http://f00.b4r.jelly.net/",	"a;15,b;14"},		// 18
-			 {false,	"1", 	"1",	"false",	"foo.bar/",	"a;15,b;14"},							// 19
-			 {false,	"1", 	"1",	"false",	"http://foo.bar1/",	"a;15,b;14"},					// 20
-			 
-			 	// sub pages
-			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a,15,b;14"},					// 21
-			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;15,,b;14"},					// 22
-			 {true,		"1", 	"1",	"false",	"http://foo.bar/",	"a;15"},						// 23
-			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;;15,b;;14"},					// 24
-			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;15;b;14"},					// 25
-			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;15,b:14"},					// 26
-			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a15,b;14"}, 					// 27
-			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"a;-15,b;14"}, 					// 28
-			 {false,	"1", 	"1",	"false",	"http://foo.bar/",	"aç%;15,b;14"}, 				// 29
-			 
-		});
-	}
-	
-	public SettingValidatorTest(boolean expectedResponse, String pageThreads, String imageThreads, String writeBlocked, String baseUrl, String subpages) {
-		this.expectedResponse = expectedResponse;
-		this.pageThreads = pageThreads;
-		this.imageThreads = imageThreads;
-		this.writeBlocked = writeBlocked;
-		BaseUrl = baseUrl;
-		this.subpages = subpages;
-	}
-
-
-
 	@Before
 	public void setup() throws Exception{
-		appSettings = makeAppSettings(pageThreads, imageThreads, writeBlocked, BaseUrl, subpages);
+		appSettings = mock(Properties.class);
+	}
+	
+	// Image Thread tests
+	@Test
+	public void itNegative(){
+		when(appSettings.getProperty(image_threads.toString())).thenReturn("-5");
+		assertThat(validateImageThreads(appSettings), is(false));
 	}
 	
 	@Test
-	public void testValidateAppSettings() {
-		assertThat(SettingValidator.validateAppSettings(appSettings), is(expectedResponse));
+	public void itZero(){
+		when(appSettings.getProperty(image_threads.toString())).thenReturn("0");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void itPositive(){
+		when(appSettings.getProperty(image_threads.toString())).thenReturn("7");
+		assertThat(validateImageThreads(appSettings), is(true));
+	}
+	
+	@Test
+	public void itNotNum(){
+		when(appSettings.getProperty(image_threads.toString())).thenReturn("a");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void itEmpty(){
+		when(appSettings.getProperty(image_threads.toString())).thenReturn("");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	// page thread tests
+	@Test
+	public void ptNegative(){
+		when(appSettings.getProperty(page_threads.toString())).thenReturn("-7");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void ptZero(){
+		when(appSettings.getProperty(page_threads.toString())).thenReturn("0");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void ptPositive(){
+		when(appSettings.getProperty(page_threads.toString())).thenReturn("9");
+		assertThat(validateImageThreads(appSettings), is(true));
+	}
+	
+	@Test
+	public void ptNotNum(){
+		when(appSettings.getProperty(page_threads.toString())).thenReturn("z");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void ptEmpty(){
+		when(appSettings.getProperty(page_threads.toString())).thenReturn("");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	// write blocked tests
+	@Test
+	public void wbFalse(){
+		when(appSettings.getProperty(write_blocked.toString())).thenReturn("false");
+		assertThat(validateImageThreads(appSettings), is(true));
+	}
+	
+	@Test
+	public void wbFalseAllCaps(){
+		when(appSettings.getProperty(write_blocked.toString())).thenReturn("FALSE");
+		assertThat(validateImageThreads(appSettings), is(true));
+	}
+	
+	@Test
+	public void wbFalseCap(){
+		when(appSettings.getProperty(write_blocked.toString())).thenReturn("False");
+		assertThat(validateImageThreads(appSettings), is(true));
+	}
+	
+	@Test
+	public void wbTrue(){
+		when(appSettings.getProperty(write_blocked.toString())).thenReturn("true");
+		assertThat(validateImageThreads(appSettings), is(true));
+	}
+	
+	@Test
+	public void wbTrueAllCaps(){
+		when(appSettings.getProperty(write_blocked.toString())).thenReturn("TRUE");
+		assertThat(validateImageThreads(appSettings), is(true));
+	}
+	
+	@Test
+	public void wbTrueCap(){
+		when(appSettings.getProperty(write_blocked.toString())).thenReturn("True");
+		assertThat(validateImageThreads(appSettings), is(true));
+	}
+	
+	@Test
+	public void wbInvalid(){
+		when(appSettings.getProperty(write_blocked.toString())).thenReturn("catfish");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void wbEmpty(){
+		when(appSettings.getProperty(write_blocked.toString())).thenReturn("");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void wbNumber(){
+		when(appSettings.getProperty(write_blocked.toString())).thenReturn("12345");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	// base url tests
+	@Test
+	public void buCorrect(){
+		when(appSettings.getProperty(base_url.toString())).thenReturn("http://foo.bar/");
+		assertThat(validateImageThreads(appSettings), is(true));
+	}
+	
+	@Test
+	public void buMissingTrailingSlash(){
+		when(appSettings.getProperty(base_url.toString())).thenReturn("http://foo.bar");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void buMissingHttp(){
+		when(appSettings.getProperty(base_url.toString())).thenReturn("foo.bar/");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void buHtttp(){
+		when(appSettings.getProperty(base_url.toString())).thenReturn("htttp://foo.bar/");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void buSubdomain(){
+		when(appSettings.getProperty(base_url.toString())).thenReturn("http://foo.moo.bar/");
+		assertThat(validateImageThreads(appSettings), is(true));
+	}
+	
+	@Test
+	public void buMoreSubdomains(){
+		when(appSettings.getProperty(base_url.toString())).thenReturn("http://foo.moo.yeti.bar/");
+		assertThat(validateImageThreads(appSettings), is(true));
+	}
+	
+	@Test
+	public void buNotopLevelDomain(){
+		when(appSettings.getProperty(base_url.toString())).thenReturn("http://foobar/");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void buInvalidTopLevel(){
+		when(appSettings.getProperty(base_url.toString())).thenReturn("http://foo.bar1/");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void buUrlWithNumbers(){
+		when(appSettings.getProperty(base_url.toString())).thenReturn("http://f00.b4r.net/");
+		assertThat(validateImageThreads(appSettings), is(true));
+	}
+	
+	@Test
+	public void buMissingSemicolon(){
+		when(appSettings.getProperty(base_url.toString())).thenReturn("http//foo.bar/");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void buMissingSlash(){
+		when(appSettings.getProperty(base_url.toString())).thenReturn("http/foo.bar/");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	// sub pages tests
+	@Test
+	public void spCorrect(){
+		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;15,b;14");
+		assertThat(validateImageThreads(appSettings), is(true));
+	}
+	
+	@Test
+	public void spDoubleComma(){
+		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;15,,b;14");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void spSingleEntry(){
+		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;15");
+		assertThat(validateImageThreads(appSettings), is(true));
+	}
+	
+	@Test
+	public void spSemicolonComma(){
+		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a,15,b;14");
+		assertThat(validateImageThreads(appSettings), is(true));
+	}
+	
+	@Test
+	public void spDoubleSemicolon(){
+		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;;15,b;14");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void spCommaSemicolon(){
+		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;15;b;14");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void spColon(){
+		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;15,b:14");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void spMissingSemicolon(){
+		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a15,b;14");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void spNegativePageValue(){
+		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;-15,b;14");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void spInvalidSymbol(){
+		when(appSettings.getProperty(sub_pages.toString())).thenReturn("ab%;15,b;14");
+		assertThat(validateImageThreads(appSettings), is(false));
+	}
+	
+	@Test
+	public void spMultiLetterName(){
+		when(appSettings.getProperty(sub_pages.toString())).thenReturn("foo;15,yeti;14");
+		assertThat(validateImageThreads(appSettings), is(true));
 	}
 	
 	@Test
 	public void testEmptyPropertyFile(){
 		assertThat(SettingValidator.validateAppSettings(new Properties()), is(false));
-	}
-	
-	/**
-	 * Construct a new property Object from parameters
-	 * @param pageThreads
-	 * @param imageThreads
-	 * @param writeBlocked
-	 * @param BaseUrl
-	 * @param subpages
-	 * @return
-	 */
-	private Properties makeAppSettings(String pageThreads, String imageThreads, String writeBlocked, String BaseUrl, String subpages){
-		Properties setting = new Properties();
-		
-		setting.setProperty("page_threads",pageThreads);
-		setting.setProperty("image_threads",imageThreads);
-		setting.setProperty("write_Blocked",writeBlocked);
-		setting.setProperty("base_url",BaseUrl);
-		setting.setProperty("sub_pages",subpages);
-		
-		return setting;
 	}
 }
