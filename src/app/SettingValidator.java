@@ -29,47 +29,95 @@ public class SettingValidator {
 
 	public static boolean validateAppSettings(Properties appSettings){
 		// validate loaded parameters
-		String errorMsg;
 		boolean valid = true;
 
-		// validate number of page threads
-		String page = appSettings.getProperty("page_threads");
-		errorMsg = invalidPropertyMessage("page_threads");
-		valid = valid && testLessThan(page, errorMsg, 1);
+		valid &= validatePageThreads(appSettings);
+		valid &= validateImageThreads(appSettings);
+		valid &= validateWriteBlocked(appSettings);
+		valid &= validateBaseUrl(appSettings);
+		valid &= validateSubPages(appSettings);
+		valid &= validateXpos(appSettings);
+		valid &= validateYpos(appSettings);
 
-		// validate number of image threads
-		String image = appSettings.getProperty("image_threads");
-		errorMsg = invalidPropertyMessage("image_threads");
-		valid = valid && testLessThan(image, errorMsg, 1);
+		return valid;
+	}
 
-		// validate "write blocked" flag
-		String writeBlocked = appSettings.getProperty("write_Blocked");
-		if(writeBlocked == null || !(writeBlocked.equals("false") || writeBlocked.equals("true"))){
-			errorMsg = invalidPropertyMessage("write_Blocked");
-			logger.warning(errorMsg);
-			valid = false;
-		}
+	/**
+	 * @param appSettings
+	 * @return
+	 */
+	protected static boolean validateYpos(Properties appSettings) {
+		String errorMsg;
+		String ypos = appSettings.getProperty("ypos");
+		errorMsg = invalidPropertyMessage("ypos");
+		return testLessThan(ypos, errorMsg, 0);
+	}
 
-		// validate base URL
-		String baseUrl = appSettings.getProperty("base_url");
-		errorMsg = invalidPropertyMessage("base_url");
-		valid = valid && testRegexMatch(baseUrl, errorMsg, BASEURL_REGEX);
-
-		// validate sub-pages
-		String subPages = appSettings.getProperty("sub_pages");
-		errorMsg = invalidPropertyMessage("sub_pages");
-		valid = valid && testRegexMatch(subPages, errorMsg, SUBPAGE_REGEX);
-
+	/**
+	 * @param appSettings
+	 * @return
+	 */
+	protected static boolean validateXpos(Properties appSettings) {
+		String errorMsg;
 		// validate window position (x,y)
 		String xpos = appSettings.getProperty("xpos");
 		errorMsg = invalidPropertyMessage("xpos");
-		valid = valid && testLessThan(xpos, errorMsg, 0);
+		return testLessThan(xpos, errorMsg, 0);
+	}
 
-		String ypos = appSettings.getProperty("ypos");
-		errorMsg = invalidPropertyMessage("ypos");
-		valid = valid && testLessThan(ypos, errorMsg, 0);
+	/**
+	 * @param appSettings
+	 * @return
+	 */
+	protected static boolean validateSubPages(Properties appSettings) {
+		String errorMsg;
+		// validate sub-pages
+		String subPages = appSettings.getProperty("sub_pages");
+		errorMsg = invalidPropertyMessage("sub_pages");
+		return testRegexMatch(subPages, errorMsg, SUBPAGE_REGEX);
+	}
 
-		return valid;
+	/**
+	 * @param appSettings
+	 * @return
+	 */
+	protected static boolean validateBaseUrl(Properties appSettings) {
+		String errorMsg;
+		// validate base URL
+		String baseUrl = appSettings.getProperty("base_url");
+		errorMsg = invalidPropertyMessage("base_url");
+		return testRegexMatch(baseUrl, errorMsg, BASEURL_REGEX);
+	}
+
+	/**
+	 * @param appSettings
+	 */
+	protected static boolean validateWriteBlocked(Properties appSettings) {
+		// validate "write blocked" flag
+		String writeBlocked = appSettings.getProperty("write_Blocked");
+		if(writeBlocked == null || !(writeBlocked.equals("false") || writeBlocked.equals("true"))){
+			String errorMsg = invalidPropertyMessage("write_Blocked");
+			logger.warning(errorMsg);
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * @param appSettings
+	 */
+	protected static boolean validateImageThreads(Properties appSettings) {
+		String errorMsg;
+		// validate number of image threads
+		String image = appSettings.getProperty("image_threads");
+		errorMsg = invalidPropertyMessage("image_threads");
+		return testLessThan(image, errorMsg, 1);
+	}
+
+	protected static boolean validatePageThreads(Properties appSettings) {
+		// validate number of page threads
+		String setting = "page_threads";
+		return testLessThan(appSettings.getProperty(setting), invalidPropertyMessage("page_threads"), 1);
 	}
 
 	/**
