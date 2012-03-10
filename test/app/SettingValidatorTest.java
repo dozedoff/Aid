@@ -214,7 +214,7 @@ public class SettingValidatorTest {
 	
 	@Test
 	public void buMissingSlash(){
-		when(appSettings.getProperty(base_url.toString())).thenReturn("http/foo.bar/");
+		when(appSettings.getProperty(base_url.toString())).thenReturn("http:/foo.bar/");
 		assertThat(validateImageThreads(appSettings), is(false));
 	}
 	
@@ -240,7 +240,7 @@ public class SettingValidatorTest {
 	@Test
 	public void spSemicolonComma(){
 		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a,15,b;14");
-		assertThat(validateImageThreads(appSettings), is(true));
+		assertThat(validateImageThreads(appSettings), is(false));
 	}
 	
 	@Test
