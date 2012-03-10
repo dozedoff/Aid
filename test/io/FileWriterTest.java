@@ -37,6 +37,8 @@ import java.nio.channels.ShutdownChannelGroupException;
 import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.activity.InvalidActivityException;
 import javax.jws.Oneway;
@@ -125,6 +127,79 @@ public class FileWriterTest {
 		BinaryFileReader bfr = new BinaryFileReader();
 		for(File f : testFiles){
 			assertThat(bfr.get(f), is(testData));
+		}
+	}
+	
+	@Test
+	public void testWriteSmallRandomData() throws IOException{
+		File randomFile = new File(testDir,"randomData.dat");
+		byte[] randomData = generateRandomData(5);
+		BinaryFileReader bfr = new BinaryFileReader();
+		
+		fileWriter.add(randomFile,randomData);
+		fileWriter.shutdown();
+		
+		assertThat(bfr.get(randomFile), is(randomData));
+	}
+	
+	@Test
+	public void testWriteMediumRandomData() throws IOException{
+		File randomFile = new File(testDir,"randomData.dat");
+		byte[] randomData = generateRandomData(1024);
+		BinaryFileReader bfr = new BinaryFileReader();
+		
+		fileWriter.add(randomFile,randomData);
+		fileWriter.shutdown();
+		
+		assertThat(bfr.get(randomFile), is(randomData));
+	}
+	
+	@Test
+	public void testWriteLargeRandomData() throws IOException{
+		File randomFile = new File(testDir,"randomData.dat");
+		byte[] randomData = generateRandomData(256000); // 250 kb
+		BinaryFileReader bfr = new BinaryFileReader();
+		
+		fileWriter.add(randomFile,randomData);
+		fileWriter.shutdown();
+		
+		assertThat(bfr.get(randomFile), is(randomData));
+	}
+	
+	@Test
+	public void testWriteVeryLargeRandomData() throws IOException{
+		File randomFile = new File(testDir,"randomData.dat");
+		byte[] randomData = generateRandomData(3145728); // 3 mb
+		BinaryFileReader bfr = new BinaryFileReader();
+		
+		fileWriter.add(randomFile,randomData);
+		fileWriter.shutdown();
+		
+		assertThat(bfr.get(randomFile), is(randomData));
+	}
+	
+	@Test
+	// WARNING: this test can generate up to 25 mb of data per run
+	public void testBulkWrite() throws InterruptedException, IOException{
+		HashMap<File,byte[]> testSet = new HashMap<>();
+		BinaryFileReader bfr = new BinaryFileReader();
+		
+		// generate 100 random files between 0 byte and 250kb
+		for(int i=0; i<100; i++){
+			File filepath = new File(testDir,i+".dat");
+			byte[] data =  generateRandomData((int)(Math.random()*256000));
+			testSet.put(filepath,data);
+			
+			fileWriter.add(filepath, data);
+		}
+		
+		Thread.sleep(7000);
+		
+		Iterator<File> ite = testSet.keySet().iterator();
+		
+		while(ite.hasNext()){
+			File toTest = ite.next();
+			assertThat(bfr.get(toTest), is(testSet.get(toTest)));
 		}
 	}
 	
@@ -317,5 +392,14 @@ public class FileWriterTest {
 		
 		assertThat(filenames, hasItem("foo.txt"));
 		assertThat(filenames, hasItem("bar.txt"));
+	}
+
+	private byte[] generateRandomData(int numOfBytes){
+		byte[] randomData = new byte[numOfBytes];
+		for(int i = 0; i<numOfBytes; i++){
+			randomData[i] = (byte)(Math.random()*Byte.MAX_VALUE);
+		}
+
+		return randomData;
 	}
 }
