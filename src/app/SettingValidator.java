@@ -83,7 +83,7 @@ public class SettingValidator {
 		// validate "write blocked" flag
 		String writeBlocked = appSettings.getProperty(write_blocked.toString());
 		if(writeBlocked == null || !(writeBlocked.equals("false") || writeBlocked.equals("true"))){
-			String errorMsg = invalidPropertyMessage(write_blocked.toString());
+			String errorMsg = invalidPropertyMessage(write_blocked.toString(),appSettings);
 			logger.warning(errorMsg);
 			return false;
 		}
@@ -112,7 +112,7 @@ public class SettingValidator {
 	 */
 	private static boolean testRegexMatch(Properties appSettings, String property, String regex) {
 		String toTest = appSettings.getProperty(property);
-		String errorMsg = invalidPropertyMessage(property);
+		String errorMsg = invalidPropertyMessage(property,appSettings);
 		if(toTest == null || (! toTest.matches(regex))){
 			logger.warning(errorMsg);
 			return false;
@@ -129,7 +129,7 @@ public class SettingValidator {
 	 */
 	private static boolean testLessThan(Properties appSettings, String property ,  int lessThan) {
 		String toTest = appSettings.getProperty(property);
-		String errorMsg = invalidPropertyMessage(property);
+		String errorMsg = invalidPropertyMessage(property,appSettings);
 		try{
 			if(toTest == null || Integer.parseInt(toTest) < lessThan){
 				logger.warning(errorMsg);
@@ -149,7 +149,7 @@ public class SettingValidator {
 	 * @param defaultValue the default value used for the property
 	 * @return
 	 */
-	private static String invalidPropertyMessage(String property){
-		return "'"+property+"' property is invalid.";
+	private static String invalidPropertyMessage(String property, Properties appSettings){
+		return "The value "+appSettings.getProperty(property)+" is invalid for the property '"+property+"'";
 	}
 }
