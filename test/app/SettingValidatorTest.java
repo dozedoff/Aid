@@ -26,6 +26,8 @@ import java.util.Properties;
 import org.junit.Before;
 import org.junit.Test;
 
+import config.DefaultAppSettings;
+
 public class SettingValidatorTest {
 	Properties appSettings;
 	
@@ -288,5 +290,10 @@ public class SettingValidatorTest {
 	@Test
 	public void testEmptyPropertyFile(){
 		assertThat(SettingValidator.validateAppSettings(new Properties()), is(false));
+	}
+	
+	@Test
+	public void testDefaultPropertyFile(){
+		assertThat(SettingValidator.validateAppSettings(new DefaultAppSettings()), is(true));
 	}
 }
