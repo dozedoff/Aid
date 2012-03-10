@@ -82,7 +82,7 @@ public class SettingValidator {
 	protected static boolean validateWriteBlocked(Properties appSettings) {
 		// validate "write blocked" flag
 		String writeBlocked = appSettings.getProperty(write_blocked.toString());
-		if(writeBlocked == null || !(writeBlocked.equals("false") || writeBlocked.equals("true"))){
+		if(writeBlocked == null || !(writeBlocked.toLowerCase().equals("false") || writeBlocked.toLowerCase().equals("true"))){
 			String errorMsg = invalidPropertyMessage(write_blocked.toString(),appSettings);
 			logger.warning(errorMsg);
 			return false;
