@@ -71,220 +71,220 @@ public class SettingValidatorTest {
 	@Test
 	public void ptNegative(){
 		when(appSettings.getProperty(page_threads.toString())).thenReturn("-7");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validatePageThreads(appSettings), is(false));
 	}
 	
 	@Test
 	public void ptZero(){
 		when(appSettings.getProperty(page_threads.toString())).thenReturn("0");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validatePageThreads(appSettings), is(false));
 	}
 	
 	@Test
 	public void ptPositive(){
 		when(appSettings.getProperty(page_threads.toString())).thenReturn("9");
-		assertThat(validateImageThreads(appSettings), is(true));
+		assertThat(validatePageThreads(appSettings), is(true));
 	}
 	
 	@Test
 	public void ptNotNum(){
 		when(appSettings.getProperty(page_threads.toString())).thenReturn("z");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validatePageThreads(appSettings), is(false));
 	}
 	
 	@Test
 	public void ptEmpty(){
 		when(appSettings.getProperty(page_threads.toString())).thenReturn("");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validatePageThreads(appSettings), is(false));
 	}
 	
 	// write blocked tests
 	@Test
 	public void wbFalse(){
 		when(appSettings.getProperty(write_blocked.toString())).thenReturn("false");
-		assertThat(validateImageThreads(appSettings), is(true));
+		assertThat(validateWriteBlocked(appSettings), is(true));
 	}
 	
 	@Test
 	public void wbFalseAllCaps(){
 		when(appSettings.getProperty(write_blocked.toString())).thenReturn("FALSE");
-		assertThat(validateImageThreads(appSettings), is(true));
+		assertThat(validateWriteBlocked(appSettings), is(true));
 	}
 	
 	@Test
 	public void wbFalseCap(){
 		when(appSettings.getProperty(write_blocked.toString())).thenReturn("False");
-		assertThat(validateImageThreads(appSettings), is(true));
+		assertThat(validateWriteBlocked(appSettings), is(true));
 	}
 	
 	@Test
 	public void wbTrue(){
 		when(appSettings.getProperty(write_blocked.toString())).thenReturn("true");
-		assertThat(validateImageThreads(appSettings), is(true));
+		assertThat(validateWriteBlocked(appSettings), is(true));
 	}
 	
 	@Test
 	public void wbTrueAllCaps(){
 		when(appSettings.getProperty(write_blocked.toString())).thenReturn("TRUE");
-		assertThat(validateImageThreads(appSettings), is(true));
+		assertThat(validateWriteBlocked(appSettings), is(true));
 	}
 	
 	@Test
 	public void wbTrueCap(){
 		when(appSettings.getProperty(write_blocked.toString())).thenReturn("True");
-		assertThat(validateImageThreads(appSettings), is(true));
+		assertThat(validateWriteBlocked(appSettings), is(true));
 	}
 	
 	@Test
 	public void wbInvalid(){
 		when(appSettings.getProperty(write_blocked.toString())).thenReturn("catfish");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validateWriteBlocked(appSettings), is(false));
 	}
 	
 	@Test
 	public void wbEmpty(){
 		when(appSettings.getProperty(write_blocked.toString())).thenReturn("");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validateWriteBlocked(appSettings), is(false));
 	}
 	
 	@Test
 	public void wbNumber(){
 		when(appSettings.getProperty(write_blocked.toString())).thenReturn("12345");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validateWriteBlocked(appSettings), is(false));
 	}
 	
 	// base url tests
 	@Test
 	public void buCorrect(){
 		when(appSettings.getProperty(base_url.toString())).thenReturn("http://foo.bar/");
-		assertThat(validateImageThreads(appSettings), is(true));
+		assertThat(validateBaseUrl(appSettings), is(true));
 	}
 	
 	@Test
 	public void buMissingTrailingSlash(){
 		when(appSettings.getProperty(base_url.toString())).thenReturn("http://foo.bar");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validateBaseUrl(appSettings), is(false));
 	}
 	
 	@Test
 	public void buMissingHttp(){
 		when(appSettings.getProperty(base_url.toString())).thenReturn("foo.bar/");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validateBaseUrl(appSettings), is(false));
 	}
 	
 	@Test
 	public void buHtttp(){
 		when(appSettings.getProperty(base_url.toString())).thenReturn("htttp://foo.bar/");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validateBaseUrl(appSettings), is(false));
 	}
 	
 	@Test
 	public void buSubdomain(){
 		when(appSettings.getProperty(base_url.toString())).thenReturn("http://foo.moo.bar/");
-		assertThat(validateImageThreads(appSettings), is(true));
+		assertThat(validateBaseUrl(appSettings), is(true));
 	}
 	
 	@Test
 	public void buMoreSubdomains(){
 		when(appSettings.getProperty(base_url.toString())).thenReturn("http://foo.moo.yeti.bar/");
-		assertThat(validateImageThreads(appSettings), is(true));
+		assertThat(validateBaseUrl(appSettings), is(true));
 	}
 	
 	@Test
 	public void buNotopLevelDomain(){
 		when(appSettings.getProperty(base_url.toString())).thenReturn("http://foobar/");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validateBaseUrl(appSettings), is(false));
 	}
 	
 	@Test
 	public void buInvalidTopLevel(){
 		when(appSettings.getProperty(base_url.toString())).thenReturn("http://foo.bar1/");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validateBaseUrl(appSettings), is(false));
 	}
 	
 	@Test
 	public void buUrlWithNumbers(){
 		when(appSettings.getProperty(base_url.toString())).thenReturn("http://f00.b4r.net/");
-		assertThat(validateImageThreads(appSettings), is(true));
+		assertThat(validateBaseUrl(appSettings), is(true));
 	}
 	
 	@Test
 	public void buMissingSemicolon(){
 		when(appSettings.getProperty(base_url.toString())).thenReturn("http//foo.bar/");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validateBaseUrl(appSettings), is(false));
 	}
 	
 	@Test
 	public void buMissingSlash(){
 		when(appSettings.getProperty(base_url.toString())).thenReturn("http:/foo.bar/");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validateBaseUrl(appSettings), is(false));
 	}
 	
 	// sub pages tests
 	@Test
 	public void spCorrect(){
 		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;15,b;14");
-		assertThat(validateImageThreads(appSettings), is(true));
+		assertThat(validateSubPages(appSettings), is(true));
 	}
 	
 	@Test
 	public void spDoubleComma(){
 		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;15,,b;14");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validateSubPages(appSettings), is(false));
 	}
 	
 	@Test
 	public void spSingleEntry(){
 		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;15");
-		assertThat(validateImageThreads(appSettings), is(true));
+		assertThat(validateSubPages(appSettings), is(true));
 	}
 	
 	@Test
 	public void spSemicolonComma(){
 		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a,15,b;14");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validateSubPages(appSettings), is(false));
 	}
 	
 	@Test
 	public void spDoubleSemicolon(){
 		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;;15,b;14");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validateSubPages(appSettings), is(false));
 	}
 	
 	@Test
 	public void spCommaSemicolon(){
 		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;15;b;14");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validateSubPages(appSettings), is(false));
 	}
 	
 	@Test
 	public void spColon(){
 		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;15,b:14");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validateSubPages(appSettings), is(false));
 	}
 	
 	@Test
 	public void spMissingSemicolon(){
 		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a15,b;14");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validateSubPages(appSettings), is(false));
 	}
 	
 	@Test
 	public void spNegativePageValue(){
 		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;-15,b;14");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validateSubPages(appSettings), is(false));
 	}
 	
 	@Test
 	public void spInvalidSymbol(){
 		when(appSettings.getProperty(sub_pages.toString())).thenReturn("ab%;15,b;14");
-		assertThat(validateImageThreads(appSettings), is(false));
+		assertThat(validateSubPages(appSettings), is(false));
 	}
 	
 	@Test
 	public void spMultiLetterName(){
 		when(appSettings.getProperty(sub_pages.toString())).thenReturn("foo;15,yeti;14");
-		assertThat(validateImageThreads(appSettings), is(true));
+		assertThat(validateSubPages(appSettings), is(true));
 	}
 	
 	@Test
