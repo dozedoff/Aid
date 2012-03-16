@@ -31,9 +31,6 @@ public class Post {
 
 	protected URL imageUrl;
 
-	protected boolean hasImage = false;
-	protected boolean hasComment = false;
-
 	private static final Logger LOGGER = Logger.getLogger(Post.class.getName());
 
 	public void processHtml(String html){
@@ -57,19 +54,16 @@ public class Post {
 		if(scanner.hasNext()){
 			try {
 				imageUrl = new URL(scanner.next());
-				hasImage = true;
 			} catch (MalformedURLException e) {
 				LOGGER.warning("Invalid url: "+e.getMessage());
 				imageUrl = null;
-				hasImage = false;
 			}
 		}else{
 			imageUrl = null;
-			hasImage = false;
 		}
 
 		// no point in looking for a name if there is no URL
-		if(hasImage){
+		if(imageUrl != null){
 			// find the image name
 			scanner = new Scanner(html);
 			scanner.useDelimiter(", <span title=\"|</span>\\)</span>");
@@ -79,10 +73,8 @@ public class Post {
 
 			if(scanner.hasNext()){
 				imageName = scanner.next().split("\">")[0];
-				hasImage = true;
 			}else{
 				imageName = null;
-				hasImage = false;
 			}
 		}
 
@@ -98,13 +90,9 @@ public class Post {
 			
 			if(comment.equals("")){
 				comment = null;
-				hasComment= false;
-			}else{
-				hasComment = true;
 			}
 		}else{
 			comment = null;
-			hasComment = false;
 		}
 	}
 
@@ -118,9 +106,9 @@ public class Post {
 		return imageUrl;
 	}
 	public boolean hasImage(){
-		return hasImage;
+		return imageName != null ? true : false;
 	}
 	public boolean hasComment(){
-		return hasComment;
+		return comment != null ? true : false;
 	}
 }
