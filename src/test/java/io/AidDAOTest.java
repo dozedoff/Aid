@@ -25,12 +25,14 @@ import io.tables.FileRecord;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.dbunit.Assertion;
@@ -47,6 +49,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import com.github.dozedoff.commonj.file.FileInfo;
+import com.github.dozedoff.commonj.file.FileUtil;
 import com.github.dozedoff.commonj.io.BoneConnectionPool;
 import com.github.dozedoff.commonj.io.DBsettings;
 
@@ -66,7 +69,8 @@ public class AidDAOTest extends DatabaseTestCase{
 	final String[] IGNORE_PATH_COL = {"id"};
 	final String[] IGNORE_ADD_HASH_COL = {"dir","filename"};
 	
-	final String[] TEST_DIR = {"", "D:\\foo\\bar\\", "D:\\test\\me\\now\\", "D:\\mutated\\custard\\is\\dangerous\\"};
+	static String[] dirs = {"foo\\bar\\", "test\\me\\now\\", "mutated\\custard\\is\\dangerous\\"};
+	static String[] TEST_DIR;
 	final String[] TEST_FILE = {"", "foo.png", "squirrel.jpg", "meerkat.gif"};
 	final String[] TEST_LOCATION = {"", "UNKNOWN", "LOCATION A", "LOCATION B", "ARCHIVE"};
 			
@@ -77,10 +81,13 @@ public class AidDAOTest extends DatabaseTestCase{
 	final String updateStateExpected_PATH = "/dbData/updateStateExpected.xml";
 
 	final byte[] TEST_BINARY = {1,2,3,4,5,6,7,8,9,0};
+	private static Path root = null;
 	
 	static{
 		try {
 			setupPool();
+			setRoot();
+			buildDirectoryArray(dirs);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -93,6 +100,36 @@ public class AidDAOTest extends DatabaseTestCase{
 			System.out.println("Pool created");
 			sql = new AidDAO(bcp);
 		}
+	}
+	
+	private static void setRoot() {
+		Iterable<Path> roots = FileSystems.getDefault().getRootDirectories();
+		root = roots.iterator().next();
+	}
+	
+	private static void buildDirectoryArray(String... directories) {
+		int arrayLength = directories.length + 1;
+		TEST_DIR = new String[arrayLength];
+		
+		TEST_DIR[0] = "";
+		
+		int i = 1;
+		for(String directory : directories){
+			String[] directoryFragments = directory.split("\\\\");
+			String path = buildAbsolutePath(directoryFragments);
+			TEST_DIR[i] = path;
+			i++;
+		}
+	}
+	
+	private static String buildAbsolutePath(String... elements) {
+		Path path = root;
+		
+		for(String element : elements){
+			path = path.resolve(element);
+		}
+		
+		return path.toString();
 	}
 
 	@After
@@ -263,7 +300,7 @@ public class AidDAOTest extends DatabaseTestCase{
 	
 	@Test
 	public void testAddIndex() throws Exception{
-		sql.addIndex("54321", "D:\\foo\\panda.png", 123455L, TEST_LOCATION[2]);
+		sql.addIndex("54321", buildAbsolutePath("foo", "panda.png"), 123455L, TEST_LOCATION[2]);
 		
 		Assertion.assertEqualsIgnoreCols(getFileTable(enumToString(Fileindex), addExpected_PATH), getDatabaseTable(enumToString(Fileindex)), IGNORE_ADD_HASH_COL);
 		Assertion.assertEqualsIgnoreCols(getFileTable(enumToString(Dirlist), addExpected_PATH), getDatabaseTable(enumToString(Dirlist)), IGNORE_PATH_COL);
@@ -272,13 +309,13 @@ public class AidDAOTest extends DatabaseTestCase{
 	
 	@Test
 	public void testAddIndexInvalidLocation() {
-		assertTrue(sql.addIndex("9001", "D:\\foobar\\apple.jpg", 111L, "DERP"));
+		assertTrue(sql.addIndex("9001", buildAbsolutePath("foobar", "apple.jpg"), 111L, "DERP"));
 		assertThat(sql.getLocationById("9001"), is("DERP"));
 	}
 	
 	@Test
 	public void testAddIndexFileInfo() throws Exception{
-		Path filePath = Paths.get("D:\\foo\\panda.png");
+		Path filePath = Paths.get(buildAbsolutePath("foo", "panda.png"));
 		FileInfo info = new FileInfo(filePath, "54321");
 		info.setSize(123455L);
 		
@@ -347,7 +384,7 @@ public class AidDAOTest extends DatabaseTestCase{
 	
 	@Test
 	public void testAddDuplicate() throws Exception{
-		sql.addDuplicate("545", "D:\\foo\\panda.png", 123L, TEST_LOCATION[2]);
+		sql.addDuplicate("545", buildAbsolutePath("foo", "panda.png"), 123L, TEST_LOCATION[2]);
 		
 		
 		//TODO can ignore cols be removed?
@@ -377,7 +414,7 @@ public class AidDAOTest extends DatabaseTestCase{
 	}
 	
 	private String relativePath(String path) {
-		return path.substring(3);
+		return FileUtil.removeDriveLetter(path);
 	}
 	
 	@Test
