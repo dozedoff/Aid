@@ -49,7 +49,7 @@ public class FourChanStrategyTest {
 	static String mainPage, boardPage, thread;
 	
 	static URL mainUrl, boardUrl, threadUrl, invalidUrl;
-	private static final int SERVER_PORT = 5496;
+	private static final int SERVER_PORT = 39867;
 	
 	@BeforeClass
 	static public void before() throws Exception{
@@ -60,9 +60,9 @@ public class FourChanStrategyTest {
 		TextFileReader tfr = new TextFileReader();
 		
 		
-		mainPage = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData\\mainPage.html"));
-		boardPage = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData\\pageTestData"));
-		thread = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData\\threadData.html"));
+		mainPage = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData/mainPage.html"));
+		boardPage = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData/pageTestData"));
+		thread = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData/threadData.html"));
 
 		mainUrl = new URL("http://localhost:"+ SERVER_PORT +"/");
 		boardUrl = new URL("http://localhost:"+ SERVER_PORT +"/htmlnew");
@@ -89,7 +89,7 @@ public class FourChanStrategyTest {
 	@Test
 	public void testFindBoards() throws Exception {
 		Map<String, URL> foundBoards;
-		foundBoards = strategy.findBoards(new URL("http://boards.4chan.org/"));
+		foundBoards = strategy.findBoards(mainUrl);
 		
 		assertThat(foundBoards.get("Photography"), is(new URL("http://boards.4chan.org/p/")));
 		assertThat(foundBoards.get("Music"), is(new URL("http://boards.4chan.org/mu/")));

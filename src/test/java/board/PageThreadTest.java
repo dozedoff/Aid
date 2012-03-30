@@ -57,7 +57,7 @@ public class PageThreadTest {
 	@Test
 	public void testProcessThread() throws IOException{
 		String testData = new TextFileReader().read(this.getClass().getClassLoader().
-				getResourceAsStream("HtmlData\\pageThreadTestData")); // load test data
+				getResourceAsStream("HtmlData/pageThreadTestData")); // load test data
 		testData = testData.replaceAll("\n", ""); // test file is in human readable format, this is to simulate how the program would receive the data
 
 		int images = 0, comments = 0;

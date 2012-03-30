@@ -69,7 +69,7 @@ public class PageTest {
 	@Test
 	public void testProcessPage() throws IOException {
 		String pageTestHtml = new TextFileReader().read(this.getClass().getClassLoader().
-				getResourceAsStream("HtmlData\\pageTestData")); // load test data
+				getResourceAsStream("HtmlData/pageTestData")); // load test data
 		pageTestHtml = pageTestHtml.replaceAll("\n", ""); // test file is in human readable format, this is to simulate how the program would receive the data
 		
 		page = new Page(new URL("http://foo.bar/"), 0, mockFilter, mockImageLoader);
