@@ -53,6 +53,7 @@ import com.github.dozedoff.commonj.io.DBsettings;
 import config.DefaultMySQLconnection;
 import filter.FilterItem;
 import filter.FilterState;
+import static io.AidTables.*;
 
 
 public class AidDAOTest extends DatabaseTestCase{
@@ -110,7 +111,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertFalse(sql.addFilter("http://foo.bar/1", "t", "just testing", FilterState.ALLOW));
 
 		// Assert actual database table match expected table
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filter.toString(), addExpected_PATH), getDatabaseTable(AidTables.Filter.toString()),IGNORE_CACHE_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(enumToString(Filter), addExpected_PATH), getDatabaseTable(enumToString(Filter)),IGNORE_CACHE_COL);
 	}
 	
 	@Test
@@ -124,7 +125,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertFalse(sql.addFilter(new FilterItem(new URL("http://foo.bar/1"), "t", "just testing", FilterState.ALLOW)));
 
 		// Assert actual database table match expected table
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filter.toString(), addExpected_PATH), getDatabaseTable(AidTables.Filter.toString()),IGNORE_CACHE_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(enumToString(Filter), addExpected_PATH), getDatabaseTable(enumToString(Filter)),IGNORE_CACHE_COL);
 	}
 
 	@Test
@@ -145,7 +146,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		sql.updateState("http://foo.bar/3",FilterState.PENDING);
 		sql.updateState("http://foo.bar/4",FilterState.PENDING);
 
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filter.toString(), updateStateExpected_PATH), getDatabaseTable(AidTables.Filter.toString()),IGNORE_CACHE_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(enumToString(Filter), updateStateExpected_PATH), getDatabaseTable(enumToString(Filter)),IGNORE_CACHE_COL);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -157,25 +158,25 @@ public class AidDAOTest extends DatabaseTestCase{
 		sql.delete(AidTables.Filter, "http://foo.bar/3");
 		sql.delete(AidTables.Filter, "http://foo.bar/4");
 
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filter.toString(), deleteExpected_PATH), getDatabaseTable(AidTables.Filter.toString()),IGNORE_CACHE_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(enumToString(Filter), deleteExpected_PATH), getDatabaseTable(enumToString(Filter)),IGNORE_CACHE_COL);
 		
 		// fileindex table
 		sql.delete(AidTables.Fileindex, "2");
 		sql.delete(AidTables.Fileindex, "3");
 		
-		Assertion.assertEquals(getFileTable(AidTables.Fileindex.toString(), deleteExpected_PATH), getDatabaseTable(AidTables.Fileindex.toString()));
+		Assertion.assertEquals(getFileTable(enumToString(Fileindex), deleteExpected_PATH), getDatabaseTable(enumToString(Fileindex)));
 		
 		// dnw table
 		sql.delete(AidTables.Dnw, "3");
 		sql.delete(AidTables.Dnw, "4");
 		
-		Assertion.assertEquals(getFileTable(AidTables.Dnw.toString(), deleteExpected_PATH), getDatabaseTable(AidTables.Dnw.toString()));
+		Assertion.assertEquals(getFileTable(enumToString(Dnw), deleteExpected_PATH), getDatabaseTable(enumToString(Dnw)));
 		
 		// block table
 		sql.delete(AidTables.Block, "1");
 		sql.delete(AidTables.Block, "4");
 
-		Assertion.assertEquals(getFileTable(AidTables.Block.toString(), deleteExpected_PATH), getDatabaseTable(AidTables.Block.toString()));
+		Assertion.assertEquals(getFileTable(enumToString(Block), deleteExpected_PATH), getDatabaseTable(enumToString(Block)));
 	}
 
 	@SuppressWarnings("deprecation")
@@ -264,9 +265,9 @@ public class AidDAOTest extends DatabaseTestCase{
 	public void testAddIndex() throws Exception{
 		sql.addIndex("54321", "D:\\foo\\panda.png", 123455L, TEST_LOCATION[2]);
 		
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Fileindex.toString(), addExpected_PATH), getDatabaseTable(AidTables.Fileindex.toString()), IGNORE_ADD_HASH_COL);
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Dirlist.toString(), addExpected_PATH), getDatabaseTable(AidTables.Dirlist.toString()), IGNORE_PATH_COL);
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filelist.toString(), addExpected_PATH), getDatabaseTable(AidTables.Filelist.toString()), IGNORE_PATH_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(enumToString(Fileindex), addExpected_PATH), getDatabaseTable(enumToString(Fileindex)), IGNORE_ADD_HASH_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(enumToString(Dirlist), addExpected_PATH), getDatabaseTable(enumToString(Dirlist)), IGNORE_PATH_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(enumToString(Filelist), addExpected_PATH), getDatabaseTable(enumToString(Filelist)), IGNORE_PATH_COL);
 	}
 	
 	@Test
@@ -283,9 +284,9 @@ public class AidDAOTest extends DatabaseTestCase{
 		
 		sql.addIndex(info, TEST_LOCATION[2]);
 		
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Fileindex.toString(), addExpected_PATH), getDatabaseTable(AidTables.Fileindex.toString()), IGNORE_ADD_HASH_COL);
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Dirlist.toString(), addExpected_PATH), getDatabaseTable(AidTables.Dirlist.toString()), IGNORE_PATH_COL);
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filelist.toString(), addExpected_PATH), getDatabaseTable(AidTables.Filelist.toString()), IGNORE_PATH_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(enumToString(Fileindex), addExpected_PATH), getDatabaseTable(enumToString(Fileindex)), IGNORE_ADD_HASH_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(enumToString(Dirlist), addExpected_PATH), getDatabaseTable(enumToString(Dirlist)), IGNORE_PATH_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(enumToString(Filelist), addExpected_PATH), getDatabaseTable(enumToString(Filelist)), IGNORE_PATH_COL);
 	}
 	
 	@Test
@@ -350,9 +351,9 @@ public class AidDAOTest extends DatabaseTestCase{
 		
 		
 		//TODO can ignore cols be removed?
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Fileduplicate.toString(), addExpected_PATH), getDatabaseTable(AidTables.Fileduplicate.toString()), IGNORE_ADD_HASH_COL);
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Dirlist.toString(), addExpected_PATH), getDatabaseTable(AidTables.Dirlist.toString()), IGNORE_PATH_COL);
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filelist.toString(), addExpected_PATH), getDatabaseTable(AidTables.Filelist.toString()), IGNORE_PATH_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(enumToString(Fileduplicate), addExpected_PATH), getDatabaseTable(enumToString(Fileduplicate)), IGNORE_ADD_HASH_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(enumToString(Dirlist), addExpected_PATH), getDatabaseTable(enumToString(Dirlist)), IGNORE_PATH_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(enumToString(Filelist), addExpected_PATH), getDatabaseTable(enumToString(Filelist)), IGNORE_PATH_COL);
 	}
 	
 	@Test
@@ -393,14 +394,14 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertThat(sql.deleteIndexByPath(TEST_DIR[2] + TEST_FILE[2]),is(1));
 		assertThat(sql.deleteIndexByPath(TEST_DIR[3] + TEST_FILE[3]),is(1));
 
-		Assertion.assertEquals(getFileTable(AidTables.Fileindex.toString(), deleteExpected_PATH), getDatabaseTable(AidTables.Fileindex.toString()));
+		Assertion.assertEquals(getFileTable(enumToString(Fileindex), deleteExpected_PATH), getDatabaseTable(enumToString(Fileindex)));
 	}
 	
 	@Test
 	public void testDeleteByPathString() throws Exception {
 		sql.deleteDuplicateByPath(TEST_DIR[3] + TEST_FILE[2]);
 		
-		Assertion.assertEquals(getFileTable(AidTables.Fileduplicate.toString(), deleteExpected_PATH), getDatabaseTable(AidTables.Fileduplicate.toString()));
+		Assertion.assertEquals(getFileTable(enumToString(Fileduplicate), deleteExpected_PATH), getDatabaseTable(enumToString(Fileduplicate)));
 	}
 	
 	@Test
@@ -408,7 +409,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		Path path = Paths.get(TEST_DIR[3] + TEST_FILE[2]);
 		sql.deleteDuplicateByPath(path);
 		
-		Assertion.assertEquals(getFileTable(AidTables.Fileduplicate.toString(), deleteExpected_PATH), getDatabaseTable(AidTables.Fileduplicate.toString()));
+		Assertion.assertEquals(getFileTable(enumToString(Fileduplicate), deleteExpected_PATH), getDatabaseTable(enumToString(Fileduplicate)));
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -507,6 +508,10 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertFalse(sql.isBlacklisted(HASH));
 		sql.update(HASH, AidTables.Block);
 		assertTrue(sql.isBlacklisted(HASH));
+	}
+	
+	private String enumToString(AidTables table) {
+		return table.toString().toLowerCase();
 	}
 	// ---------- Database Setup related methods ---------- //
 	
