@@ -52,8 +52,15 @@ public class Post {
 			scanner.next();
 
 		if(scanner.hasNext()){
+			StringBuilder sb = new StringBuilder();
 			try {
-				imageUrl = new URL(scanner.next());
+				sb.append(scanner.next());
+				// this fixes "http:" going missing.
+				// Cloudflare related?
+				if(sb.toString().startsWith("//")){
+					sb.insert(0, "http:");
+				}
+				imageUrl = new URL(sb.toString());
 			} catch (MalformedURLException e) {
 				LOGGER.warning("Invalid url: "+e.getMessage());
 				imageUrl = null;

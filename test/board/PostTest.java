@@ -84,4 +84,18 @@ public class PostTest {
 		assertThat(post.getImageName(), is("Nausicaä 5.jpg"));
 		assertThat(post.getImageUrl().toString(),is("http://images.4chan.org/a/src/1322861629050.jpg"));
 	}
+	
+	@Test
+	public void testReplyCloudfire() throws IOException{
+		String testData = new TextFileReader().read(this.getClass().getClassLoader().
+				getResourceAsStream("HtmlData\\postTestData4")); // load test data
+		post.processHtml(testData);
+		
+		assertTrue(post.hasImage());
+		assertFalse(post.hasComment());
+		
+		assertNull(post.getComment());
+		assertThat(post.getImageName(), is("Nausicaä 5.jpg"));
+		assertThat(post.getImageUrl().toString(),is("http://images.4chan.org/a/src/1322861629050.jpg"));
+	}
 }
