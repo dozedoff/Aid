@@ -183,14 +183,14 @@ public class Page implements Runnable{
 
 		try {
 			html = new GetHtml().get(url);
-		} catch (IOException io) {
-			logger.warning("unable to load "+pageUrl.toString()+" , ResponseCode: "+io.getMessage());
-
+		
 		} catch (PageLoadException ple) {
 			if(ple.getResponseCode() == 404 || ple.getResponseCode() == 500)
 				logger.warning("unable to load "+pageUrl.toString()+" , ResponseCode: "+ple.getResponseCode());//TODO do something else?
 			else
 				logger.warning("unable to load "+pageUrl.toString()+" , ResponseCode: "+ple.getResponseCode());
+		} catch (IOException io) {
+			logger.warning("unable to load "+pageUrl.toString()+" , ResponseCode: "+io.getMessage());
 		}
 		return html;
 	}
