@@ -73,7 +73,7 @@ public class PageThread {
 		// create Post objects
 		for(String htmlSnippet : tokenList){
 			Post p = new Post();
-			p.processHtml(htmlSnippet);
+			p.parseHtml(htmlSnippet);
 			postList.add(p);
 		}
 	}

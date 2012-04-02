@@ -21,7 +21,6 @@ package board;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.logging.Logger;
@@ -36,13 +35,14 @@ import filter.FilterState;
 /**
  * This class represents a Page on the Board.
  */
-public class Page implements Runnable{
+public class Page implements Runnable, Parsable{
 	private LinkedList<PageThread> pageThreads = new LinkedList<PageThread>();
 	private static Logger logger = Logger.getLogger(Page.class.getName());
 	private URL pageUrl, boardUrl;
 	private Filter filter;
 	private FileLoader imageLoader;
 	private int pageNumber;
+	private LinkedList<URL> threadUrls = new LinkedList<>();
 
 	private boolean stop = false;
 
@@ -81,10 +81,11 @@ public class Page implements Runnable{
 		return pageUrl;
 	}
 
-	public ArrayList<URL> processPage(String html){
+	@Override
+	public void parseHtml(String html){
 		int pageStart,pageEnd;
-		ArrayList<URL> threadUrls = new ArrayList<>();
-
+		threadUrls.clear();
+		
 		// only the text between the first 2 <center> tags is relevant
 		try{
 			pageStart = html.indexOf("</noscript>", 0)+11;
@@ -95,7 +96,7 @@ public class Page implements Runnable{
 					e.getMessage()+" for\n"+pageUrl+"\n"+
 							"could probably not find the end of the Page"
 					);
-			return threadUrls;
+			return;
 		}
 		//cut up tokens to get thread url's
 		Scanner pageScanner = new Scanner(html).useDelimiter("<a href=\"");
@@ -119,7 +120,6 @@ public class Page implements Runnable{
 				logger.warning("unable to process thread URL.\n "+temp+"\n"+e.getMessage());
 			}
 		}
-		return threadUrls;
 	}
 
 	@Override
@@ -128,9 +128,7 @@ public class Page implements Runnable{
 			
 		pageThreads.clear();
 
-		ArrayList<URL> threadUrls;
-
-		threadUrls = processPage(loadUrl(pageUrl));
+		parseHtml(loadUrl(pageUrl));
 
 		boolean blocked = false;
 

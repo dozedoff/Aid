@@ -33,7 +33,7 @@ public class PostTest {
 	public void testOPcommentAndImage() throws IOException {
 		String testData = new TextFileReader().read(this.getClass().getClassLoader().
 				getResourceAsStream("HtmlData\\postTestData1")); // load test data
-		post.processHtml(testData);
+		post.parseHtml(testData);
 		
 		assertTrue(post.hasImage());
 		assertTrue(post.hasComment());
@@ -47,7 +47,7 @@ public class PostTest {
 	public void testReplyCommentNoImage() throws IOException {
 		String testData = new TextFileReader().read(this.getClass().getClassLoader().
 				getResourceAsStream("HtmlData\\postTestData2")); // load test data
-		post.processHtml(testData);
+		post.parseHtml(testData);
 		
 		assertFalse(post.hasImage());
 		assertTrue(post.hasComment());
@@ -61,7 +61,7 @@ public class PostTest {
 	public void testReplyQuoteCommentImageTripcode() throws IOException {
 		String testData = new TextFileReader().read(this.getClass().getClassLoader().
 				getResourceAsStream("HtmlData\\postTestData3")); // load test data
-		post.processHtml(testData);
+		post.parseHtml(testData);
 		
 		assertTrue(post.hasImage());
 		assertTrue(post.hasComment());
@@ -75,13 +75,13 @@ public class PostTest {
 	public void testReplyImageOnly() throws IOException{
 		String testData = new TextFileReader().read(this.getClass().getClassLoader().
 				getResourceAsStream("HtmlData\\postTestData4")); // load test data
-		post.processHtml(testData);
+		post.parseHtml(testData);
 		
 		assertTrue(post.hasImage());
 		assertFalse(post.hasComment());
 		
 		assertNull(post.getComment());
-		assertThat(post.getImageName(), is("Nausicaä 5.jpg"));
+		assertThat(post.getImageName(), is("Nausicaï¿½ 5.jpg"));
 		assertThat(post.getImageUrl().toString(),is("http://images.4chan.org/a/src/1322861629050.jpg"));
 	}
 	
@@ -89,13 +89,13 @@ public class PostTest {
 	public void testReplyCloudfire() throws IOException{
 		String testData = new TextFileReader().read(this.getClass().getClassLoader().
 				getResourceAsStream("HtmlData\\postTestData4")); // load test data
-		post.processHtml(testData);
+		post.parseHtml(testData);
 		
 		assertTrue(post.hasImage());
 		assertFalse(post.hasComment());
 		
 		assertNull(post.getComment());
-		assertThat(post.getImageName(), is("Nausicaä 5.jpg"));
+		assertThat(post.getImageName(), is("Nausicaï¿½ 5.jpg"));
 		assertThat(post.getImageUrl().toString(),is("http://images.4chan.org/a/src/1322861629050.jpg"));
 	}
 }

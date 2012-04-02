@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 /**
  * Class that represents a post in a thread.
  */
-public class Post {
+public class Post implements Parsable{
 	protected String comment = "";
 	protected String imageName;
 
@@ -33,7 +33,7 @@ public class Post {
 
 	private static final Logger LOGGER = Logger.getLogger(Post.class.getName());
 
-	public void processHtml(String html){
+	public void parseHtml(String html) {
 		//TODO make tag finding scalable
 		Scanner scanner;
 
