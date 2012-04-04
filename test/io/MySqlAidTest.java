@@ -18,6 +18,7 @@ package io;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItem;
+import static org.junit.matchers.JUnitMatchers.hasItems;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -26,6 +27,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.dbunit.Assertion;
 import org.dbunit.DatabaseTestCase;
@@ -279,6 +281,18 @@ public class MySqlAidTest extends DatabaseTestCase{
 		sql.pruneCache(Calendar.getInstance().getTimeInMillis());
 		assertThat(sql.size(MySQLtables.Cache), is(1));
 		assertThat(sql.isCached("1"), is(true));
+	}
+	
+	@Test
+	public void testGetThumbList() throws Exception{
+		List<URL> urls = sql.getThumbList();
+		
+		URL[] expectedURL = new URL[3];
+		expectedURL[0] = new URL("http://foo.bar/1");
+		expectedURL[1] = new URL("http://foo.bar/2");
+		expectedURL[2] = new URL("http://foo.bar/3");
+		
+		assertThat(urls, hasItems(expectedURL));
 	}
 	
 	// ---------- Database Setup related methods ---------- //
