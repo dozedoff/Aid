@@ -19,12 +19,18 @@ package io;
 
 import java.awt.Image;
 import java.io.IOException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import net.GetBinary;
+import net.GetHtml;
+import net.PageLoadException;
+import board.PageThread;
 import board.Post;
 
 /**
@@ -43,7 +49,7 @@ public class ThumbnailLoader {
 	 * @param url URL of the thread from which the thumbnails are loaded
 	 * @param postList Posts from which thumbnails should be loaded.
 	 */
-	public void downloadThumbs(String url,ArrayList<Post> postList){
+	public void downloadThumbs(String url,List<Post> postList){
 		//TODO add code to re-fetch thumbs?
 		GetBinary gb = new GetBinary(2097152);  // 2 mb
 		int counter = 0;
@@ -86,5 +92,26 @@ public class ThumbnailLoader {
 	public ArrayList<Image> getThumbs(String id){
 		ArrayList<Image> images = new ArrayList<>(sql.getThumb(id));
 		return images;
+	}
+	
+	public void refetchThumbs(){
+		GetHtml getHtml = new GetHtml();
+		List<URL> thumbUrls = sql.getThumbList();
+		LinkedList<PageThread> pageThreads = new LinkedList<>();
+		
+		for(URL url : thumbUrls){
+			PageThread pt = new PageThread(url);
+			try {
+				pt.processThread(getHtml.get(url));
+				pageThreads.add(pt);
+			} catch (Exception e) {
+				logger.warning("Failed to reload thumbs for "+url.toString()+"\nReason: "+e.getMessage());
+			}
+			
+			downloadThumbs(url.toString(), pt.getPosts());
+			
+			// TODO change DB key to (URL,Filename) and change statement to INSERT IGNORE
+			// otherwise there will be a LOT of duplicates
+		}
 	}
 }
