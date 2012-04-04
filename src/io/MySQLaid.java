@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 
 import filter.FilterItem;
@@ -46,6 +47,7 @@ public class MySQLaid extends MySQL {
 		addPrepStmt("pendingFilter"		, "SELECT board, reason, id FROM filter WHERE status = 1 ORDER BY board, reason ASC");
 		addPrepStmt("filterTime"		, "UPDATE filter SET timestamp = ? WHERE id = ?");
 		addPrepStmt("oldestFilter"		, "SELECT id FROM filter ORDER BY timestamp ASC LIMIT 1");
+		addPrepStmt("thumbList"			, "SELECT DISTINCT url FROM thumbs");
 	}
 	
 	public boolean addFilter(FilterItem fi){
@@ -176,5 +178,27 @@ public class MySQLaid extends MySQL {
 			closeAll(getOldest);
 		}
 		return null;
+	}
+	
+	public List<URL> getThumbList(){
+		ResultSet rs;
+		PreparedStatement getThumbList = getPrepStmt("thumbList");
+		LinkedList<URL> threads = new LinkedList<>();
+		
+		try {
+			rs = getThumbList.executeQuery();
+			
+			while(rs.next()){
+				try {
+					threads.add(new URL(rs.getString(1)));
+				} catch (MalformedURLException e) {
+					logger.warning("Invalid thumb URL: "+rs.getString(1));
+				}
+			}
+		} catch (SQLException e) {
+			logger.warning(SQL_OP_ERR+e.getMessage());
+		}
+		
+		return threads;
 	}
 }
