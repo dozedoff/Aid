@@ -105,6 +105,7 @@ public class Main implements ActionListener{
 	private final String MYSQL_CFG_FILENAME = "mysql.ini";
 	private final String APP_CFG_FILENAME = "config.ini";
 	private final String FILTER_DATA_FILENAME = "filter.dat";
+	private final String MYSQL_JDBC = "mysql-connector-java-5.1.18-bin.jar";
 	
 	private final String DEFAULT_PAGE_THREADS = "1";
 	private final String DEFAULT_IMAGE_THREADS = "1";
@@ -253,9 +254,8 @@ public class Main implements ActionListener{
 		// load the logger settings
 		loggerSettings = loadLoggerConfig(LOGGER_CFG_FILENAME);
 		
-		String mysqljdbc = "mysql-connector-java-5.1.15-bin.jar";
-		if(! (new File(mysqljdbc)).canRead()) {
-			String message = "Required library file " + mysqljdbc + " could not be found.";
+		if(! (new File(MYSQL_JDBC)).canRead()) {
+			String message = "Required library file " + MYSQL_JDBC + " could not be found.";
 			dieWithError(message, 5);
 		}
 
