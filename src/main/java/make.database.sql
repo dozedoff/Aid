@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS "dirlist" (
   "dirpath" varchar(255) UNIQUE NOT NULL
 );
 CREATE INDEX "dirpath" ON "dirlist" ("dirpath");
+SELECT setval('dirlist_id_seq',10,false);
 COMMENT ON TABLE "dirlist" IS 'List of all known directories';
 
 -- Data exporting was unselected.
@@ -69,15 +70,17 @@ CREATE TABLE IF NOT EXISTS "filelist" (
   "id" serial PRIMARY KEY NOT NULL,
   "filename" varchar(255) UNIQUE NOT NULL
 );
+SELECT setval('filelist_id_seq',10,false);
 COMMENT ON TABLE "filelist" IS 'List of all known filenames';
 
 CREATE INDEX "filename" ON "filelist" ("filename");
 
 -- Dumping structure for table aid.location_tags
 CREATE TABLE IF NOT EXISTS "location_tags" (
-  "tag_id" serial PRIMARY KEY UNIQUE NOT NULL,
+  "tag_id" serial PRIMARY KEY NOT NULL,
   "location" varchar(30) UNIQUE NOT NULL
 );
+SELECT setval('location_tags_tag_id_seq',10,false);
 COMMENT ON TABLE "location_tags" IS 'List of tags for different locations where data is stored';
 
 INSERT INTO "location_tags" ("tag_id", "location") VALUES (1, 'UNKNOWN');
@@ -172,6 +175,7 @@ CREATE TABLE IF NOT EXISTS thumbs (
   "filename" varchar(25)  NOT NULL,
   "thumb" bytea NOT NULL
 );
+SELECT setval('thumbs_id_seq',10,false);
 COMMENT ON TABLE thumbs IS 'Thumbnails for items in the Filter list';
 
 -- Data exporting was unselected.
