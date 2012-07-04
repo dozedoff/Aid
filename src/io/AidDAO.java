@@ -69,9 +69,9 @@ public class AidDAO{
 		addPrepStmt("isArchive"			, "SELECT * FROM `archive` WHERE `id` = ?");
 		addPrepStmt("isDnw"				, "SELECT * FROM `dnw` WHERE `id` = ?");
 		addPrepStmt("prune"				, "DELETE FROM `cache` WHERE `timestamp` < ?");
-		addPrepStmt("isHashed"			, "SELECT id FROM `hash` WHERE `id` = ?");
-		addPrepStmt("addHash"			, "INSERT INTO hash (id, dir, filename, size, location) VALUES (?,?,?,?,(SELECT tag_id FROM location_tags WHERE location = ?)) ");
-		addPrepStmt("deleteHash"		, "DELETE FROM hash WHERE id = ?");
+		addPrepStmt("isHashed"			, "SELECT id FROM `index` WHERE `id` = ?");
+		addPrepStmt("addIndex"			, "INSERT INTO index (id, dir, filename, size, location) VALUES (?,?,?,?,(SELECT tag_id FROM location_tags WHERE location = ?)) ");
+		addPrepStmt("deleteIndex"		, "DELETE FROM index WHERE id = ?");
 		addPrepStmt("deleteFilter"		, "DELETE FROM filter WHERE id = ?");
 		addPrepStmt("deleteDnw"			, "DELETE FROM dnw WHERE id = ?");
 		addPrepStmt("deleteBlock"		, "DELETE FROM block WHERE id = ?");
@@ -80,7 +80,7 @@ public class AidDAO{
 		addPrepStmt("getDirectory"		, "SELECT id FROM dirlist WHERE dirpath = ?");
 		addPrepStmt("getFilename"		, "SELECT id FROM filelist WHERE filename = ?");
 		addPrepStmt("getSetting"		, "SELECT param	FROM settings WHERE name = ?");
-		addPrepStmt("getPath"			, "SELECT CONCAT(dirlist.dirpath,filelist.filename) FROM (select dir, filename FROM hash WHERE id =?) AS a JOIN filelist ON a.filename=filelist.id Join dirlist on a.dir=dirlist.id");
+		addPrepStmt("getPath"			, "SELECT CONCAT(dirlist.dirpath,filelist.filename) FROM (select dir, filename FROM index WHERE id =?) AS a JOIN filelist ON a.filename=filelist.id Join dirlist on a.dir=dirlist.id");
 		addPrepStmt("hlUpdateBlock"		, "INSERT IGNORE INTO block (id) VALUES (?)");
 		addPrepStmt("hlUpdateDnw"		, "INSERT IGNORE INTO dnw (id) VALUES (?)");
 		addPrepStmt("addFilter"			, "INSERT IGNORE INTO filter (id, board, reason, status) VALUES (?,?,?,?)");
@@ -89,7 +89,7 @@ public class AidDAO{
 		addPrepStmt("pendingFilter"		, "SELECT board, reason, id FROM filter WHERE status = 1 ORDER BY board, reason ASC");
 		addPrepStmt("filterTime"		, "UPDATE filter SET timestamp = ? WHERE id = ?");
 		addPrepStmt("oldestFilter"		, "SELECT id FROM filter ORDER BY timestamp ASC LIMIT 1");
-		addPrepStmt("compareBlacklisted", "SELECT a.id, CONCAT(dirlist.dirpath,filelist.filename) FROM (select hash.id,dir, filename FROM block join hash on block.id = hash.id) AS a JOIN filelist ON a.filename=filelist.id Join dirlist ON a.dir=dirlist.id");
+		addPrepStmt("compareBlacklisted", "SELECT a.id, CONCAT(dirlist.dirpath,filelist.filename) FROM (select index.id,dir, filename FROM block join index on block.id = index.id) AS a JOIN filelist ON a.filename=filelist.id Join dirlist ON a.dir=dirlist.id");
 		addPrepStmt("isValidTag"		, "SELECT tag_id FROM location_tags WHERE location = ?");
 	}
 	
@@ -293,7 +293,7 @@ public class AidDAO{
 	}
 	
 	public boolean addIndex(String hash, String path, long size, String location){
-		return fileDataInsert("addHash", hash, path, size, location);
+		return fileDataInsert("addIndex", hash, path, size, location);
 	}
 	
 	private boolean fileDataInsert(String command, String hash, String path, long size, String location){

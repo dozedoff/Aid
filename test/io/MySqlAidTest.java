@@ -132,8 +132,8 @@ public class MySqlAidTest extends DatabaseTestCase{
 		Assertion.assertEqualsIgnoreCols(getFileTable("filter", "/dbData/deleteExpected.xml"), getDatabaseTable("filter"),IGNORE_CACHE_COL);
 		
 		// hash table
-		sql.delete(AidTables.Hash, "2");
-		sql.delete(AidTables.Hash, "3");
+		sql.delete(AidTables.Index, "2");
+		sql.delete(AidTables.Index, "3");
 		
 		Assertion.assertEquals(getFileTable("hash", "/dbData/deleteExpected.xml"), getDatabaseTable("hash"));
 		
