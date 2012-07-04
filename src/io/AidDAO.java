@@ -91,6 +91,7 @@ public class AidDAO{
 		addPrepStmt("filterTime"		, "UPDATE filter SET timestamp = ? WHERE id = ?");
 		addPrepStmt("oldestFilter"		, "SELECT id FROM filter ORDER BY timestamp ASC LIMIT 1");
 		addPrepStmt("compareBlacklisted", "SELECT a.id, CONCAT(dirlist.dirpath,filelist.filename) FROM (select hash.id,dir, filename FROM block join hash on block.id = hash.id) AS a JOIN filelist ON a.filename=filelist.id Join dirlist ON a.dir=dirlist.id");
+		addPrepStmt("isValidTag"		, "SELECT tag_id FROM location_tags WHERE location = ?");
 	}
 	
 	private static void generateStatements(){
@@ -165,7 +166,7 @@ public class AidDAO{
 		}
 		return null;
 	}
-
+	
 //	public void addPrepStmt(String id,String stmt,int param1, int param2){
 //		PreparedStatement toAdd = null;
 //		try {
@@ -412,6 +413,10 @@ public class AidDAO{
 
 	public boolean isBlacklisted(String hash){
 		return simpleBooleanQuery("isBlacklisted", hash, false);
+	}
+	
+	public boolean isValidTag(String tag){
+		return simpleBooleanQuery("isValidTag", tag, false);
 	}
 	
 	public void update(String id, AidTables table){
