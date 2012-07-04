@@ -90,6 +90,7 @@ public class AidDAO{
 		addPrepStmt("pendingFilter"		, "SELECT board, reason, id FROM filter WHERE status = 1 ORDER BY board, reason ASC");
 		addPrepStmt("filterTime"		, "UPDATE filter SET timestamp = ? WHERE id = ?");
 		addPrepStmt("oldestFilter"		, "SELECT id FROM filter ORDER BY timestamp ASC LIMIT 1");
+		addPrepStmt("compareBlacklisted", "SELECT a.id, CONCAT(dirlist.dirpath,filelist.filename) FROM (select hash.id,dir, filename FROM block join hash on block.id = hash.id) AS a JOIN filelist ON a.filename=filelist.id Join dirlist ON a.dir=dirlist.id");
 	}
 	
 	private static void generateStatements(){
@@ -138,6 +139,31 @@ public class AidDAO{
 		}
 		
 		return true;
+	}
+	
+	public LinkedList<String> getBlacklistedFiles(){
+		LinkedList<String> images = new LinkedList<>();
+		String command = "compareBlacklisted";
+		
+		ResultSet rs = null;
+		PreparedStatement ps = getPrepStmt(command);
+
+		try {
+			rs = ps.executeQuery();
+
+			while(rs.next()){
+				images.add(rs.getString(1));
+			}
+
+			return images;
+
+		} catch (SQLException e) {
+			logger.warning(SQL_OP_ERR+e.getMessage());
+		}finally{
+			closeAll(ps);
+			silentClose(null, ps, rs);
+		}
+		return null;
 	}
 
 //	public void addPrepStmt(String id,String stmt,int param1, int param2){
