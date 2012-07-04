@@ -70,8 +70,7 @@ public class AidDAO{
 		addPrepStmt("isDnw"				, "SELECT * FROM `dnw` WHERE `id` = ?");
 		addPrepStmt("prune"				, "DELETE FROM `cache` WHERE `timestamp` < ?");
 		addPrepStmt("isHashed"			, "SELECT id FROM `hash` WHERE `id` = ?");
-		addPrepStmt("addHash"			, "INSERT INTO hash (id, dir, filename, size) VALUES (?,?,?,?)");
-		addPrepStmt("addArchive"		, "INSERT INTO archive (id, dir, filename, size) VALUES (?,?,?,?)");
+		addPrepStmt("addHash"			, "INSERT INTO hash (id, dir, filename, size, location) VALUES (?,?,?,?,(SELECT tag_id FROM location_tags WHERE location = ?)) ");
 		addPrepStmt("deleteHash"		, "DELETE FROM hash WHERE id = ?");
 		addPrepStmt("deleteFilter"		, "DELETE FROM filter WHERE id = ?");
 		addPrepStmt("deleteDnw"			, "DELETE FROM dnw WHERE id = ?");
@@ -293,20 +292,11 @@ public class AidDAO{
 		}
 	}
 	
-	public boolean addArchive(String hash, String path, long size){
-		return fileDataInsert("addArchive", hash, path, size);
+	public boolean addIndex(String hash, String path, long size, String location){
+		return fileDataInsert("addHash", hash, path, size, location);
 	}
 	
-	public boolean addIndex(String hash, String path, long size){
-		return fileDataInsert("addHash", hash, path, size);
-	}
-
-	@Deprecated
-	public boolean addHash(String hash, String path, long size) {
-		return fileDataInsert("addHash", hash, path, size);
-	}
-	
-	private boolean fileDataInsert(String command, String hash, String path, long size){
+	private boolean fileDataInsert(String command, String hash, String path, long size, String location){
 		PreparedStatement ps = getPrepStmt(command);
 		
 		try{
@@ -321,6 +311,7 @@ public class AidDAO{
 			ps.setInt(2, pathId[0]);
 			ps.setInt(3, pathId[1]);
 			ps.setLong(4, size);
+			ps.setString(5, location);
 			ps.execute();
 			return true;
 		} catch(SQLException e){
@@ -417,6 +408,10 @@ public class AidDAO{
 	
 	public boolean isValidTag(String tag){
 		return simpleBooleanQuery("isValidTag", tag, false);
+	}
+	
+	public int getTagId(String tag){
+		return simpleIntQuery("aadfa");
 	}
 	
 	public void update(String id, AidTables table){

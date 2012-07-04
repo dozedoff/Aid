@@ -236,7 +236,7 @@ public class MySqlAidTest extends DatabaseTestCase{
 	
 	@Test
 	public void testAddHash() throws Exception{
-		sql.addHash("54321", "D:\\foo\\panda.png", 123455L);
+		sql.addIndex("54321", "D:\\foo\\panda.png", 123455L, "DL CLIENT");
 		
 		Assertion.assertEqualsIgnoreCols(getFileTable("hash", "/dbData/addExpected.xml"), getDatabaseTable("hash"), IGNORE_ADD_HASH_COL);
 		Assertion.assertEqualsIgnoreCols(getFileTable("dirlist", "/dbData/addExpected.xml"), getDatabaseTable("dirlist"), IGNORE_PATH_COL);

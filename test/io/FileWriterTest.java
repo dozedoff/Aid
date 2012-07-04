@@ -119,7 +119,7 @@ public class FileWriterTest {
 		for(File f : testFiles)
 			assertTrue("File "+f.toString()+" not found",f.exists());
 		
-		verify(mockFilter,times(5)).addHash(eq("95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815"), anyString(), eq(5));
+		verify(mockFilter,times(5)).addIndex(eq("95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815"), anyString(), eq(5));
 		
 		for(File f : testFiles)
 			assertThat("Test failed for "+f.getPath(),f.length(), is(5L));
@@ -253,7 +253,7 @@ public class FileWriterTest {
 	
 	@Test
 	public void testInvalidFileName() throws Exception{
-		fileWriter.add(new File(testDir,"ooops+%ç!<>.txt"), testData);
+		fileWriter.add(new File(testDir,"ooops+%ï¿½!<>.txt"), testData);
 		//fileWriter.shutdown();
 		Thread.sleep(15000);
 		
@@ -281,8 +281,8 @@ public class FileWriterTest {
 		
 		assertThat(filenames,hasItem("foo.txt"));
 		assertThat(filenames,hasItem(both(containsString("foo_")).and(containsString(".txt"))));
-		verify(mockFilter,times(1)).addHash(eq("95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815"),anyString(), eq(5));//TODO replace anyString() with more accurate test
-		verify(mockFilter,times(1)).addHash(eq("20FC038E00E13585E68E7EBE50D79CBE7D476A74D8FDE71872627DA6CD8FC8BB"),anyString(), eq(5));//TODO replace anyString() with more accurate test
+		verify(mockFilter,times(1)).addIndex(eq("95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815"),anyString(), eq(5));//TODO replace anyString() with more accurate test
+		verify(mockFilter,times(1)).addIndex(eq("20FC038E00E13585E68E7EBE50D79CBE7D476A74D8FDE71872627DA6CD8FC8BB"),anyString(), eq(5));//TODO replace anyString() with more accurate test
 	}
 	
 	@Test
@@ -300,7 +300,7 @@ public class FileWriterTest {
 		
 		assertThat(filenames,hasItem("foo.txt"));
 		assertThat(filenames.size(),is(1)); //TODO write custom matcher for "list does not contain" see: http://stackoverflow.com/q/6520546/891292
-		verify(mockFilter,times(2)).addHash(eq("95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815"),anyString(), eq(5));//TODO replace anyString() with more accurate test
+		verify(mockFilter,times(2)).addIndex(eq("95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815"),anyString(), eq(5));//TODO replace anyString() with more accurate test
 	}
 	
 	@Test
@@ -356,7 +356,7 @@ public class FileWriterTest {
 	
 	@Test
 	public void testSqlPathAddFail() throws SQLException, InvalidActivityException, InterruptedException{
-		doThrow(new SQLException("Incorrect string value")).when(mockFilter).addHash(anyString(), eq(new File(testDir,"foo.txt").toString()), eq(5));
+		doThrow(new SQLException("Incorrect string value")).when(mockFilter).addIndex(anyString(), eq(new File(testDir,"foo.txt").toString()), eq(5));
 		
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
 //		fileWriter.shutdown();

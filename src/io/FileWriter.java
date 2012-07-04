@@ -158,7 +158,7 @@ public class FileWriter extends Thread{
 						//files are identical, normally this should not happen
 						bytesDiscarded += data.length;
 						try {
-							filter.addHash(existingFileHash, fullPath.toString(), data.length);
+							filter.addIndex(existingFileHash, fullPath.toString(), data.length);
 						} catch (SQLException e) {
 							logger.warning("Could not add Hash to database: "+e.getMessage());
 						}
@@ -182,7 +182,7 @@ public class FileWriter extends Thread{
 			buffOut.write(data);
 			buffOut.close();
 			
-			filter.addHash(hash, path, data.length);
+			filter.addIndex(hash, path, data.length);
 			bytesSaved += data.length; // in bytes
 			Stats.saveBytes(data.length);
 		}catch(SQLException se){
