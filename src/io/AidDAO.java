@@ -22,7 +22,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Blob;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,9 +30,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
@@ -74,6 +71,7 @@ public class AidDAO{
 		addPrepStmt("prune"				, "DELETE FROM `cache` WHERE `timestamp` < ?");
 		addPrepStmt("isHashed"			, "SELECT id FROM `hash` WHERE `id` = ?");
 		addPrepStmt("addHash"			, "INSERT INTO hash (id, dir, filename, size) VALUES (?,?,?,?)");
+		addPrepStmt("addArchive"		, "INSERT INTO archive (id, dir, filename, size) VALUES (?,?,?,?)");
 		addPrepStmt("deleteHash"		, "DELETE FROM hash WHERE id = ?");
 		addPrepStmt("deleteFilter"		, "DELETE FROM filter WHERE id = ?");
 		addPrepStmt("deleteDnw"			, "DELETE FROM dnw WHERE id = ?");
@@ -267,10 +265,23 @@ public class AidDAO{
 			silentClose(cn, ps, null);
 		}
 	}
+	
+	public boolean addArchive(String hash, String path, long size){
+		return fileDataInsert("addArchive", hash, path, size);
+	}
+	
+	public boolean addIndex(String hash, String path, long size){
+		return fileDataInsert("addHash", hash, path, size);
+	}
 
+	@Deprecated
 	public boolean addHash(String hash, String path, long size) {
-		PreparedStatement ps = getPrepStmt("addHash");
-
+		return fileDataInsert("addHash", hash, path, size);
+	}
+	
+	private boolean fileDataInsert(String command, String hash, String path, long size){
+		PreparedStatement ps = getPrepStmt(command);
+		
 		try{
 			int[] pathId = addPath(path);
 
