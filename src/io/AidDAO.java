@@ -71,7 +71,7 @@ public class AidDAO{
 		addPrepStmt("prune"				, "DELETE FROM `cache` WHERE `timestamp` < ?");
 		addPrepStmt("isHashed"			, "SELECT id FROM `index` WHERE `id` = ?");
 		addPrepStmt("addIndex"			, "INSERT INTO `index` (id, dir, filename, size, location) VALUES (?,?,?,?,(SELECT tag_id FROM location_tags WHERE location = ?)) ");
-		addPrepStmt("deleteIndex"		, "DELETE FROM index WHERE id = ?");
+		addPrepStmt("deleteIndex"		, "DELETE FROM `index` WHERE id = ?");
 		addPrepStmt("deleteFilter"		, "DELETE FROM filter WHERE id = ?");
 		addPrepStmt("deleteDnw"			, "DELETE FROM dnw WHERE id = ?");
 		addPrepStmt("deleteBlock"		, "DELETE FROM block WHERE id = ?");
@@ -80,7 +80,7 @@ public class AidDAO{
 		addPrepStmt("getDirectory"		, "SELECT id FROM dirlist WHERE dirpath = ?");
 		addPrepStmt("getFilename"		, "SELECT id FROM filelist WHERE filename = ?");
 		addPrepStmt("getSetting"		, "SELECT param	FROM settings WHERE name = ?");
-		addPrepStmt("getPath"			, "SELECT CONCAT(dirlist.dirpath,filelist.filename) FROM (select dir, filename FROM index WHERE id =?) AS a JOIN filelist ON a.filename=filelist.id Join dirlist on a.dir=dirlist.id");
+		addPrepStmt("getPath"			, "SELECT CONCAT(dirlist.dirpath,filelist.filename) FROM (select dir, filename FROM `index` WHERE id =?) AS a JOIN filelist ON a.filename=filelist.id Join dirlist on a.dir=dirlist.id");
 		addPrepStmt("hlUpdateBlock"		, "INSERT IGNORE INTO block (id) VALUES (?)");
 		addPrepStmt("hlUpdateDnw"		, "INSERT IGNORE INTO dnw (id) VALUES (?)");
 		addPrepStmt("addFilter"			, "INSERT IGNORE INTO filter (id, board, reason, status) VALUES (?,?,?,?)");
