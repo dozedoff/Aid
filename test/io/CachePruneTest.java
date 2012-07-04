@@ -29,10 +29,10 @@ import org.junit.Test;
 
 public class CachePruneTest {
 	CachePrune cachePrune;
-	MySQLaid sql;
+	AidDAO sql;
 	@Before
 	public void setUp() throws Exception {
-		sql = mock(MySQLaid.class);
+		sql = mock(AidDAO.class);
 		cachePrune = new CachePrune(sql, new URL("http://www.google.com"), 1, 0, 1);
 	}
 
@@ -43,7 +43,7 @@ public class CachePruneTest {
 
 	@Test
 	public void test() throws InterruptedException {
-		when(sql.size(MySQLtables.Cache)).thenReturn(4);
+		when(sql.size(AidTables.Cache)).thenReturn(4);
 		assertThat(cachePrune.start(), is(true));
 		Thread.sleep(1000*3);
 		

@@ -29,8 +29,7 @@ import io.CachePrune;
 import io.ConnectionPool;
 import io.FileWriter;
 import io.ImageLoader;
-import io.MySQL;
-import io.MySQLaid;
+import io.AidDAO;
 import io.SchemaUpdateException;
 import io.SchemaUpdater;
 import io.ThumbnailLoader;
@@ -92,7 +91,7 @@ public class Main implements ActionListener{
 	private BlockListDataModel blockListModel;
 	private ThumbnailLoader thumbLoader;
 	private ConnectionPool connPool;
-	private MySQLaid mySQL;
+	private AidDAO mySQL;
 	private CachePrune cachePrune;
 
 	private BoardListDataModel boards = new BoardListDataModel();
@@ -193,7 +192,7 @@ public class Main implements ActionListener{
 			dieWithError(message, 7);
 		}
 		blockListModel = new BlockListDataModel();
-		mySQL = new MySQLaid(connPool);
+		mySQL = new AidDAO(connPool);
 		thumbLoader = new ThumbnailLoader(mySQL);
 		DefaultListModel<String> fileNameModel = new DefaultListModel<>();
 		DefaultListModel<String> postContentModel = new DefaultListModel<>();
@@ -276,7 +275,7 @@ public class Main implements ActionListener{
 		// create all needed classes
 		build();
 		try {
-			SchemaUpdater.update(new MySQL(connPool), new InternalSetting());
+			SchemaUpdater.update(new AidDAO(connPool), new InternalSetting());
 		} catch (SchemaUpdateException e) {
 			String message = "Schema update failed: "+e.getMessage();
 			dieWithError(message, 6);

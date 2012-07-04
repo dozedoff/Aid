@@ -35,11 +35,11 @@ public class CachePrune {
 	int startupDelayMin = 1;
 	int maximumAgeMin = 1;
 	Timer cachePruneTimer;
-	MySQLaid sql;
+	AidDAO sql;
 
 	static final Logger logger = Logger.getLogger(CachePrune.class.getName());
 
-	public CachePrune(MySQLaid sql, URL testAliveUrl, int refreshInterMin, int startupDelayMin, int maximumAgeMin) {
+	public CachePrune(AidDAO sql, URL testAliveUrl, int refreshInterMin, int startupDelayMin, int maximumAgeMin) {
 		this.testAliveUrl = testAliveUrl;
 		this.sql = sql;
 		this.refreshInterMin = refreshInterMin * 60 * 1000;
@@ -86,7 +86,7 @@ public class CachePrune {
 				}
 
 				sql.pruneCache(maxAge(maximumAgeMin)); // delete keys that are older than maximumAgeMin
-				Stats.setCacheSize(sql.size(MySQLtables.Cache)); // update GUI
+				Stats.setCacheSize(sql.size(AidTables.Cache)); // update GUI
 		}
 
 	}

@@ -34,8 +34,8 @@ public class ThumbnailLoader {
 	private static Logger logger = Logger.getLogger(ThumbnailLoader.class.getName());
 	private final int NUM_OF_THUMBS = 17;
 	private final int SQL_MAX_WAITTIME = 5000;
-	private MySQLaid sql;
-	public ThumbnailLoader(MySQLaid sql){
+	private AidDAO sql;
+	public ThumbnailLoader(AidDAO sql){
 		this.sql = sql;
 	}
 	/**

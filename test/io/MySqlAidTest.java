@@ -47,7 +47,7 @@ import filter.FilterState;
 
 
 public class MySqlAidTest extends DatabaseTestCase{
-	MySQLaid sql;
+	AidDAO sql;
 	BoneConnectionPool bcp;
 	final String[] IGNORE_CACHE_COL = {"timestamp"};
 	final String[] IGNORE_THUMBS_DATA_COL = {"id"};
@@ -63,7 +63,7 @@ public class MySqlAidTest extends DatabaseTestCase{
 		super.setUp();
 		bcp = new BoneConnectionPool(new DefaultMySQLconnection("127.0.0.1", 3306, "test", "test", "test"), 10);
 		bcp.startPool();
-		sql = new MySQLaid(bcp);
+		sql = new AidDAO(bcp);
 	}
 
 	@After
@@ -124,46 +124,46 @@ public class MySqlAidTest extends DatabaseTestCase{
 	@Test
 	public void testDelete() throws Exception{
 		// filter table
-		sql.delete(MySQLtables.Filter, "http://foo.bar/1");
-		sql.delete(MySQLtables.Filter, "http://foo.bar/2");
-		sql.delete(MySQLtables.Filter, "http://foo.bar/3");
-		sql.delete(MySQLtables.Filter, "http://foo.bar/4");
+		sql.delete(AidTables.Filter, "http://foo.bar/1");
+		sql.delete(AidTables.Filter, "http://foo.bar/2");
+		sql.delete(AidTables.Filter, "http://foo.bar/3");
+		sql.delete(AidTables.Filter, "http://foo.bar/4");
 
 		Assertion.assertEqualsIgnoreCols(getFileTable("filter", "/dbData/deleteExpected.xml"), getDatabaseTable("filter"),IGNORE_CACHE_COL);
 		
 		// hash table
-		sql.delete(MySQLtables.Hash, "2");
-		sql.delete(MySQLtables.Hash, "3");
+		sql.delete(AidTables.Hash, "2");
+		sql.delete(AidTables.Hash, "3");
 		
 		Assertion.assertEquals(getFileTable("hash", "/dbData/deleteExpected.xml"), getDatabaseTable("hash"));
 		
 		// dnw table
-		sql.delete(MySQLtables.Dnw, "3");
-		sql.delete(MySQLtables.Dnw, "4");
+		sql.delete(AidTables.Dnw, "3");
+		sql.delete(AidTables.Dnw, "4");
 		
 		Assertion.assertEquals(getFileTable("dnw", "/dbData/deleteExpected.xml"), getDatabaseTable("dnw"));
 		
 		// block table
-		sql.delete(MySQLtables.Block, "1");
-		sql.delete(MySQLtables.Block, "4");
+		sql.delete(AidTables.Block, "1");
+		sql.delete(AidTables.Block, "4");
 
 		Assertion.assertEquals(getFileTable("block", "/dbData/deleteExpected.xml"), getDatabaseTable("block"));
 		
 		// archive table
-		sql.delete(MySQLtables.Archive, "3");
-		sql.delete(MySQLtables.Archive, "4");
+		sql.delete(AidTables.Archive, "3");
+		sql.delete(AidTables.Archive, "4");
 
 		Assertion.assertEquals(getFileTable("archive", "/dbData/deleteExpected.xml"), getDatabaseTable("archive"));
 	}
 
 	@Test
 	public void testFilterSize(){
-		assertThat(sql.size(MySQLtables.Filter), is(8));
+		assertThat(sql.size(AidTables.Filter), is(8));
 	}
 
 	@Test
 	public void testCacheSize(){
-		assertThat(sql.size(MySQLtables.Cache), is(4));
+		assertThat(sql.size(AidTables.Cache), is(4));
 	}
 	
 	@Test
@@ -197,8 +197,8 @@ public class MySqlAidTest extends DatabaseTestCase{
 	
 	@Test
 	public void testTriggerThumbsDelete() throws Exception{
-		sql.delete(MySQLtables.Filter, "http://foo.bar/1");
-		sql.delete(MySQLtables.Filter, "http://foo.bar/2");
+		sql.delete(AidTables.Filter, "http://foo.bar/1");
+		sql.delete(AidTables.Filter, "http://foo.bar/2");
 		
 		Assertion.assertEqualsIgnoreCols(getFileTable("thumbs", "/dbData/triggerExpected.xml"), getDatabaseTable("thumbs"), IGNORE_THUMBS_TRIGGER_COL);
 	}
@@ -257,9 +257,9 @@ public class MySqlAidTest extends DatabaseTestCase{
 	@Test
 	public void testGetOldestFilter(){
 		assertThat(sql.getOldestFilter(), is("http://foo.bar/1"));
-		sql.delete(MySQLtables.Filter, "http://foo.bar/1");
+		sql.delete(AidTables.Filter, "http://foo.bar/1");
 		assertThat(sql.getOldestFilter(), is("http://foo.bar/2"));
-		sql.delete(MySQLtables.Filter, "http://foo.bar/2");
+		sql.delete(AidTables.Filter, "http://foo.bar/2");
 		assertThat(sql.getOldestFilter(), is("http://foo.bar/3"));
 	}
 	
@@ -277,7 +277,7 @@ public class MySqlAidTest extends DatabaseTestCase{
 	@Test
 	public void testCachePrune(){
 		sql.pruneCache(Calendar.getInstance().getTimeInMillis());
-		assertThat(sql.size(MySQLtables.Cache), is(1));
+		assertThat(sql.size(AidTables.Cache), is(1));
 		assertThat(sql.isCached("1"), is(true));
 	}
 	

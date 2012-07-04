@@ -19,8 +19,8 @@ package filter;
 
 import gui.BlockListDataModel;
 import gui.Stats;
-import io.MySQLaid;
-import io.MySQLtables;
+import io.AidDAO;
+import io.AidTables;
 import io.ThumbnailLoader;
 
 import java.awt.Image;
@@ -63,10 +63,10 @@ public class Filter implements FilterModifiable{
 	private DefaultListModel<String> postContentModel;
 	private ThumbnailLoader thumbLoader;
 
-	private MySQLaid sql;
+	private AidDAO sql;
 	private Timer filterUpdateTimer = new Timer("Filter update daemon", true);
 	
-	public Filter(MySQLaid sql, BlockListDataModel blockListModel,DefaultListModel<String> fileNameModel, DefaultListModel<String> postContentModel, ThumbnailLoader thumbLoader){
+	public Filter(AidDAO sql, BlockListDataModel blockListModel,DefaultListModel<String> fileNameModel, DefaultListModel<String> postContentModel, ThumbnailLoader thumbLoader){
 		this.sql = sql;
 		this.blocklistModel = blockListModel;
 		this.fileNameModel = fileNameModel;
@@ -182,7 +182,7 @@ public class Filter implements FilterModifiable{
 	 * @return Number of items in the filter.
 	 */
 	public int getSize(){
-		int size = sql.size(MySQLtables.Filter);
+		int size = sql.size(AidTables.Filter);
 		return size;
 	}
 
@@ -281,7 +281,7 @@ public class Filter implements FilterModifiable{
 	 */
 	public void cache(URL url){
 		sql.addCache(url);
-		Stats.setCacheSize(sql.size(MySQLtables.Cache));
+		Stats.setCacheSize(sql.size(AidTables.Cache));
 	}
 	
 	/**
@@ -292,7 +292,7 @@ public class Filter implements FilterModifiable{
 		exp.add(Calendar.HOUR, -3);
 
 		sql.pruneCache(exp.getTimeInMillis()); //keys that are older than 3 Hour
-		Stats.setCacheSize(sql.size(MySQLtables.Cache));
+		Stats.setCacheSize(sql.size(AidTables.Cache));
 	}
 	
 	/**
@@ -320,9 +320,9 @@ public class Filter implements FilterModifiable{
 		boolean blocked = sql.isBlacklisted(hash);
 		if(blocked){
 			//remove that hash from other tables
-			sql.delete(MySQLtables.Hash, hash);
-			sql.delete(MySQLtables.Archive, hash);
-			sql.delete(MySQLtables.Dnw, hash);
+			sql.delete(AidTables.Hash, hash);
+			sql.delete(AidTables.Archive, hash);
+			sql.delete(AidTables.Dnw, hash);
 		}
 		return blocked;
 	}
@@ -354,7 +354,7 @@ public class Filter implements FilterModifiable{
 
 		try {
 			if (new GetHtml().getResponse(currString) == 404){
-				sql.delete(MySQLtables.Filter, currString);
+				sql.delete(AidTables.Filter, currString);
 				return false;
 			}else{
 				sql.updateFilterTimestamp(currString);

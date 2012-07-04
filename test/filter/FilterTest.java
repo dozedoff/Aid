@@ -24,8 +24,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import gui.BlockListDataModel;
-import io.BoneConnectionPool;
-import io.MySQLaid;
+import io.AidDAO;
 import io.ThumbnailLoader;
 
 import java.io.File;
@@ -38,12 +37,11 @@ import javax.swing.DefaultListModel;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 import board.Post;
 
 public class FilterTest {
-	MySQLaid mockMySqlAid = mock(MySQLaid.class);
+	AidDAO mockMySqlAid = mock(AidDAO.class);
 	ThumbnailLoader mockThumbnailLoader = mock(ThumbnailLoader.class);
 	
 	DefaultListModel<String> fileNameModel;
