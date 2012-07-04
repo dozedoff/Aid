@@ -19,14 +19,14 @@ CREATE TABLE IF NOT EXISTS `archive` (
   `size` bigint(20) NOT NULL,
   `dir` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `filename` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`hash`),
-  UNIQUE KEY `hash` (`hash`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='files in storage';
 
 CREATE TABLE IF NOT EXISTS `block` (
   `id` varchar(64) NOT NULL,
-  PRIMARY KEY (`hash`),
-  UNIQUE KEY `hash` (`hash`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=ascii COMMENT='blocked Items. Programm will tag files.';
 
 CREATE TABLE IF NOT EXISTS `cache` (
@@ -45,8 +45,8 @@ CREATE TABLE IF NOT EXISTS `dirlist` (
 
 CREATE TABLE IF NOT EXISTS `dnw` (
   `id` varchar(64) NOT NULL,
-  PRIMARY KEY (`hash`),
-  UNIQUE KEY `hash` (`hash`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=ascii COMMENT='unwanted files';
 
 CREATE TABLE IF NOT EXISTS `filelist` (
@@ -71,8 +71,8 @@ CREATE TABLE IF NOT EXISTS `hash` (
   `size` bigint(20) NOT NULL,
   `dir` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `filename` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`hash`),
-  UNIQUE KEY `hash` (`hash`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='all known files';
 
 CREATE TABLE IF NOT EXISTS `thumbs` (
