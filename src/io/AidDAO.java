@@ -454,10 +454,15 @@ public class AidDAO{
 		Path parent = fullPath.getParent();
 		String dir;
 		
+		//TODO maybe use .isAbsolute() to check?
+		
 		if(parent == null){
-			dir = fullPath.getRoot().toString().toLowerCase();
-		}else{
+			logger.warning("IndexPathLookup for null parent: " + parent + filename);
+			return false;
+		}else if(parent.getRoot().equals(parent)){
 			dir = parent.toString().toLowerCase();
+		}else{
+			dir = parent.toString().toLowerCase()+"\\";
 		}
 		
 		ResultSet rs = null;
