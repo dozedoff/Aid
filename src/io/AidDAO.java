@@ -71,6 +71,7 @@ public class AidDAO{
 		addPrepStmt("prune"				, "DELETE FROM `cache` WHERE `timestamp` < ?");
 		addPrepStmt("isHashed"			, "SELECT id FROM `index` WHERE `id` = ?");
 		addPrepStmt("addIndex"			, "INSERT INTO `index` (id, dir, filename, size, location) VALUES (?,?,?,?,(SELECT tag_id FROM location_tags WHERE location = ?)) ");
+		addPrepStmt("addDuplicate"		, "INSERT IGNORE INTO `duplicate` (id, dir, filename, size, location) VALUES (?,?,?,?,(SELECT tag_id FROM location_tags WHERE location = ?)) ");
 		addPrepStmt("deleteIndex"		, "DELETE FROM `index` WHERE id = ?");
 		addPrepStmt("deleteFilter"		, "DELETE FROM filter WHERE id = ?");
 		addPrepStmt("deleteDnw"			, "DELETE FROM dnw WHERE id = ?");
@@ -294,6 +295,10 @@ public class AidDAO{
 	
 	public boolean addIndex(String hash, String path, long size, String location){
 		return fileDataInsert("addIndex", hash, path, size, location);
+	}
+	
+	public boolean addDuplicate(String hash, String path, long size, String location){
+		return fileDataInsert("addDuplicate", hash, path, size, location);
 	}
 	
 	private boolean fileDataInsert(String command, String hash, String path, long size, String location){
@@ -585,6 +590,7 @@ public class AidDAO{
 		
 		try{
 			ps = getPrepStmt("getPath");
+			ps.setString(1, hash);
 			rs = ps.executeQuery();
 			
 			if(rs.next()){
