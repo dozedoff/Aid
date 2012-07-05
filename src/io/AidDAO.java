@@ -85,7 +85,7 @@ public class AidDAO{
 		addPrepStmt("getFilename"		, "SELECT id FROM filelist WHERE filename = ?");
 		addPrepStmt("getSetting"		, "SELECT param	FROM settings WHERE name = ?");
 		addPrepStmt("getPath"			, "SELECT  CONCAT(dirlist.dirpath,filelist.filename) FROM `index` as a JOIN filelist ON a.filename = filelist.id JOIN dirlist ON a.dir = dirlist.id WHERE  a.id = ?");
-		addPrepStmt("getLocFilelist"	, "SELECT  CONCAT(dirlist.dirpath,filelist.filename) as fullpath FROM `index` as a JOIN filelist ON a.filename = filelist.id JOIN dirlist ON a.dir = dirlist.id JOIN location_tags ON a.location = location_tags.tag_id WHERE  location_tags.location = ? ORDER BY fullpath");
+		addPrepStmt("getLocFilelist"	, "SELECT  CONCAT(dirlist.dirpath,filelist.filename) as fullpath FROM `index` as a JOIN filelist ON a.filename = filelist.id JOIN dirlist ON a.dir = dirlist.id JOIN location_tags ON a.location = location_tags.tag_id WHERE  location_tags.location = ?");
 		addPrepStmt("getLocIndexSize"	, "select count(`index`.dir) from `index` JOIN location_tags ON `index`.location = location_tags.tag_id WHERE location_tags.location = ?");
 		addPrepStmt("hlUpdateBlock"		, "INSERT IGNORE INTO block (id) VALUES (?)");
 		addPrepStmt("hlUpdateDnw"		, "INSERT IGNORE INTO dnw (id) VALUES (?)");
@@ -650,6 +650,7 @@ public class AidDAO{
 	}
 	
 	public ArrayList<String> getLocationFilelist(String locationTag){
+		// allocate an array that is large enough to hold all the data
 		ArrayList<String> paths = new ArrayList<>(getLocationIndexSize(locationTag));
 		String command = "getLocFilelist";
 		
@@ -657,6 +658,7 @@ public class AidDAO{
 		PreparedStatement ps = getPrepStmt(command);
 
 		try {
+			ps.setString(1, locationTag);
 			rs = ps.executeQuery();
 
 			while(rs.next()){
@@ -685,6 +687,7 @@ public class AidDAO{
 			ps.setString(1, locationTag);
 			rs = ps.executeQuery();
 
+			rs.next();
 			result = rs.getInt(1);
 
 		} catch (SQLException e) {
