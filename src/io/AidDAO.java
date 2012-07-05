@@ -16,10 +16,12 @@
 package io;
 import java.awt.Image;
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -72,6 +74,7 @@ public class AidDAO{
 		addPrepStmt("isHashed"			, "SELECT id FROM `index` WHERE `id` = ?");
 		addPrepStmt("addIndex"			, "INSERT INTO `index` (id, dir, filename, size, location) VALUES (?,?,?,?,(SELECT tag_id FROM location_tags WHERE location = ?)) ");
 		addPrepStmt("addDuplicate"		, "INSERT IGNORE INTO `duplicate` (id, dir, filename, size, location) VALUES (?,?,?,?,(SELECT tag_id FROM location_tags WHERE location = ?)) ");
+		addPrepStmt("isIndexedPath"		, "SELECT i.dir, i.filename FROM `index` AS i JOIN dirlist ON dirlist.id = i.dir JOIN filelist ON filelist.id = i.filename JOIN location_tags ON i.location = location_tags.tag_id WHERE location_tags.location = ? AND dirlist.dirpath = ? AND filelist.filename = ?");
 		addPrepStmt("deleteIndex"		, "DELETE FROM `index` WHERE id = ?");
 		addPrepStmt("deleteFilter"		, "DELETE FROM filter WHERE id = ?");
 		addPrepStmt("deleteDnw"			, "DELETE FROM dnw WHERE id = ?");
@@ -81,7 +84,9 @@ public class AidDAO{
 		addPrepStmt("getDirectory"		, "SELECT id FROM dirlist WHERE dirpath = ?");
 		addPrepStmt("getFilename"		, "SELECT id FROM filelist WHERE filename = ?");
 		addPrepStmt("getSetting"		, "SELECT param	FROM settings WHERE name = ?");
-		addPrepStmt("getPath"			, "SELECT CONCAT(dirlist.dirpath,filelist.filename) FROM (select dir, filename FROM `index` WHERE id =?) AS a JOIN filelist ON a.filename=filelist.id Join dirlist on a.dir=dirlist.id");
+		addPrepStmt("getPath"			, "SELECT  CONCAT(dirlist.dirpath,filelist.filename) FROM `index` as a JOIN filelist ON a.filename = filelist.id JOIN dirlist ON a.dir = dirlist.id WHERE  a.id = ?");
+		addPrepStmt("getLocFilelist"	, "SELECT  CONCAT(dirlist.dirpath,filelist.filename) as fullpath FROM `index` as a JOIN filelist ON a.filename = filelist.id JOIN dirlist ON a.dir = dirlist.id JOIN location_tags ON a.location = location_tags.tag_id WHERE  location_tags.location = ? ORDER BY fullpath");
+		addPrepStmt("getLocIndexSize"	, "select count(`index`.dir) from `index` JOIN location_tags ON `index`.location = location_tags.tag_id WHERE location_tags.location = ?");
 		addPrepStmt("hlUpdateBlock"		, "INSERT IGNORE INTO block (id) VALUES (?)");
 		addPrepStmt("hlUpdateDnw"		, "INSERT IGNORE INTO dnw (id) VALUES (?)");
 		addPrepStmt("addFilter"			, "INSERT IGNORE INTO filter (id, board, reason, status) VALUES (?,?,?,?)");
@@ -301,8 +306,9 @@ public class AidDAO{
 		return fileDataInsert("addDuplicate", hash, path, size, location);
 	}
 	
-	private boolean fileDataInsert(String command, String hash, String path, long size, String location){
+	private boolean fileDataInsert(String command, String hash, String origPath, long size, String location){
 		PreparedStatement ps = getPrepStmt(command);
+		String path = origPath.toLowerCase();
 		
 		try{
 			int[] pathId = addPath(path);
@@ -416,7 +422,7 @@ public class AidDAO{
 	}
 	
 	public int getTagId(String tag){
-		return simpleIntQuery("aadfa");
+		return simpleIntQuery("aadfa"); //TODO not implemented
 	}
 	
 	public void update(String id, AidTables table){
@@ -441,6 +447,40 @@ public class AidDAO{
 		}finally{
 			closeAll(update);
 		}
+	}
+	
+	public boolean isIndexedPath(Path fullPath, String locationTag){
+		String filename = fullPath.getFileName().toString().toLowerCase();
+		Path parent = fullPath.getParent();
+		String dir;
+		
+		if(parent == null){
+			dir = fullPath.getRoot().toString().toLowerCase();
+		}else{
+			dir = parent.toString().toLowerCase();
+		}
+		
+		ResultSet rs = null;
+		final String command = "isIndexedPath";
+		
+		PreparedStatement ps = getPrepStmt(command);
+		
+		try {
+			ps.setString(1, locationTag);
+			ps.setString(2, dir);
+			ps.setString(3, filename);
+			
+			rs = ps.executeQuery();
+			boolean b = rs.next();
+			return b;
+		} catch (SQLException e) {
+			logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
+		} finally{
+			closeAll(ps);
+		}
+		
+		return false;
+
 	}
 	
 	private boolean simpleBooleanQuery(String command, String key, Boolean defaultReturn){
@@ -602,6 +642,53 @@ public class AidDAO{
 			closeAll(ps);
 		}
 		return null;
+	}
+	
+	public ArrayList<String> getLocationFilelist(String locationTag){
+		ArrayList<String> paths = new ArrayList<>(getLocationIndexSize(locationTag));
+		String command = "getLocFilelist";
+		
+		ResultSet rs = null;
+		PreparedStatement ps = getPrepStmt(command);
+
+		try {
+			rs = ps.executeQuery();
+
+			while(rs.next()){
+				paths.add(rs.getString(1));
+			}
+
+			return paths;
+
+		} catch (SQLException e) {
+			logger.warning(SQL_OP_ERR+e.getMessage());
+		}finally{
+			closeAll(ps);
+			silentClose(null, ps, rs);
+		}
+		return null;
+	}
+	
+	public int getLocationIndexSize(String locationTag){
+		String command = "getLocIndexSize";
+		int result = -1;
+		
+		ResultSet rs = null;
+		PreparedStatement ps = getPrepStmt(command);
+
+		try {
+			ps.setString(1, locationTag);
+			rs = ps.executeQuery();
+
+			result = rs.getInt(1);
+
+		} catch (SQLException e) {
+			logger.warning(SQL_OP_ERR+e.getMessage());
+		}finally{
+			closeAll(ps);
+			silentClose(null, ps, rs);
+		}
+		return result;
 	}
 
 	private int[] addPath(String fullPath){
