@@ -3,7 +3,7 @@
 -- Server version:               5.5.24 - MySQL Community Server (GPL)
 -- Server OS:                    Win64
 -- HeidiSQL version:             7.0.0.4053
--- Date/time:                    2012-07-06 16:14:04
+-- Date/time:                    2012-07-06 16:53:20
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -66,8 +66,8 @@ CREATE TABLE `dupeview` (
 ) ENGINE=MyISAM;
 
 
--- Dumping structure for table aid.duplicate
-CREATE TABLE IF NOT EXISTS `duplicate` (
+-- Dumping structure for table aid.fileduplicate
+CREATE TABLE IF NOT EXISTS `fileduplicate` (
   `id` varchar(64) CHARACTER SET ascii NOT NULL,
   `size` bigint(20) unsigned NOT NULL DEFAULT '0',
   `dir` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -178,10 +178,10 @@ CREATE TABLE IF NOT EXISTS `thumbs` (
 -- Dumping structure for view aid.dupeview
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `dupeview`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `dupeview` AS SELECT `duplicate`.id, CONCAT(dirlist.dirpath, filelist.filename) AS dupePath, CONCAT(idir.dirpath, ifile.filename) AS origPath FROM 
-	`duplicate` JOIN `fileindex` ON `duplicate`.id = `fileindex`.id 
-		JOIN filelist ON `duplicate`.filename=filelist.id 
-			JOIN dirlist ON `duplicate`.dir=dirlist.id 
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `dupeview` AS SELECT `fileduplicate`.id, CONCAT(dirlist.dirpath, filelist.filename) AS dupePath, CONCAT(idir.dirpath, ifile.filename) AS origPath FROM 
+	`fileduplicate` JOIN `fileindex` ON `fileduplicate`.id = `fileindex`.id 
+		JOIN filelist ON `fileduplicate`.filename=filelist.id 
+			JOIN dirlist ON `fileduplicate`.dir=dirlist.id 
 				JOIN dirlist as idir ON idir.id = `fileindex`.dir 
 					JOIN filelist as ifile ON `fileindex`.filename = ifile.id ;
 
