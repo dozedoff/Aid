@@ -274,12 +274,13 @@ public class Main implements ActionListener{
 
 		// create all needed classes
 		build();
-		try {
-			SchemaUpdater.update(new AidDAO(connPool), new InternalSetting());
-		} catch (SchemaUpdateException e) {
-			String message = "Schema update failed: "+e.getMessage();
-			dieWithError(message, 6);
-		}
+		//FIXME re-enable Schema updater
+//		try {
+//			SchemaUpdater.update(new AidDAO(connPool), new InternalSetting());
+//		} catch (SchemaUpdateException e) {
+//			String message = "Schema update failed: "+e.getMessage();
+//			dieWithError(message, 6);
+//		}
 		
 		InputStream is = null;
 		try{
