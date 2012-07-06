@@ -15,6 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <dataset>
+    <!-- location_tags table -->
+    <location_tags tag_id="0" location="UNKNOWN"/>
+    <location_tags tag_id="1" location="LOCATION A"/>
+    <location_tags tag_id="2" location="LOCATION B"/>
+    
 	<!-- cache Table -->
 	<cache id="1" timestamp="2020-01-01 00:00:00.000000000" />
 	<cache id="2" timestamp="2000-01-01 00:00:00.000000000" />
@@ -43,12 +48,6 @@
 	<block id="3" />
 	<block id="4" />
 	
-	<!--archive Table -->
-	<archive id="1" size="34568" 		dir="1" filename="1" />
-	<archive id="2" size="790332" 	dir="2" filename="2" />
-	<archive id="3" size="5789699" 	dir="3" filename="3" />
-	<archive id="4" size="542322" 	dir="3" filename="2" />
-
 	<!-- dirlist Table -->
 	<dirlist id="1" dirpath="D:\foo\bar\" />
 	<dirlist id="2" dirpath="D:\test\me\now\" />
@@ -59,11 +58,11 @@
 	<filelist id="2" filename="squirrel.jpg" />
 	<filelist id="3" filename="meerkat.gif" />
 
-	<!--hash Table -->
-	<hash id="1" size="34568" 	dir="1" filename="1" />
-	<hash id="2" size="790332" 	dir="2" filename="2" />
-	<hash id="3" size="5789699" 	dir="3" filename="3" />
-	<hash id="4" size="542322" 	dir="3" filename="2" />
+	<!--fileindex Table -->
+	<fileindex id="1" size="34568" 	dir="1" filename="1" location="0"/>
+	<fileindex id="2" size="790332" 	dir="2" filename="2" location="1"/>
+	<fileindex id="3" size="5789699" 	dir="3" filename="3" location="2"/>
+	<fileindex id="4" size="542322" 	dir="3" filename="2" location="2"/>
 	
 	<!-- thumbs Table -->
 	<thumbs id="1"	url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>

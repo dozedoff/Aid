@@ -29,11 +29,7 @@
 	<block id="2" />
 	<block id="3" />
 
-	<!--hash Table -->
-	<hash id="1" size="34568" 	dir="1" filename="1" />
-	<hash id="4" size="542322" 	dir="3" filename="2" />
-	
-	<!--archive Table -->
-	<archive id="1" size="34568" 		dir="1" filename="1" />
-	<archive id="2" size="790332" 	dir="2" filename="2" />
+	<!--fileindex Table -->
+	<fileindex id="1" size="34568" 	dir="1" filename="1" />
+	<fileindex id="4" size="542322" 	dir="3" filename="2" />
 </dataset>
