@@ -16,5 +16,5 @@
 package io;
 
 public enum AidTables {
-	Index,Filter,Block,Dnw,Archive,Cache
+	Fileindex,Filter,Block,Dnw,Archive,Cache,Fileduplicate
 }

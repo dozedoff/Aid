@@ -320,7 +320,7 @@ public class Filter implements FilterModifiable{
 		boolean blocked = sql.isBlacklisted(hash);
 		if(blocked){
 			//remove that hash from other tables
-			sql.delete(AidTables.Index, hash);
+			sql.delete(AidTables.Fileindex, hash);
 			sql.delete(AidTables.Archive, hash);
 			sql.delete(AidTables.Dnw, hash);
 		}

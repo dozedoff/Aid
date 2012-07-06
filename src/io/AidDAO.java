@@ -71,11 +71,11 @@ public class AidDAO{
 		addPrepStmt("isArchive"			, "SELECT * FROM `archive` WHERE `id` = ?");
 		addPrepStmt("isDnw"				, "SELECT * FROM `dnw` WHERE `id` = ?");
 		addPrepStmt("prune"				, "DELETE FROM `cache` WHERE `timestamp` < ?");
-		addPrepStmt("isHashed"			, "SELECT id FROM `index` WHERE `id` = ?");
-		addPrepStmt("addIndex"			, "INSERT INTO `index` (id, dir, filename, size, location) VALUES (?,?,?,?,(SELECT tag_id FROM location_tags WHERE location = ?)) ");
+		addPrepStmt("isHashed"			, "SELECT id FROM `fileindex` WHERE `id` = ?");
+		addPrepStmt("addIndex"			, "INSERT INTO `fileindex` (id, dir, filename, size, location) VALUES (?,?,?,?,(SELECT tag_id FROM location_tags WHERE location = ?)) ");
 		addPrepStmt("addDuplicate"		, "INSERT IGNORE INTO `duplicate` (id, dir, filename, size, location) VALUES (?,?,?,?,(SELECT tag_id FROM location_tags WHERE location = ?)) ");
-		addPrepStmt("isIndexedPath"		, "SELECT i.dir, i.filename FROM `index` AS i JOIN dirlist ON dirlist.id = i.dir JOIN filelist ON filelist.id = i.filename JOIN location_tags ON i.location = location_tags.tag_id WHERE location_tags.location = ? AND dirlist.dirpath = ? AND filelist.filename = ?");
-		addPrepStmt("deleteIndex"		, "DELETE FROM `index` WHERE id = ?");
+		addPrepStmt("isIndexedPath"		, "SELECT i.dir, i.filename FROM `fileindex` AS i JOIN dirlist ON dirlist.id = i.dir JOIN filelist ON filelist.id = i.filename JOIN location_tags ON i.location = location_tags.tag_id WHERE location_tags.location = ? AND dirlist.dirpath = ? AND filelist.filename = ?");
+		addPrepStmt("deleteIndex"		, "DELETE FROM `fileindex` WHERE id = ?");
 		addPrepStmt("deleteFilter"		, "DELETE FROM filter WHERE id = ?");
 		addPrepStmt("deleteDnw"			, "DELETE FROM dnw WHERE id = ?");
 		addPrepStmt("deleteBlock"		, "DELETE FROM block WHERE id = ?");
@@ -84,9 +84,9 @@ public class AidDAO{
 		addPrepStmt("getDirectory"		, "SELECT id FROM dirlist WHERE dirpath = ?");
 		addPrepStmt("getFilename"		, "SELECT id FROM filelist WHERE filename = ?");
 		addPrepStmt("getSetting"		, "SELECT param	FROM settings WHERE name = ?");
-		addPrepStmt("getPath"			, "SELECT  CONCAT(dirlist.dirpath,filelist.filename) FROM `index` as a JOIN filelist ON a.filename = filelist.id JOIN dirlist ON a.dir = dirlist.id WHERE  a.id = ?");
-		addPrepStmt("getLocFilelist"	, "SELECT  CONCAT(dirlist.dirpath,filelist.filename) as fullpath FROM `index` as a JOIN filelist ON a.filename = filelist.id JOIN dirlist ON a.dir = dirlist.id JOIN location_tags ON a.location = location_tags.tag_id WHERE  location_tags.location = ?");
-		addPrepStmt("getLocIndexSize"	, "select count(`index`.dir) from `index` JOIN location_tags ON `index`.location = location_tags.tag_id WHERE location_tags.location = ?");
+		addPrepStmt("getPath"			, "SELECT  CONCAT(dirlist.dirpath,filelist.filename) FROM `fileindex` as a JOIN filelist ON a.filename = filelist.id JOIN dirlist ON a.dir = dirlist.id WHERE  a.id = ?");
+		addPrepStmt("getLocFilelist"	, "SELECT  CONCAT(dirlist.dirpath,filelist.filename) as fullpath FROM `fileindex` as a JOIN filelist ON a.filename = filelist.id JOIN dirlist ON a.dir = dirlist.id JOIN location_tags ON a.location = location_tags.tag_id WHERE  location_tags.location = ?");
+		addPrepStmt("getLocIndexSize"	, "select count(`fileindex`.dir) from `fileindex` JOIN location_tags ON `fileindex`.location = location_tags.tag_id WHERE location_tags.location = ?");
 		addPrepStmt("hlUpdateBlock"		, "INSERT IGNORE INTO block (id) VALUES (?)");
 		addPrepStmt("hlUpdateDnw"		, "INSERT IGNORE INTO dnw (id) VALUES (?)");
 		addPrepStmt("addFilter"			, "INSERT IGNORE INTO filter (id, board, reason, status) VALUES (?,?,?,?)");
@@ -95,7 +95,7 @@ public class AidDAO{
 		addPrepStmt("pendingFilter"		, "SELECT board, reason, id FROM filter WHERE status = 1 ORDER BY board, reason ASC");
 		addPrepStmt("filterTime"		, "UPDATE filter SET timestamp = ? WHERE id = ?");
 		addPrepStmt("oldestFilter"		, "SELECT id FROM filter ORDER BY timestamp ASC LIMIT 1");
-		addPrepStmt("compareBlacklisted", "SELECT a.id, CONCAT(dirlist.dirpath,filelist.filename) FROM (select index.id,dir, filename FROM block join index on block.id = index.id) AS a JOIN filelist ON a.filename=filelist.id Join dirlist ON a.dir=dirlist.id");
+		addPrepStmt("compareBlacklisted", "SELECT a.id, CONCAT(dirlist.dirpath,filelist.filename) FROM (select fileindex.id,dir, filename FROM block join fileindex on block.id = fileindex.id) AS a JOIN filelist ON a.filename=filelist.id Join dirlist ON a.dir=dirlist.id");
 		addPrepStmt("isValidTag"		, "SELECT tag_id FROM location_tags WHERE location = ?");
 	}
 	
