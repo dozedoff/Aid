@@ -321,7 +321,6 @@ public class Filter implements FilterModifiable{
 		if(blocked){
 			//remove that hash from other tables
 			sql.delete(AidTables.Fileindex, hash);
-			sql.delete(AidTables.Archive, hash);
 			sql.delete(AidTables.Dnw, hash);
 		}
 		return blocked;
