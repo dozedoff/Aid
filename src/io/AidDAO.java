@@ -449,6 +449,9 @@ public class AidDAO{
 		}
 	}
 	
+	
+	//TODO add isIndexedPath(Path fullPath)
+	
 	public boolean isIndexedPath(Path fullPath, String locationTag){
 		String filename = fullPath.getFileName().toString().toLowerCase();
 		Path parent = fullPath.getParent();

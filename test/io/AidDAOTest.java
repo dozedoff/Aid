@@ -21,6 +21,8 @@ import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -211,6 +213,13 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertFalse(sql.isCached("http://foo.bar/"));
 	}
 	
+	
+	//FIXME test is useless as it is. Update test data
+	@Test
+	public void testIsCachedURL() throws MalformedURLException{
+		assertFalse(sql.isCached(new URL("http://foo.bar/")));
+	}
+	
 	@Test
 	public void testIsDnw(){
 		assertTrue(sql.isDnw("2"));
@@ -276,6 +285,58 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertThat(sql.isCached("1"), is(true));
 	}
 	
+	@Test
+	public void testGetTagId(){
+		assertThat(sql.getTagId("LOCATION A"), is(1));
+	}
+	
+	@Test
+	public void testIsValidTag(){
+		assertTrue(sql.isValidTag("UNKNOWN"));
+		assertTrue(sql.isValidTag("LOCATION A"));
+		assertTrue(sql.isValidTag("LOCATION B"));
+		assertFalse(sql.isValidTag("NOT-IN-LIST"));
+		assertFalse(sql.isValidTag(null));
+	}
+	
+	@Test
+	public void testAddDuplicate() throws Exception{
+		sql.addDuplicate("545", "D:\\foo\\panda.png", 123L, "LOCATION A");
+		
+		
+		//TODO can ignore cols be removed?
+		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Fileduplicate.toString(), addExpected_PATH), getDatabaseTable(AidTables.Fileduplicate.toString()), IGNORE_ADD_HASH_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Dirlist.toString(), addExpected_PATH), getDatabaseTable(AidTables.Dirlist.toString()), IGNORE_PATH_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filelist.toString(), addExpected_PATH), getDatabaseTable(AidTables.Filelist.toString()), IGNORE_PATH_COL);
+	}
+	
+	@Test
+	public void testGetLocationIndexSize(){
+		assertThat(sql.getLocationIndexSize("UNKNOWN"), is(1));
+		assertThat(sql.getLocationIndexSize("LOCATION A"), is(1));
+		assertThat(sql.getLocationIndexSize("LOCATION B"), is(2));
+	}
+	
+	@Test
+	public void testGetLocationFilelist(){
+		assertThat(sql.getLocationFilelist("UNKNOWN").size(),is(1));
+		assertThat(sql.getLocationFilelist("UNKNOWN"), hasItem("D:\\foo\\bar\\foo.png"));
+		
+		assertThat(sql.getLocationFilelist("LOCATION A").size(),is(1));
+		assertThat(sql.getLocationFilelist("LOCATION A"), hasItem("D:\\test\\me\\now\\squirrel.jpg"));
+		
+		assertThat(sql.getLocationFilelist("LOCATION B").size(),is(2));
+		assertThat(sql.getLocationFilelist("LOCATION B"), hasItem("D:\\mutated\\custard\\is\\dangerous\\meerkat.gif"));
+		assertThat(sql.getLocationFilelist("LOCATION B"), hasItem("D:\\mutated\\custard\\is\\dangerous\\squirrel.jpg"));
+	}
+	
+	@Test
+	public void isIndexedPath(){
+		assertTrue(sql.isIndexedPath(Paths.get("D:\\mutated\\custard\\is\\dangerous\\meerkat.gif"),"LOCATION B"));
+		assertFalse(sql.isIndexedPath(Paths.get("D:\\mutated\\custard\\is\\dangerous\\meerkat.gif"),"LOCATION A"));
+		
+		assertFalse(sql.isIndexedPath(Paths.get("D:\\mutated\\custard\\is\\dangerous\\panda.gif"),"LOCATION B"));
+	}
 	// ---------- Database Setup related methods ---------- //
 
 	@Override

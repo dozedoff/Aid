@@ -64,6 +64,12 @@
 	<fileindex id="3" size="5789699" 	dir="3" filename="3" location="2"/>
 	<fileindex id="4" size="542322" 	dir="3" filename="2" location="2"/>
 	
+	<!--fileduplicate Table -->
+	<fileduplicate id="1" size="34568" 		dir="1" filename="1" location="0"/>
+	<fileduplicate id="2" size="790332" 	dir="2" filename="2" location="1"/>
+	<fileduplicate id="3" size="5789699" 	dir="3" filename="3" location="2"/>
+	<fileduplicate id="4" size="542322" 	dir="3" filename="2" location="2"/>
+	
 	<!-- thumbs Table -->
 	<thumbs id="1"	url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
 	<thumbs id="2"	url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>

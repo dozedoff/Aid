@@ -74,4 +74,12 @@
 	<fileindex id="4" size="542322" 	dir="3" filename="2" location="2"/>
 	
 	<fileindex id="54321" size="123455" 	dir="3" filename="2" location="1"/>
+	
+	<!--fileduplicate Table -->
+	<fileduplicate id="1" size="34568" 	dir="1" filename="1" location="0"/>
+	<fileduplicate id="2" size="790332" 	dir="2" filename="2" location="1"/>
+	<fileduplicate id="3" size="5789699" 	dir="3" filename="3" location="2"/>
+	<fileduplicate id="4" size="542322" 	dir="3" filename="2" location="2"/>
+	
+	<fileduplicate id="545" size="123" 	dir="3" filename="2" location="1"/>
 </dataset>
