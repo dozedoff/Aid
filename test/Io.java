@@ -23,7 +23,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({ CachePruneTest.class,
 				FileWriterTest.class,
 				ImageItemTest.class,
-				MySqlAidTest.class,
+				AidDAOTest.class,
 				ThumbnailLoaderTest.class
 })
 public class Io {

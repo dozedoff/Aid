@@ -46,7 +46,7 @@ import filter.FilterItem;
 import filter.FilterState;
 
 
-public class MySqlAidTest extends DatabaseTestCase{
+public class AidDAOTest extends DatabaseTestCase{
 	AidDAO sql;
 	BoneConnectionPool bcp;
 	final String[] IGNORE_CACHE_COL = {"timestamp"};
