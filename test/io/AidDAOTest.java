@@ -230,8 +230,8 @@ public class AidDAOTest extends DatabaseTestCase{
 	}
 	
 	@Test
-	public void testAddHash() throws Exception{
-		sql.addIndex("54321", "D:\\foo\\panda.png", 123455L, "DL CLIENT");
+	public void testAddIndex() throws Exception{
+		sql.addIndex("54321", "D:\\foo\\panda.png", 123455L, "LOCATION A");
 		
 		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Fileindex.toString(), addExpected_PATH), getDatabaseTable(AidTables.Fileindex.toString()), IGNORE_ADD_HASH_COL);
 		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Dirlist.toString(), addExpected_PATH), getDatabaseTable(AidTables.Dirlist.toString()), IGNORE_PATH_COL);

@@ -75,7 +75,7 @@ public class AidDAO{
 		addPrepStmt("addIndex"			, "INSERT INTO `fileindex` (id, dir, filename, size, location) VALUES (?,?,?,?,(SELECT tag_id FROM location_tags WHERE location = ?)) ");
 		addPrepStmt("addDuplicate"		, "INSERT IGNORE INTO `fileduplicate` (id, dir, filename, size, location) VALUES (?,?,?,?,(SELECT tag_id FROM location_tags WHERE location = ?)) ");
 		addPrepStmt("isIndexedPath"		, "SELECT i.dir, i.filename FROM `fileindex` AS i JOIN dirlist ON dirlist.id = i.dir JOIN filelist ON filelist.id = i.filename JOIN location_tags ON i.location = location_tags.tag_id WHERE location_tags.location = ? AND dirlist.dirpath = ? AND filelist.filename = ?");
-		addPrepStmt("deleteIndex"		, "DELETE FROM `fileindex` WHERE id = ?");
+		addPrepStmt("deleteFileindex"	, "DELETE FROM `fileindex` WHERE id = ?");
 		addPrepStmt("deleteFilter"		, "DELETE FROM filter WHERE id = ?");
 		addPrepStmt("deleteDnw"			, "DELETE FROM dnw WHERE id = ?");
 		addPrepStmt("deleteBlock"		, "DELETE FROM block WHERE id = ?");

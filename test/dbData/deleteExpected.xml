@@ -30,6 +30,6 @@
 	<block id="3" />
 
 	<!--fileindex Table -->
-	<fileindex id="1" size="34568" 	dir="1" filename="1" />
-	<fileindex id="4" size="542322" 	dir="3" filename="2" />
+	<fileindex id="1" size="34568" 	dir="1" filename="1" location="0"/>
+	<fileindex id="4" size="542322" 	dir="3" filename="2" location="2"/>
 </dataset>
