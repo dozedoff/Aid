@@ -174,6 +174,28 @@ CREATE TABLE IF NOT EXISTS `thumbs` (
 
 -- Data exporting was unselected.
 
+-- Dumping structure for trigger aid.prune_thumbs_del
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+DELIMITER //
+CREATE TRIGGER `prune_thumbs_del` AFTER DELETE ON `filter` FOR EACH ROW BEGIN
+	DELETE FROM thumbs WHERE url = OLD.id;
+END//
+DELIMITER ;
+SET SQL_MODE=@OLD_SQL_MODE;
+
+
+-- Dumping structure for trigger aid.prune_thumbs_up
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+DELIMITER //
+CREATE TRIGGER `prune_thumbs_up` AFTER UPDATE ON `filter` FOR EACH ROW BEGIN
+	IF NEW.status != 1 THEN
+		DELETE FROM thumbs WHERE url = OLD.id;
+	END IF;
+END//
+DELIMITER ;
+SET SQL_MODE=@OLD_SQL_MODE;
+/*!40014 SET FOREIGN_KEY_CHECKS=1 */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 
 -- Dumping structure for view aid.dupeview
 -- Removing temporary table and create final VIEW structure
