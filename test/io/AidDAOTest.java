@@ -55,6 +55,13 @@ public class AidDAOTest extends DatabaseTestCase{
 	final String[] IGNORE_PATH_COL = {"id"};
 	final String[] IGNORE_ADD_HASH_COL = {"dir","filename"};
 	
+	final String AidDAOTest_PATH = "/dbData/AidDAOTest.xml";
+	final String addExpected_PATH = "/dbData/addExpected.xml";
+	final String deleteExpected_PATH = "/dbData/deleteExpected.xml";
+	final String triggerExpected_PATH = "/dbData/triggerExpected.xml";
+	final String updateStateExpected_PATH = "/dbData/updateStateExpected.xml";
+	
+	
 	final byte[] TEST_BINARY = {1,2,3,4,5,6,7,8,9,0};
 
 	@Before
@@ -83,7 +90,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertFalse(sql.addFilter("http://foo.bar/1", "t", "just testing", FilterState.ALLOW));
 
 		// Assert actual database table match expected table
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filter.toString(), "/dbData/addExpected.xml"), getDatabaseTable(AidTables.Filter.toString()),IGNORE_CACHE_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filter.toString(), addExpected_PATH), getDatabaseTable(AidTables.Filter.toString()),IGNORE_CACHE_COL);
 	}
 	
 	@Test
@@ -97,7 +104,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertFalse(sql.addFilter(new FilterItem(new URL("http://foo.bar/1"), "t", "just testing", FilterState.ALLOW)));
 
 		// Assert actual database table match expected table
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filter.toString(), "/dbData/addExpected.xml"), getDatabaseTable(AidTables.Filter.toString()),IGNORE_CACHE_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filter.toString(), addExpected_PATH), getDatabaseTable(AidTables.Filter.toString()),IGNORE_CACHE_COL);
 	}
 
 	@Test
@@ -118,7 +125,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		sql.updateState("http://foo.bar/3",FilterState.PENDING);
 		sql.updateState("http://foo.bar/4",FilterState.PENDING);
 
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filter.toString(), "/dbData/updateStateExpected.xml"), getDatabaseTable(AidTables.Filter.toString()),IGNORE_CACHE_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filter.toString(), updateStateExpected_PATH), getDatabaseTable(AidTables.Filter.toString()),IGNORE_CACHE_COL);
 	}
 
 	@Test
@@ -129,25 +136,25 @@ public class AidDAOTest extends DatabaseTestCase{
 		sql.delete(AidTables.Filter, "http://foo.bar/3");
 		sql.delete(AidTables.Filter, "http://foo.bar/4");
 
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filter.toString(), "/dbData/deleteExpected.xml"), getDatabaseTable(AidTables.Filter.toString()),IGNORE_CACHE_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filter.toString(), deleteExpected_PATH), getDatabaseTable(AidTables.Filter.toString()),IGNORE_CACHE_COL);
 		
 		// fileindex table
 		sql.delete(AidTables.Fileindex, "2");
 		sql.delete(AidTables.Fileindex, "3");
 		
-		Assertion.assertEquals(getFileTable(AidTables.Fileindex.toString(), "/dbData/deleteExpected.xml"), getDatabaseTable(AidTables.Fileindex.toString()));
+		Assertion.assertEquals(getFileTable(AidTables.Fileindex.toString(), deleteExpected_PATH), getDatabaseTable(AidTables.Fileindex.toString()));
 		
 		// dnw table
 		sql.delete(AidTables.Dnw, "3");
 		sql.delete(AidTables.Dnw, "4");
 		
-		Assertion.assertEquals(getFileTable(AidTables.Dnw.toString(), "/dbData/deleteExpected.xml"), getDatabaseTable(AidTables.Dnw.toString()));
+		Assertion.assertEquals(getFileTable(AidTables.Dnw.toString(), deleteExpected_PATH), getDatabaseTable(AidTables.Dnw.toString()));
 		
 		// block table
 		sql.delete(AidTables.Block, "1");
 		sql.delete(AidTables.Block, "4");
 
-		Assertion.assertEquals(getFileTable(AidTables.Block.toString(), "/dbData/deleteExpected.xml"), getDatabaseTable(AidTables.Block.toString()));
+		Assertion.assertEquals(getFileTable(AidTables.Block.toString(), deleteExpected_PATH), getDatabaseTable(AidTables.Block.toString()));
 	}
 
 	@Test
@@ -165,14 +172,14 @@ public class AidDAOTest extends DatabaseTestCase{
 		sql.addCache(new URL("http://foo.bar.com"));
 		sql.addCache(new URL("http://squirrel.net"));
 
-		Assertion.assertEqualsIgnoreCols(getFileTable("cache", "/dbData/addExpected.xml"), getDatabaseTable("cache"), IGNORE_CACHE_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable("cache", addExpected_PATH), getDatabaseTable("cache"), IGNORE_CACHE_COL);
 	}
 	
 	@Test
 	public void testAddThumb() throws Exception{
 		sql.addThumb("4","apple.png", "12345".getBytes());
 		
-		Assertion.assertEqualsIgnoreCols(getFileTable("thumbs", "/dbData/addExpected.xml"), getDatabaseTable("thumbs"), IGNORE_THUMBS_DATA_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable("thumbs", addExpected_PATH), getDatabaseTable("thumbs"), IGNORE_THUMBS_DATA_COL);
 	}
 	
 	@Test
@@ -186,7 +193,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		sql.updateState("http://foo.bar/1", FilterState.ALLOW);
 		sql.updateState("http://foo.bar/2", FilterState.ALLOW);
 		
-		Assertion.assertEqualsIgnoreCols(getFileTable("thumbs", "/dbData/triggerExpected.xml"), getDatabaseTable("thumbs"), IGNORE_THUMBS_TRIGGER_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable("thumbs", triggerExpected_PATH), getDatabaseTable("thumbs"), IGNORE_THUMBS_TRIGGER_COL);
 	}
 	
 	@Test
@@ -194,7 +201,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		sql.delete(AidTables.Filter, "http://foo.bar/1");
 		sql.delete(AidTables.Filter, "http://foo.bar/2");
 		
-		Assertion.assertEqualsIgnoreCols(getFileTable("thumbs", "/dbData/triggerExpected.xml"), getDatabaseTable("thumbs"), IGNORE_THUMBS_TRIGGER_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable("thumbs", triggerExpected_PATH), getDatabaseTable("thumbs"), IGNORE_THUMBS_TRIGGER_COL);
 	}
 	
 	@Test
@@ -226,9 +233,9 @@ public class AidDAOTest extends DatabaseTestCase{
 	public void testAddHash() throws Exception{
 		sql.addIndex("54321", "D:\\foo\\panda.png", 123455L, "DL CLIENT");
 		
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Fileindex.toString(), "/dbData/addExpected.xml"), getDatabaseTable(AidTables.Fileindex.toString()), IGNORE_ADD_HASH_COL);
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Dirlist.toString(), "/dbData/addExpected.xml"), getDatabaseTable(AidTables.Dirlist.toString()), IGNORE_PATH_COL);
-		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filelist.toString(), "/dbData/addExpected.xml"), getDatabaseTable(AidTables.Filelist.toString()), IGNORE_PATH_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Fileindex.toString(), addExpected_PATH), getDatabaseTable(AidTables.Fileindex.toString()), IGNORE_ADD_HASH_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Dirlist.toString(), addExpected_PATH), getDatabaseTable(AidTables.Dirlist.toString()), IGNORE_PATH_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filelist.toString(), addExpected_PATH), getDatabaseTable(AidTables.Filelist.toString()), IGNORE_PATH_COL);
 	}
 	
 	@Test
@@ -281,7 +288,7 @@ public class AidDAOTest extends DatabaseTestCase{
 
 	@Override
 	protected IDataSet getDataSet() throws Exception {
-		IDataSet dataSet = new FlatXmlDataFileLoader().load("/dbData/MySqlTest.xml");
+		IDataSet dataSet = new FlatXmlDataFileLoader().load(AidDAOTest_PATH);
 
 		return dataSet;
 	}
