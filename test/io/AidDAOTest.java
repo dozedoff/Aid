@@ -288,6 +288,8 @@ public class AidDAOTest extends DatabaseTestCase{
 	@Test
 	public void testGetTagId(){
 		assertThat(sql.getTagId("LOCATION A"), is(1));
+		assertThat(sql.getTagId("LOCATION B"), is(2));
+		assertThat(sql.getTagId("NOT-IN-LIST"), is(-1));
 	}
 	
 	@Test
