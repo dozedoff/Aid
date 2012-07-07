@@ -402,10 +402,6 @@ public class AidDAO{
 		return simpleBooleanQuery("isCached", uniqueID, true);
 	}
 
-	public boolean isArchived(String hash){
-		return simpleBooleanQuery("isArchive", hash, true);
-	}
-
 	public boolean isDnw(String hash){
 		return simpleBooleanQuery("isDnw", hash, true);
 	}
@@ -577,7 +573,6 @@ public class AidDAO{
 			logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
 		} finally{
 			closeAll(ps);
-			closeResultSet(rs, command);
 		}
 		
 		return null;
@@ -800,16 +795,6 @@ public class AidDAO{
 		}
 
 		return pathValue;
-	}
-	
-	private void closeResultSet(ResultSet rs, String command){
-		if(rs != null){
-			try{
-				rs.close();
-			}catch (SQLException e){
-				logger.warning(RS_CLOSE_ERR+e.getMessage()+" for command \""+command+"\"");
-			}
-		}
 	}
 
 	public boolean addFilter(FilterItem fi) {

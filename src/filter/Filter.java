@@ -302,7 +302,7 @@ public class Filter implements FilterModifiable{
 	 * Returns true on error.
 	 */
 	public boolean exists(String hash){
-		boolean exists = sql.isArchived(hash)||sql.isDnw(hash)||sql.isHashed(hash);
+		boolean exists = sql.isDnw(hash)||sql.isHashed(hash);
 		return exists;
 	}
 	
