@@ -97,6 +97,7 @@ public class AidDAO{
 		addPrepStmt("oldestFilter"		, "SELECT id FROM filter ORDER BY timestamp ASC LIMIT 1");
 		addPrepStmt("compareBlacklisted", "SELECT a.id, CONCAT(dirlist.dirpath,filelist.filename) FROM (select fileindex.id,dir, filename FROM block join fileindex on block.id = fileindex.id) AS a JOIN filelist ON a.filename=filelist.id Join dirlist ON a.dir=dirlist.id");
 		addPrepStmt("isValidTag"		, "SELECT tag_id FROM location_tags WHERE location = ?");
+		addPrepStmt("getTagId"			, "SELECT tag_id FROM location_tags WHERE location = ?");
 	}
 	
 	private static void generateStatements(){
@@ -422,7 +423,7 @@ public class AidDAO{
 	}
 	
 	public int getTagId(String tag){
-		return simpleIntQuery("aadfa"); //TODO not implemented
+		return simpleIntQuery("getTagId", tag, -1);
 	}
 	
 	public void update(String id, AidTables table){
@@ -530,6 +531,31 @@ public class AidDAO{
 		}
 		
 		return -1;
+	}
+	
+	private int simpleIntQuery(String command, String key, int defaultReturn){
+		ResultSet rs = null;
+		PreparedStatement ps = getPrepStmt(command);
+		
+		if(ps == null){
+			logger.warning("Could not carry out query for command \""+command+"\"");
+			return defaultReturn;
+		}
+		
+		try {
+			ps.setString(1, key);
+			rs = ps.executeQuery();
+
+			rs.next();
+			int intValue = rs.getInt(1);
+			return intValue;
+		} catch (SQLException e) {
+			logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
+		} finally{
+			closeAll(ps);
+		}
+		
+		return defaultReturn;
 	}
 	
 	private String simpleStringQuery(String command){
