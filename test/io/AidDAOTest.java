@@ -339,6 +339,19 @@ public class AidDAOTest extends DatabaseTestCase{
 		
 		assertFalse(sql.isIndexedPath(Paths.get("D:\\mutated\\custard\\is\\dangerous\\panda.gif"),"LOCATION B"));
 	}
+	
+	@Test
+	public void testDirectoryLookup() throws SQLException{
+		assertThat(sql.directoryLookup("foo"), is(-1));
+		assertThat(sql.directoryLookup("D:\\foo\\bar\\"), is(1));
+	}
+	
+	@Test
+	public void testFileLookup() throws SQLException{
+		assertThat(sql.fileLookup("derp"), is(-1));
+		assertThat(sql.fileLookup("meerkat.gif"), is(3));
+	}
+	
 	// ---------- Database Setup related methods ---------- //
 
 	@Override

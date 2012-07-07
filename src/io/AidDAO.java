@@ -701,29 +701,10 @@ public class AidDAO{
 	}
 	
 	public int getLocationIndexSize(String locationTag){
-		String command = "getLocIndexSize";
-		int result = -1;
-		
-		ResultSet rs = null;
-		PreparedStatement ps = getPrepStmt(command);
-
-		try {
-			ps.setString(1, locationTag);
-			rs = ps.executeQuery();
-
-			rs.next();
-			result = rs.getInt(1);
-
-		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+e.getMessage());
-		}finally{
-			closeAll(ps);
-			silentClose(null, ps, rs);
-		}
-		return result;
+		return simpleIntQuery("getLocIndexSize", locationTag, -1);
 	}
 
-	private int[] addPath(String fullPath){
+	protected int[] addPath(String fullPath){
 		int pathValue;
 		
 		Connection cn = null;
@@ -739,10 +720,10 @@ public class AidDAO{
 			String path = fullPath.substring(0,split).toLowerCase(); // D:\foo\
 			int[] pathId = new int[2];
 	
-			pathValue = pathLookupQuery("getDirectory", path);
+			pathValue = directoryLookup(path);
 			pathId[0] = pathAddQuery(addDir, pathValue, path);
 			
-			pathValue = pathLookupQuery("getFilename", filename);
+			pathValue = fileLookup(filename);
 			pathId[1] = pathAddQuery(addFile, pathValue, filename);
 	
 			return pathId;
@@ -756,26 +737,15 @@ public class AidDAO{
 		return null;
 	}
 	
-	private int pathLookupQuery(String command, String path) throws SQLException{
-		PreparedStatement ps = getPrepStmt(command);
-		ps.setString(1, path);
-		ResultSet rs = ps.executeQuery();
-		int pathValue = -1;
-
-		try{
-			if(rs.next()){
-				pathValue = rs.getInt(1);
-			}
-		}catch (SQLException e){
-			throw e;
-		}finally{
-			closeAll(ps);
-		}
-
-		return pathValue;
+	protected int directoryLookup(String path) throws SQLException{
+		return simpleIntQuery("getDirectory", path, -1);
 	}
 	
-	private int pathAddQuery(PreparedStatement ps, int pathLookUp, String path) throws SQLException{
+	protected int fileLookup(String filename) throws SQLException{
+		return simpleIntQuery("getFilename", filename, -1);
+	}
+	
+	protected int pathAddQuery(PreparedStatement ps, int pathLookUp, String path) throws SQLException{
 		int pathValue = -1;
 		ResultSet rs = null;
 
