@@ -59,7 +59,7 @@
 	<filelist id="3" filename="meerkat.gif" />
 
 	<!--fileindex Table -->
-	<fileindex id="1" size="34568" 	dir="1" filename="1" location="0"/>
+	<fileindex id="1" size="34568" 		dir="1" filename="1" location="0"/>
 	<fileindex id="2" size="790332" 	dir="2" filename="2" location="1"/>
 	<fileindex id="3" size="5789699" 	dir="3" filename="3" location="2"/>
 	<fileindex id="4" size="542322" 	dir="3" filename="2" location="2"/>

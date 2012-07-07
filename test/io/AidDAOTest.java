@@ -57,6 +57,9 @@ public class AidDAOTest extends DatabaseTestCase{
 	final String[] IGNORE_PATH_COL = {"id"};
 	final String[] IGNORE_ADD_HASH_COL = {"dir","filename"};
 	
+	final String[] TEST_DIR = {"", "D:\\foo\\bar\\", "D:\\test\\me\\now\\", "D:\\mutated\\custard\\is\\dangerous\\"};
+	final String[] TEST_FILE = {"", "foo.png", "squirrel.jpg", "meerkat.gif"};
+			
 	final String AidDAOTest_PATH = "/dbData/AidDAOTest.xml";
 	final String addExpected_PATH = "/dbData/addExpected.xml";
 	final String deleteExpected_PATH = "/dbData/deleteExpected.xml";
@@ -333,14 +336,6 @@ public class AidDAOTest extends DatabaseTestCase{
 	}
 	
 	@Test
-	public void isIndexedPath(){
-		assertTrue(sql.isIndexedPath(Paths.get("D:\\mutated\\custard\\is\\dangerous\\meerkat.gif"),"LOCATION B"));
-		assertFalse(sql.isIndexedPath(Paths.get("D:\\mutated\\custard\\is\\dangerous\\meerkat.gif"),"LOCATION A"));
-		
-		assertFalse(sql.isIndexedPath(Paths.get("D:\\mutated\\custard\\is\\dangerous\\panda.gif"),"LOCATION B"));
-	}
-	
-	@Test
 	public void testDirectoryLookup() throws SQLException{
 		assertThat(sql.directoryLookup("foo"), is(-1));
 		assertThat(sql.directoryLookup("D:\\foo\\bar\\"), is(1));
@@ -350,6 +345,15 @@ public class AidDAOTest extends DatabaseTestCase{
 	public void testFileLookup() throws SQLException{
 		assertThat(sql.fileLookup("derp"), is(-1));
 		assertThat(sql.fileLookup("meerkat.gif"), is(3));
+	}
+	
+	@Test
+	public void testIsIndexedPath(){
+		assertTrue(sql.isIndexedPath(Paths.get(TEST_DIR[1]+TEST_FILE[1]), "UNKNOWN"));
+		assertFalse(sql.isIndexedPath(Paths.get(TEST_DIR[1]+TEST_FILE[1]), "LOCATION A"));
+		
+		assertTrue(sql.isIndexedPath(Paths.get(TEST_DIR[3]+TEST_FILE[2]), "LOCATION B"));
+		assertFalse(sql.isIndexedPath(Paths.get(TEST_DIR[3]+TEST_FILE[2]), "LOCATION A"));
 	}
 	
 	// ---------- Database Setup related methods ---------- //
