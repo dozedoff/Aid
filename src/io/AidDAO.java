@@ -422,6 +422,14 @@ public class AidDAO{
 		return simpleIntQuery("getTagId", tag, -1);
 	}
 	
+	public int deleteDnw(String hash){
+		return simpleUpdate("deleteDnw", hash, -1);
+	}
+	
+	public int deleteBlock(String hash){
+		return simpleUpdate("deleteBlock", hash, -1);
+	}
+	
 	public void update(String id, AidTables table){
 		PreparedStatement update = null;
 		String command = null;
@@ -583,6 +591,26 @@ public class AidDAO{
 		}
 		
 		return null;
+	}
+	
+	private int simpleUpdate(String command, String key, int defaultReturn){
+		PreparedStatement ps = getPrepStmt(command);
+		
+		if(ps == null){
+			logger.warning("Could not carry out query for command \""+command+"\"");
+			return defaultReturn;
+		}
+		
+		try {
+			ps.setString(1, key);
+			return ps.executeUpdate();
+		} catch (SQLException e) {
+			logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
+		} finally{
+			closeAll(ps);
+		}
+		
+		return defaultReturn;
 	}
 
 	public void pruneCache(long maxAge){
