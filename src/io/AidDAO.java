@@ -508,6 +508,7 @@ public class AidDAO{
 	private int simpleIntQuery(String command){
 		ResultSet rs = null;
 		PreparedStatement ps = getPrepStmt(command);
+		int intValue = -1;
 		
 		if(ps == null){
 			logger.warning("Could not carry out query for command \""+command+"\"");
@@ -517,16 +518,19 @@ public class AidDAO{
 		try {
 			rs = ps.executeQuery();
 
-			rs.next();
-			int intValue = rs.getInt(1);
-			return intValue;
+			if(rs.next()){
+				intValue = rs.getInt(1);
+				return intValue;
+			}else{
+				return intValue;
+			}
 		} catch (SQLException e) {
 			logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
 		} finally{
 			closeAll(ps);
 		}
 		
-		return -1;
+		return intValue;
 	}
 	
 	private int simpleIntQuery(String command, String key, int defaultReturn){
@@ -542,9 +546,12 @@ public class AidDAO{
 			ps.setString(1, key);
 			rs = ps.executeQuery();
 
-			rs.next();
-			int intValue = rs.getInt(1);
-			return intValue;
+			if(rs.next()){
+				int intValue = rs.getInt(1);
+				return intValue;
+			}else{
+				return defaultReturn;
+			}
 		} catch (SQLException e) {
 			logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
 		} finally{
