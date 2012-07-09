@@ -56,10 +56,10 @@
 	<thumbs id="13"	url="4"		filename="apple.png" 	thumb="MTIzNDU="/>
 	
 		<!-- dirlist Table -->
-	<dirlist id="1" dirpath="D:\foo\bar\" />
-	<dirlist id="2" dirpath="D:\test\me\now\" />
-	<dirlist id="3" dirpath="D:\mutated\custard\is\dangerous\" />
-	<dirlist id="4" dirpath="d:\foo\" />
+	<dirlist id="1" dirpath="\foo\bar\" />
+	<dirlist id="2" dirpath="\test\me\now\" />
+	<dirlist id="3" dirpath="\mutated\custard\is\dangerous\" />
+	<dirlist id="4" dirpath="\foo\" />
 
 	<!-- filelist Table -->
 	<filelist id="1" filename="foo.png" />

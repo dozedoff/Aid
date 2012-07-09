@@ -325,14 +325,14 @@ public class AidDAOTest extends DatabaseTestCase{
 	@Test
 	public void testGetLocationFilelist(){
 		assertThat(sql.getLocationFilelist("UNKNOWN").size(),is(1));
-		assertThat(sql.getLocationFilelist("UNKNOWN"), hasItem("D:\\foo\\bar\\foo.png"));
+		assertThat(sql.getLocationFilelist("UNKNOWN"), hasItem("\\foo\\bar\\foo.png"));
 		
 		assertThat(sql.getLocationFilelist("LOCATION A").size(),is(1));
-		assertThat(sql.getLocationFilelist("LOCATION A"), hasItem("D:\\test\\me\\now\\squirrel.jpg"));
+		assertThat(sql.getLocationFilelist("LOCATION A"), hasItem("\\test\\me\\now\\squirrel.jpg"));
 		
 		assertThat(sql.getLocationFilelist("LOCATION B").size(),is(2));
-		assertThat(sql.getLocationFilelist("LOCATION B"), hasItem("D:\\mutated\\custard\\is\\dangerous\\meerkat.gif"));
-		assertThat(sql.getLocationFilelist("LOCATION B"), hasItem("D:\\mutated\\custard\\is\\dangerous\\squirrel.jpg"));
+		assertThat(sql.getLocationFilelist("LOCATION B"), hasItem("\\mutated\\custard\\is\\dangerous\\meerkat.gif"));
+		assertThat(sql.getLocationFilelist("LOCATION B"), hasItem("\\mutated\\custard\\is\\dangerous\\squirrel.jpg"));
 	}
 	
 	@Test
@@ -364,6 +364,63 @@ public class AidDAOTest extends DatabaseTestCase{
 		Assertion.assertEquals(getFileTable(AidTables.Fileindex.toString(), deleteExpected_PATH), getDatabaseTable(AidTables.Fileindex.toString()));
 	}
 	
+	@Test
+	public void testRemoveDriveLetter(){
+		Path path = sql.removeDriveLetter(Paths.get("D:\\test\\me\\now\\squirrel.jpg"));
+		
+		assertThat(path, is(Paths.get("\\test\\me\\now\\squirrel.jpg")));
+	}
+	
+	@Test
+	public void testRemoveDriveLetterNoDrive(){
+		Path path = sql.removeDriveLetter(Paths.get("\\test\\me\\now\\squirrel.jpg"));
+		
+		assertThat(path, is(Paths.get("\\test\\me\\now\\squirrel.jpg")));
+	}
+	
+	@Test
+	public void testRemoveDriveLetterNull(){
+		Path p = null;
+		Path path = sql.removeDriveLetter(p);
+		
+		assertNull(path);
+	}
+	
+	@Test
+	public void testRemoveDriveLetterDirOnly(){
+		Path path = sql.removeDriveLetter(Paths.get("D:\\test\\me\\now\\"));
+		
+		assertThat(path, is(Paths.get("\\test\\me\\now\\")));
+	} 
+	
+	@Test
+	public void testRemoveDriveLetterString(){
+		String path = sql.removeDriveLetter("D:\\test\\me\\now\\squirrel.jpg");
+		
+		assertThat(path, is("\\test\\me\\now\\squirrel.jpg"));
+	}
+	
+	@Test
+	public void testRemoveDriveLetterNoDriveString(){
+		String path = sql.removeDriveLetter("\\test\\me\\now\\squirrel.jpg");
+		
+		assertThat(path, is("\\test\\me\\now\\squirrel.jpg"));
+	}
+	
+	@Test
+	public void testRemoveDriveLetterNullString(){
+		String s = null;
+		String path = sql.removeDriveLetter(s);
+		
+		assertNull(path);
+	}
+	
+	@Test
+	public void testRemoveDriveLetterStringDirOnly(){
+		String path = sql.removeDriveLetter("D:\\test\\me\\now\\");
+		
+		assertThat(path, is("\\test\\me\\now"));
+	}
 	// ---------- Database Setup related methods ---------- //
 
 	@Override

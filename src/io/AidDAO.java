@@ -307,7 +307,7 @@ public class AidDAO{
 	
 	private boolean fileDataInsert(String command, String hash, String origPath, long size, String location){
 		PreparedStatement ps = getPrepStmt(command);
-		String path = origPath.toLowerCase();
+		String path = removeDriveLetter(origPath).toLowerCase();
 		
 		try{
 			int[] pathId = addPath(path);
@@ -447,9 +447,10 @@ public class AidDAO{
 	
 	//TODO add isIndexedPath(Path fullPath)
 	
-	public boolean isIndexedPath(Path fullPath, String locationTag){
-		String filename = fullPath.getFileName().toString().toLowerCase();
-		Path parent = fullPath.getParent();
+	public boolean isIndexedPath(Path fullpath, String locationTag){
+		Path relPath = removeDriveLetter(fullpath);
+		String filename = relPath.getFileName().toString().toLowerCase();
+		Path parent = relPath.getParent();
 		String dir;
 		
 		dir = convertDirPathToString(parent);
@@ -482,20 +483,46 @@ public class AidDAO{
 	}
 	
 	private String convertDirPathToString(Path directory){
-		//TODO maybe use .isAbsolute() to check?
-		
 		if(directory == null){
 			return null;
-		}else if(directory.getRoot().equals(directory)){
+		}else if((directory.getRoot() != null) && (directory.getRoot().equals(directory))){
 			return directory.toString().toLowerCase();
 		}else{
 			return directory.toString().toLowerCase()+"\\";
 		}
 	}
 	
+	/**
+	 * Remove the root component from the path, returning a relative path.
+	 * If the path is already relative, it will not be changed.
+	 * C:\temp\   becomes \temp\
+	 * @param path path to remove root from
+	 * @return a relative path
+	 */
+	protected Path removeDriveLetter(Path path){
+		if(path == null){
+			return null;
+		}
+		
+		if(path.isAbsolute()){
+			return Paths.get("\\"+path.getRoot().relativize(path).toString());
+		}else{
+			return path;
+		}
+	}
+	
+	protected String removeDriveLetter(String path){
+		if(path == null){
+			return null;
+		}
+		
+		Path relPath = removeDriveLetter(Paths.get(path));
+		return relPath.toString();
+	}
+	
 	public int deleteIndexByPath(String fullpath){
 		final String command = "deleteIndexViaPath";
-		Path path = Paths.get(fullpath.toLowerCase());
+		Path path = removeDriveLetter(Paths.get(fullpath.toLowerCase()));
 		int affectedRows = -1;
 		
 		String dir = convertDirPathToString(path.getParent());
@@ -799,7 +826,7 @@ public class AidDAO{
 	}
 	
 	protected int directoryLookup(String path) throws SQLException{
-		return simpleIntQuery("getDirectory", path, -1);
+		return simpleIntQuery("getDirectory", convertDirPathToString(removeDriveLetter(Paths.get(path))).toLowerCase(), -1);
 	}
 	
 	protected int fileLookup(String filename) throws SQLException{
