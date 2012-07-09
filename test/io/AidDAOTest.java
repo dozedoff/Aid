@@ -356,6 +356,14 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertFalse(sql.isIndexedPath(Paths.get(TEST_DIR[3]+TEST_FILE[2]), "LOCATION A"));
 	}
 	
+	@Test
+	public void testDeleteIndexViaPath() throws Exception{
+		assertThat(sql.deleteIndexByPath("D:\\test\\me\\now\\squirrel.jpg"),is(1));
+		assertThat(sql.deleteIndexByPath("D:\\mutated\\custard\\is\\dangerous\\meerkat.gif"),is(1));
+
+		Assertion.assertEquals(getFileTable(AidTables.Fileindex.toString(), deleteExpected_PATH), getDatabaseTable(AidTables.Fileindex.toString()));
+	}
+	
 	// ---------- Database Setup related methods ---------- //
 
 	@Override

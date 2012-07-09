@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -95,6 +96,7 @@ public class AidDAO{
 		addPrepStmt("compareBlacklisted", "SELECT a.id, CONCAT(dirlist.dirpath,filelist.filename) FROM (select fileindex.id,dir, filename FROM block join fileindex on block.id = fileindex.id) AS a JOIN filelist ON a.filename=filelist.id Join dirlist ON a.dir=dirlist.id");
 		addPrepStmt("isValidTag"		, "SELECT tag_id FROM location_tags WHERE location = ?");
 		addPrepStmt("getTagId"			, "SELECT tag_id FROM location_tags WHERE location = ?");
+		addPrepStmt("deleteIndexViaPath", "DELETE fi FROM fileindex AS fi JOIN dirlist AS dl ON fi.dir=dl.id JOIN filelist AS fl ON fi.filename=fl.id  WHERE dl.dirpath = ? AND fl.filename = ?");
 	}
 	
 	private static void generateStatements(){
@@ -117,7 +119,7 @@ public class AidDAO{
 	protected static void addPrepStmt(String id, String stmt){
 		try {
 			if(prepStmts.containsKey(id))
-				throw new IllegalArgumentException("Key is already present");
+				throw new IllegalArgumentException("Key "+"'"+id+"'"+" is already present");
 			prepStmts.put(id, stmt);
 		} catch (NullPointerException npe){
 			logger.severe("Prepared Statement could not be created, invalid connection");
@@ -452,15 +454,11 @@ public class AidDAO{
 		Path parent = fullPath.getParent();
 		String dir;
 		
-		//TODO maybe use .isAbsolute() to check?
+		dir = convertDirPathToString(parent);
 		
-		if(parent == null){
+		if(dir == null){
 			logger.warning("IndexPathLookup for null parent: " + parent + filename);
 			return false;
-		}else if(parent.getRoot().equals(parent)){
-			dir = parent.toString().toLowerCase();
-		}else{
-			dir = parent.toString().toLowerCase()+"\\";
 		}
 		
 		ResultSet rs = null;
@@ -483,7 +481,45 @@ public class AidDAO{
 		}
 		
 		return false;
-
+	}
+	
+	private String convertDirPathToString(Path directory){
+		//TODO maybe use .isAbsolute() to check?
+		
+		if(directory == null){
+			return null;
+		}else if(directory.getRoot().equals(directory)){
+			return directory.toString().toLowerCase();
+		}else{
+			return directory.toString().toLowerCase()+"\\";
+		}
+	}
+	
+	public int deleteIndexByPath(String fullpath){
+		final String command = "deleteIndexViaPath";
+		Path path = Paths.get(fullpath.toLowerCase());
+		int affectedRows = -1;
+		
+		String dir = convertDirPathToString(path.getParent());
+		
+		if(dir == null){
+			return affectedRows;
+		}
+		
+		String filename = path.getFileName().toString();
+		
+		PreparedStatement ps = getPrepStmt(command);
+		try {
+			ps.setString(1, dir);
+			ps.setString(2, filename);
+			affectedRows = ps.executeUpdate();
+		} catch (SQLException e) {
+			logger.severe(SQL_OP_ERR+command+": "+e.getMessage());
+		} finally{
+			closeAll(ps);
+		}
+		
+		return affectedRows;
 	}
 	
 	private boolean simpleBooleanQuery(String command, String key, Boolean defaultReturn){
