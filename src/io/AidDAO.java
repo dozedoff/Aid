@@ -77,9 +77,6 @@ public class AidDAO{
 		addPrepStmt("isIndexedPath"		, "SELECT i.dir, i.filename FROM `fileindex` AS i JOIN dirlist ON dirlist.id = i.dir JOIN filelist ON filelist.id = i.filename JOIN location_tags ON i.location = location_tags.tag_id WHERE location_tags.location = ? AND dirlist.dirpath = ? AND filelist.filename = ?");
 		addPrepStmt("deleteFileindex"	, "DELETE FROM `fileindex` WHERE id = ?");
 		addPrepStmt("deleteFilter"		, "DELETE FROM filter WHERE id = ?");
-		addPrepStmt("deleteDnw"			, "DELETE FROM dnw WHERE id = ?");
-		addPrepStmt("deleteBlock"		, "DELETE FROM block WHERE id = ?");
-		addPrepStmt("deleteArchive"		, "DELETE FROM archive WHERE id = ?");
 		addPrepStmt("isBlacklisted"		, "SELECT * FROM `block` WHERE `id` = ?");
 		addPrepStmt("getDirectory"		, "SELECT id FROM dirlist WHERE dirpath = ?");
 		addPrepStmt("getFilename"		, "SELECT id FROM filelist WHERE filename = ?");
@@ -103,6 +100,7 @@ public class AidDAO{
 	private static void generateStatements(){
 		for(AidTables table : AidTables.values()){
 			addPrepStmt("size"+table.toString(), "SELECT count(*) FROM "+table.toString());
+			addPrepStmt("delete"+table.toString(), "DELETE FROM " +table.toString() + " WHERE id = ?");
 		}
 	}
 
