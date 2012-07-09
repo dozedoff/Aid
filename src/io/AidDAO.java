@@ -420,14 +420,6 @@ public class AidDAO{
 		return simpleIntQuery("getTagId", tag, -1);
 	}
 	
-	public int deleteDnw(String hash){
-		return simpleUpdate("deleteDnw", hash, -1);
-	}
-	
-	public int deleteBlock(String hash){
-		return simpleUpdate("deleteBlock", hash, -1);
-	}
-	
 	public void update(String id, AidTables table){
 		PreparedStatement update = null;
 		String command = null;
@@ -624,21 +616,23 @@ public class AidDAO{
 		}
 	}
 
-	public void delete(AidTables table, String id){
+	public int delete(AidTables table, String id){
 		PreparedStatement ps = getPrepStmt("delete"+table.toString());
 		if(ps == null){
 			logger.warning("Could not delete entry "+ id +" for table "+table.toString());
-			return;
+			return -1;
 		}
 		
 		try {
 			ps.setString(1, id);
-			ps.executeUpdate();
+			return ps.executeUpdate();
 		} catch (Exception e) {
 			logger.warning(SQL_OP_ERR+e.getMessage());
 		} finally {
 			closeAll(ps);
 		}
+		
+		return -1;
 	}
 
 	public void sendStatement(String sqlStatment){
