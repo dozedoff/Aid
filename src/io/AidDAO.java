@@ -97,6 +97,8 @@ public class AidDAO{
 		addPrepStmt("isValidTag"		, "SELECT tag_id FROM location_tags WHERE location = ?");
 		addPrepStmt("getTagId"			, "SELECT tag_id FROM location_tags WHERE location = ?");
 		addPrepStmt("deleteIndexViaPath", "DELETE fi FROM fileindex AS fi JOIN dirlist AS dl ON fi.dir=dl.id JOIN filelist AS fl ON fi.filename=fl.id  WHERE dl.dirpath = ? AND fl.filename = ?");
+		addPrepStmt("deleteDuplicateViaPath", "DELETE fi FROM fileduplicate AS fi JOIN dirlist AS dl ON fi.dir=dl.id JOIN filelist AS fl ON fi.filename=fl.id  WHERE dl.dirpath = ? AND fl.filename = ?");
+		addPrepStmt("getDuplicates"		, "SELECT dv.id, dv.dupeloc, dv.dupePath  FROM dupeview AS dv UNION SELECT dv.id, dv.origloc, dv.origPath  FROM dupeview AS dv");
 	}
 	
 	private static void generateStatements(){
@@ -163,6 +165,39 @@ public class AidDAO{
 			}
 
 			return images;
+
+		} catch (SQLException e) {
+			logger.warning(SQL_OP_ERR+e.getMessage());
+		}finally{
+			closeAll(ps);
+			silentClose(null, ps, rs);
+		}
+		return null;
+	}
+	
+	public LinkedList<String[]> getDuplicates(){
+		LinkedList<String[]> paths = new LinkedList<>();
+		String command = "getDuplicates";
+		final int NUM_OF_COLS = 3;
+		
+		ResultSet rs = null;
+		PreparedStatement ps = getPrepStmt(command);
+
+		try {
+			rs = ps.executeQuery();
+
+			// id, dupeloc, dupepath, origLoc, origpath
+			while(rs.next()){
+				String[] dupe = new String[NUM_OF_COLS];
+				
+				for(int i=0; i < NUM_OF_COLS; i++){
+					dupe[i] = rs.getString(i+1);
+				}
+				
+				paths.add(dupe);
+			}
+
+			return paths;
 
 		} catch (SQLException e) {
 			logger.warning(SQL_OP_ERR+e.getMessage());
@@ -485,8 +520,41 @@ public class AidDAO{
 	}
 	
 	public int deleteIndexByPath(String fullpath){
+		return deleteDuplicateByPath(removeDriveLetter(Paths.get(fullpath.toLowerCase())));
+	}
+	
+	public int deleteIndexByPath(Path path){
 		final String command = "deleteIndexViaPath";
-		Path path = removeDriveLetter(Paths.get(fullpath.toLowerCase()));
+		int affectedRows = -1;
+		
+		String dir = convertDirPathToString(path.getParent());
+		
+		if(dir == null){
+			return affectedRows;
+		}
+		
+		String filename = path.getFileName().toString();
+		
+		PreparedStatement ps = getPrepStmt(command);
+		try {
+			ps.setString(1, dir);
+			ps.setString(2, filename);
+			affectedRows = ps.executeUpdate();
+		} catch (SQLException e) {
+			logger.severe(SQL_OP_ERR+command+": "+e.getMessage());
+		} finally{
+			closeAll(ps);
+		}
+		
+		return affectedRows;
+	}
+	
+	public int deleteDuplicateByPath(String fullpath){
+		return deleteDuplicateByPath(removeDriveLetter(Paths.get(fullpath.toLowerCase())));
+	}
+	
+	public int deleteDuplicateByPath(Path path){
+		final String command = "deleteDuplicateViaPath";
 		int affectedRows = -1;
 		
 		String dir = convertDirPathToString(path.getParent());
