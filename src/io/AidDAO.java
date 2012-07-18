@@ -526,7 +526,7 @@ public class AidDAO{
 	public int deleteIndexByPath(Path path){
 		final String command = "deleteIndexViaPath";
 		int affectedRows = -1;
-		
+		path = removeDriveLetter(path);
 		String dir = convertDirPathToString(path.getParent());
 		
 		if(dir == null){
@@ -556,7 +556,7 @@ public class AidDAO{
 	public int deleteDuplicateByPath(Path path){
 		final String command = "deleteDuplicateViaPath";
 		int affectedRows = -1;
-		
+		path = removeDriveLetter(path);
 		String dir = convertDirPathToString(path.getParent());
 		
 		if(dir == null){
