@@ -17,9 +17,20 @@
  */
 package board;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import javax.imageio.stream.ImageInputStream;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import com.sun.imageio.plugins.common.ImageUtil;
+import com.sun.istack.internal.logging.Logger;
 
 /**
  * Class that represents a thread on the page.
@@ -27,6 +38,7 @@ import java.util.Scanner;
 public class PageThread {
 	private ArrayList<Post> postList = new ArrayList<Post>();
 	private URL threadUrl;
+	private static final Logger logger = Logger.getLogger(PageThread.class);
 	
 	public PageThread(URL threadUrl){
 		this.threadUrl = threadUrl;
@@ -37,44 +49,40 @@ public class PageThread {
 	}
 
 	public void processThread(String html){
-		//split up the page into segments, so the whole thing does not get processed every time
-		Scanner postScanner = new Scanner(html).useDelimiter("<span class=\"commentpostername\">");
-		ArrayList<String> tokenList = new ArrayList<String>();
-
-		//postScanner.next("<form name=\"delform\"");
-		postScanner.findInLine("<form name=\"delform\"");
 		
-		while(postScanner.hasNext()){
-			tokenList.add(postScanner.next());
-		}
-
-		if(tokenList.isEmpty())
-			return;
-
-		int cutHere=0;
-
-		cutHere = tokenList.get(0).indexOf("<center>", 0); // start of the first post in thread
-		if(cutHere != -1){
-			String temp = tokenList.get(0);
-			tokenList.remove(0);	// remove the old entry
-			tokenList.add(0,temp.substring(cutHere, temp.length()));	// cut and re-insert
-		}
-
-		cutHere = 0;
-		cutHere = tokenList.get(tokenList.size()-1).indexOf("<center>", 0); // end of the last post in thread
-
-		if(cutHere != -1){
-			String temp = tokenList.get(tokenList.size()-1);
-			tokenList.remove(tokenList.size()-1);	// remove the old entry
-			tokenList.add(temp.substring(0, cutHere));	// cut and re-insert
-		}
-
+		
+		Document pageDocument = Jsoup.parse(html);
+		
+		Element thread = pageDocument.select("#delform > div.board > div.thread").first();
+		
+		Elements posts = thread.getElementsByClass("post");
+		
 		postList.clear();
-		// create Post objects
-		for(String htmlSnippet : tokenList){
-			Post p = new Post();
-			p.parseHtml(htmlSnippet);
-			postList.add(p);
+		
+		for(Element post : posts){
+			Post postObject = new Post();
+			
+			Elements fileElements = post.getElementsByClass("file");
+			
+			for(Element file : fileElements){
+				String imageUrl = "?";
+				try{
+					Element imageInfo = file.select("div.fileInfo > span.fileText").first();
+					postObject.setImageName(imageInfo.select("span").attr("title"));
+					imageUrl = imageInfo.select("a").attr("href");
+					imageUrl = threadUrl.toString() + imageUrl.substring(1);
+					
+					postObject.setImageUrl(new URL(imageUrl));
+				}catch(MalformedURLException mue){
+					logger.warning("Invalid image URL (" + imageUrl+ ") in thread " + threadUrl);
+					postObject.setImageName(null);
+					postObject.setImageUrl(null);
+				}
+			}
+			
+			postObject.setComment(post.getElementsByClass("postMessage").first().ownText());
+			
+			postList.add(postObject);
 		}
 	}
 
