@@ -520,7 +520,7 @@ public class AidDAO{
 	}
 	
 	public int deleteIndexByPath(String fullpath){
-		return deleteDuplicateByPath(removeDriveLetter(Paths.get(fullpath.toLowerCase())));
+		return deleteIndexByPath(removeDriveLetter(Paths.get(fullpath.toLowerCase())));
 	}
 	
 	public int deleteIndexByPath(Path path){
