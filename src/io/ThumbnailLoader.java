@@ -60,7 +60,7 @@ public class ThumbnailLoader {
 			thumbUrl = thumbUrl.replace(".jpg", "s.jpg");
 
 			try {
-				byte data[] = gb.get(thumbUrl); // get thumbnail
+				byte data[] = gb.getViaHttp(thumbUrl); // get thumbnail
 
 				int split = thumbUrl.lastIndexOf("/")+1;
 				String filename = thumbUrl.substring(split); // get the filename (used for sorting)
