@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 public class SettingValidator {
 	private static final Logger logger = Logger.getLogger(SettingValidator.class.getName());
 	private static final String SUBPAGE_REGEX = "([a-zA-Z]+;[0-9]+,)*+[a-zA-Z]+;[0-9]+$";
-	private static final String BASEURL_REGEX = "(?m)http://([0-9a-zA-Z.-]+\\.)+([a-zA-Z])*/$";
+	private static final String BASEURL_REGEX = "(?m)(http:|https:)//([0-9a-zA-Z.-]+\\.)+([a-zA-Z])*/$";
 
 	public static boolean validateAppSettings(Properties appSettings){
 		// validate loaded parameters
