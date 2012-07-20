@@ -22,17 +22,17 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
-import java.util.Scanner;
 import java.util.logging.Logger;
+
+import net.FileLoader;
+import net.GetHtml;
+import net.PageLoadException;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import net.FileLoader;
-import net.GetHtml;
-import net.PageLoadException;
 import filter.Filter;
 import filter.FilterItem;
 import filter.FilterState;
@@ -90,6 +90,11 @@ public class Page implements Runnable, Parsable{
 	public void parseHtml(String html){
 		threadUrls.clear();
 		
+		if(html == null || html.equals("")){
+			logger.warning("No html data for " + pageUrl);
+			return;
+		}
+		
 		Document pageDocument = Jsoup.parse(html);
 		
 		Elements board = pageDocument.select("#delform > div.board");
@@ -99,7 +104,7 @@ public class Page implements Runnable, Parsable{
 			String relativeThreadUrl = thread.getElementsByClass("replylink").first().attr("href");
 			
 			try {
-				threadUrls.add(new URL(boardUrl.toString() + relativeThreadUrl));
+				threadUrls.add(new URL(boardUrl.toString()+ "/" + relativeThreadUrl));
 			} catch (MalformedURLException e) {
 				logger.warning("unable to process thread URL.\n " + relativeThreadUrl + "\n" + e.getMessage());
 			}
