@@ -20,16 +20,12 @@ package board;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Scanner;
-
-import javax.imageio.stream.ImageInputStream;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.sun.imageio.plugins.common.ImageUtil;
 import com.sun.istack.internal.logging.Logger;
 
 /**
@@ -49,8 +45,6 @@ public class PageThread {
 	}
 
 	public void processThread(String html){
-		
-		
 		Document pageDocument = Jsoup.parse(html);
 		
 		Element thread = pageDocument.select("#delform > div.board > div.thread").first();
@@ -68,11 +62,15 @@ public class PageThread {
 				String imageUrl = "?";
 				try{
 					Element imageInfo = file.select("div.fileInfo > span.fileText").first();
+					if(imageInfo == null){
+						// the image was deleted
+						continue;
+					}
+					
 					postObject.setImageName(imageInfo.select("span").attr("title"));
 					imageUrl = imageInfo.select("a").attr("href");
-					imageUrl = threadUrl.toString() + imageUrl.substring(1);
 					
-					postObject.setImageUrl(new URL(imageUrl));
+					postObject.setImageUrl(new URL("https:" + imageUrl));
 				}catch(MalformedURLException mue){
 					logger.warning("Invalid image URL (" + imageUrl+ ") in thread " + threadUrl);
 					postObject.setImageName(null);
