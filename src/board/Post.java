@@ -25,84 +25,21 @@ import java.util.logging.Logger;
 /**
  * Class that represents a post in a thread.
  */
-public class Post implements Parsable{
-	protected String comment = "";
+public class Post {
+	protected String comment;
 	protected String imageName;
 
 	protected URL imageUrl;
 
-	private static final Logger LOGGER = Logger.getLogger(Post.class.getName());
-
-	public void parseHtml(String html) {
-		//TODO make tag finding scalable
-		Scanner scanner;
-
-		if(html.equals("")){	// empty post
-			comment = null;
-			imageName = null;
-			imageUrl = null;
-			return;
-		}
-
-		// find the image URL
-		scanner = new Scanner(html);
-		scanner.useDelimiter("</span><br><a href=\"|\" target=_blank><img");
-
-		if(scanner.hasNext()) // skip the first block
-			scanner.next();
-
-		if(scanner.hasNext()){
-			StringBuilder sb = new StringBuilder();
-			try {
-				sb.append(scanner.next());
-				// this fixes "http:" going missing.
-				// Cloudflare related?
-				if(sb.toString().startsWith("//")){
-					sb.insert(0, "http:");
-				}
-				imageUrl = new URL(sb.toString());
-			} catch (MalformedURLException e) {
-				LOGGER.warning("Invalid url: "+e.getMessage());
-				imageUrl = null;
-			}
-		}else{
-			imageUrl = null;
-		}
-
-		// no point in looking for a name if there is no URL
-		if(imageUrl != null){
-			// find the image name
-			scanner = new Scanner(html);
-			scanner.useDelimiter(", <span title=\"|</span>\\)</span>");
-
-			if(scanner.hasNext()) // skip the first block
-				scanner.next();
-
-			if(scanner.hasNext()){
-				imageName = scanner.next().split("\">")[0];
-			}else{
-				imageName = null;
-			}
-		}
-
-		// find the comment
-		scanner = new Scanner(html);
-		scanner.useDelimiter("<blockquote>|</blockquote>");
-
-		if(scanner.hasNext()) // skip the first block
-			scanner.next();
-
-		if(scanner.hasNext()){
-			comment = scanner.next();
-			
-			if(comment.equals("")){
-				comment = null;
-			}
-		}else{
-			comment = null;
-		}
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
-
+	public void setImageName(String imageName) {
+		this.imageName = imageName;
+	}
+	public void setImageUrl(URL imageUrl) {
+		this.imageUrl = imageUrl;
+	}
 	public String getComment() {
 		return comment;
 	}
