@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
+import file.FileInfo;
 import filter.FilterItem;
 import filter.FilterState;
 
@@ -332,6 +333,10 @@ public class AidDAO{
 			closeAll(ps);
 			silentClose(cn, ps, null);
 		}
+	}
+	
+	public boolean addIndex(FileInfo fileInfo, String location){
+		return addIndex(fileInfo.getHash(), fileInfo.getFilePath().toString(), fileInfo.getSize(), location);
 	}
 	
 	public boolean addIndex(String hash, String path, long size, String location){
