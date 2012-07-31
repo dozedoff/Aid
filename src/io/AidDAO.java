@@ -100,6 +100,7 @@ public class AidDAO{
 		addPrepStmt("deleteIndexViaPath", "DELETE fi FROM fileindex AS fi JOIN dirlist AS dl ON fi.dir=dl.id JOIN filelist AS fl ON fi.filename=fl.id  WHERE dl.dirpath = ? AND fl.filename = ?");
 		addPrepStmt("deleteDuplicateViaPath", "DELETE fi FROM fileduplicate AS fi JOIN dirlist AS dl ON fi.dir=dl.id JOIN filelist AS fl ON fi.filename=fl.id  WHERE dl.dirpath = ? AND fl.filename = ?");
 		addPrepStmt("getDuplicates"		, "SELECT dv.id, dv.dupeloc, dv.dupePath  FROM dupeview AS dv UNION SELECT dv.id, dv.origloc, dv.origPath  FROM dupeview AS dv");
+		addPrepStmt("getLocationById"	, "SELECT lt.location FROM fileindex AS fi JOIN location_tags AS lt ON fi.location = lt.tag_id WHERE fi.id = ?");
 	}
 	
 	private static void generateStatements(){
@@ -681,6 +682,32 @@ public class AidDAO{
 		return null;
 	}
 	
+	private String simpleStringQuery(String command, String key, String defaultValue){
+		ResultSet rs = null;
+		PreparedStatement ps = getPrepStmt(command);
+		String result = defaultValue;
+		
+		if(ps == null){
+			logger.warning("Could not carry out query for command \""+command+"\"");
+			return null;
+		}
+		
+		try {
+			ps.setString(1, key);
+			rs = ps.executeQuery();
+
+			rs.next();
+			result = rs.getString(1);
+			return result;
+		} catch (SQLException e) {
+			logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
+		} finally{
+			closeAll(ps);
+		}
+		
+		return result;
+	}
+	
 	private int simpleUpdate(String command, String key, int defaultReturn){
 		PreparedStatement ps = getPrepStmt(command);
 		
@@ -827,6 +854,47 @@ public class AidDAO{
 	
 	public int getLocationIndexSize(String locationTag){
 		return simpleIntQuery("getLocIndexSize", locationTag, -1);
+	}
+	
+	public String getLocationById(String id){
+		return simpleStringQuery("getLocationById", id,"UNKNOWN");
+	}
+	
+	public boolean moveIndexToDuplicate(String id){
+		final String SQL_COPY_INDEX_STATEMENT = "INSERT INTO fileduplicate SELECT * FROM fileindex WHERE id = ?";
+		final String SQL_DELETE_INDEX_STATEMENT = "DELETE FROM fileindex WHERE id = ?";
+		
+		Connection cn = null;
+		PreparedStatement copyPrepStatement = null, deletePrepStatement = null;
+		
+		try {
+			cn = getConnection();
+			
+			cn.setAutoCommit(false);
+			
+			copyPrepStatement = cn.prepareStatement(SQL_COPY_INDEX_STATEMENT);
+			deletePrepStatement = cn.prepareStatement(SQL_DELETE_INDEX_STATEMENT);
+			
+			copyPrepStatement.setString(1, id);
+			deletePrepStatement.setString(1, id);
+			
+			copyPrepStatement.executeUpdate();
+			deletePrepStatement.executeUpdate();
+			
+			cn.commit();
+			cn.setAutoCommit(true);
+			
+			return true;
+		} catch (SQLException e) {
+			try {
+				cn.rollback();
+			} catch (SQLException e1) {logger.severe("Failed to perform transaction rollback");}
+			
+			return false;
+		}finally{
+			closeAll(copyPrepStatement);
+			closeAll(deletePrepStatement);
+		}
 	}
 
 	protected int[] addPath(String fullPath){
