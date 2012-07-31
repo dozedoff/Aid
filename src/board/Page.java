@@ -22,12 +22,17 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
-import java.util.Scanner;
 import java.util.logging.Logger;
 
 import net.FileLoader;
 import net.GetHtml;
 import net.PageLoadException;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import filter.Filter;
 import filter.FilterItem;
 import filter.FilterState;
@@ -83,43 +88,31 @@ public class Page implements Runnable, Parsable{
 
 	@Override
 	public void parseHtml(String html){
-		int pageStart,pageEnd;
 		threadUrls.clear();
 		
-		// only the text between the first 2 <center> tags is relevant
-		try{
-			pageStart = html.indexOf("</noscript>", 0)+11;
-			pageEnd = html.indexOf("</noscript>", pageStart);
-			html = html.substring(pageStart, pageEnd);
-		}catch(StringIndexOutOfBoundsException e){
-			logger.severe(
-					e.getMessage()+" for\n"+pageUrl+"\n"+
-							"could probably not find the end of the Page"
-					);
+		if(html == null || html.equals("")){
+			logger.warning("No html data for " + pageUrl);
 			return;
 		}
-		//cut up tokens to get thread url's
-		Scanner pageScanner = new Scanner(html).useDelimiter("<a href=\"");
-		String temp;
-
-		while(pageScanner.hasNext()){
-			if(stop){break;}
-
-			temp = pageScanner.next();
-			if(!temp.startsWith("res"))	// not a thread
-				continue;
-
-			int endMark = temp.indexOf("\""); // end of the address
-			temp = temp.substring(0, endMark);
-			if(temp.contains("#"))	// in thread post reference
-				continue;
-
+		
+		Document pageDocument = Jsoup.parse(html);
+		
+		Elements board = pageDocument.select("#delform > div.board");
+		Elements threads = board.first().getElementsByClass("thread");
+		
+		for(Element thread : threads){
+			String relativeThreadUrl = thread.getElementsByClass("replylink").first().attr("href");
+			
 			try {
-				threadUrls.add(new URL(boardUrl.toString()+"/"+temp));
+				threadUrls.add(new URL(boardUrl.toString()+ "/" + relativeThreadUrl));
 			} catch (MalformedURLException e) {
-				logger.warning("unable to process thread URL.\n "+temp+"\n"+e.getMessage());
+				logger.warning("unable to process thread URL.\n " + relativeThreadUrl + "\n" + e.getMessage());
 			}
 		}
+	}
+	
+	public LinkedList<URL> getThreadUrls() {
+		return threadUrls;
 	}
 
 	@Override

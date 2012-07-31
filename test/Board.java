@@ -23,8 +23,7 @@ import board.*;
 @SuiteClasses({ 	BoardTest.class,
 					PageFactoryTest.class,
 					PageTest.class,
-					PageThreadTest.class,
-					PostTest.class
+					PageThreadTest.class
 })
 public class Board {
 

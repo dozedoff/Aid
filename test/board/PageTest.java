@@ -20,7 +20,9 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import io.ImageLoader;
+import io.TextFileReader;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -64,9 +66,18 @@ public class PageTest {
 	}
 
 	@Test
-	@Ignore
-	public void testProcessPage() {
-		fail("Not yet implemented");
+	public void testProcessPage() throws IOException {
+		String pageTestHtml = new TextFileReader().read(this.getClass().getClassLoader().
+				getResourceAsStream("HtmlData\\pageTestData")); // load test data
+		pageTestHtml = pageTestHtml.replaceAll("\n", ""); // test file is in human readable format, this is to simulate how the program would receive the data
+		
+		page = new Page(new URL("http://foo.bar/"), 0, mockFilter, mockImageLoader);
+		page.parseHtml(pageTestHtml);
+		
+		assertThat(page.getThreadUrls().size(), is(10));
+		
+		assertThat(page.getThreadUrls().get(0), is(new URL("http://foo.bar/res/1418")));
+		assertThat(page.getThreadUrls().get(9), is(new URL("http://foo.bar/res/1447")));
 	}
 	
 	@Test

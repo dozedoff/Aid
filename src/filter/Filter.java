@@ -55,7 +55,7 @@ import board.Post;
 public class Filter implements FilterModifiable{
 	private static Logger logger = Logger.getLogger(Filter.class.getName());
 	private static int FILTER_UPDATER_INTERVAL = 60*1000; // one minute
-	private final String LOCATION_TAG = "DL CLIENT";
+	private final String LOCATION_TAG = "DL_CLIENT";
 	private int filterNr = 0;	// filter item counter
 
 	private BlockListDataModel blocklistModel;
