@@ -40,6 +40,8 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
+import com.j256.ormlite.dao.DaoManager;
+
 import file.FileInfo;
 import filter.FilterItem;
 import filter.FilterState;
@@ -54,6 +56,8 @@ public class AidDAO{
 	protected final String RS_CLOSE_ERR = "Could not close ResultSet: ";
 	protected final String SQL_OP_ERR = "MySQL operation failed: ";
 	protected final ConnectionPool connPool;
+	
+	private final DaoManager daoManager = new DaoManager();
 
 	public AidDAO(ConnectionPool connPool){
 		this.connPool = connPool;
