@@ -76,8 +76,13 @@ public class AidDAOTest extends DatabaseTestCase{
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		bcp = new BoneConnectionPool(new DefaultMySQLconnection("127.0.0.1", 3306, "test", "test", "test"), 10);
-		bcp.startPool();
+		bcp = null;
+		
+		if(bcp == null){
+			bcp = new BoneConnectionPool(new DefaultMySQLconnection("127.0.0.1", 3306, "test", "test", "test"), 5);
+			bcp.startPool();
+		}
+		
 		sql = new AidDAO(bcp);
 	}
 
@@ -85,9 +90,8 @@ public class AidDAOTest extends DatabaseTestCase{
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		bcp.stopPool();
 	}
-
+	
 	@Test
 	public void testAddFilter() throws Exception {
 		assertTrue(sql.addFilter("http://foo.bar/PENDING","t", "test", FilterState.PENDING));
