@@ -211,32 +211,6 @@ public class AidDAO{
 		}
 		return null;
 	}
-	
-//	public void addPrepStmt(String id,String stmt,int param1, int param2){
-//		PreparedStatement toAdd = null;
-//		try {
-//			toAdd = cn.prepareStatement(stmt,param1,param2);
-//			prepStmts.put(id, toAdd);
-//		} catch (SQLException e) {
-//			logger.severe("Prepared Statement could not be created,\n"+e.getMessage()+
-//					"\n"+id
-//					+"\n"+stmt);
-//		}
-//	}
-//
-//	public void addPrepStmt(String id,String stmt,int param1){
-//		PreparedStatement toAdd = null;
-//		try {
-//			toAdd = cn.prepareStatement(stmt,param1);
-//			prepStmts.put(id, toAdd);
-//		} catch (SQLException e) {
-//			logger.severe("Prepared Statement could not be created,\n"+e.getMessage()+
-//					"\n"+id
-//					+"\n"+stmt);
-//		} catch (NullPointerException npe) {
-//			logger.severe("Could not add Prepared Statment, invalid connection");
-//		}
-//	}
 
 	protected PreparedStatement getPrepStmt(String command){
 		if(prepStmts.containsKey(command)){
