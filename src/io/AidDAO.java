@@ -946,6 +946,9 @@ public class AidDAO{
 			return pathId;
 		} catch (SQLException e) {
 			logger.severe(e.getMessage());
+		}finally{
+			closeAll(addFile);
+			closeAll(addDir);
 		}
 		
 		return null;
