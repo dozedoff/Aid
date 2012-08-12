@@ -883,7 +883,8 @@ public class AidDAO{
 			copyPrepStatement.executeUpdate();
 			deletePrepStatement.executeUpdate();
 			
-			
+			cn.commit();
+			cn.setAutoCommit(true);
 			
 			return true;
 		} catch (SQLException e) {
@@ -893,14 +894,6 @@ public class AidDAO{
 			
 			return false;
 		}finally{
-			
-			try {
-				cn.commit();
-				cn.setAutoCommit(true);
-			} catch (SQLException e) {
-				logger.severe("Failed to commit transaction");
-			}
-			
 			closeAll(copyPrepStatement);
 			closeAll(deletePrepStatement);
 		}
