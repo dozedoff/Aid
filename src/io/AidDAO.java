@@ -1005,6 +1005,8 @@ public class AidDAO{
 			}
 		}catch (SQLException e){
 			throw e;
+		}finally{
+			closeAll(ps);
 		}
 
 		return pathValue;
