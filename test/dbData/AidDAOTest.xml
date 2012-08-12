@@ -21,6 +21,7 @@
     <location_tags tag_id="0" location="UNKNOWN"/>
     <location_tags tag_id="1" location="LOCATION A"/>
     <location_tags tag_id="2" location="LOCATION B"/>
+    <location_tags tag_id="3" location="ARCHIVE"/>
     
 	<!-- cache Table -->
 	<cache id="1" timestamp="2020-01-01 00:00:00.000000000" />
@@ -65,6 +66,7 @@
 	<fileindex id="2" size="790332" 	dir="2" filename="2" location="1"/>
 	<fileindex id="3" size="5789699" 	dir="3" filename="3" location="2"/>
 	<fileindex id="4" size="542322" 	dir="3" filename="2" location="2"/>
+	<fileindex id="7" size="86003" 		dir="2" filename="1" location="3"/>
 	
 	<!--fileduplicate Table -->
 	<fileduplicate id="1" size="34568" 		dir="1" filename="2" location="0"/>

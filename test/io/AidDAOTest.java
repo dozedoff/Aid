@@ -49,6 +49,7 @@ import org.junit.Test;
 
 import config.DefaultMySQLconnection;
 
+import file.FileInfo;
 import filter.FilterItem;
 import filter.FilterState;
 
@@ -263,6 +264,19 @@ public class AidDAOTest extends DatabaseTestCase{
 	}
 	
 	@Test
+	public void testAddIndexFileInfo() throws Exception{
+		Path filePath = Paths.get("D:\\foo\\panda.png");
+		FileInfo info = new FileInfo(filePath, "54321");
+		info.setSize(123455L);
+		
+		sql.addIndex(info, "LOCATION A");
+		
+		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Fileindex.toString(), addExpected_PATH), getDatabaseTable(AidTables.Fileindex.toString()), IGNORE_ADD_HASH_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Dirlist.toString(), addExpected_PATH), getDatabaseTable(AidTables.Dirlist.toString()), IGNORE_PATH_COL);
+		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filelist.toString(), addExpected_PATH), getDatabaseTable(AidTables.Filelist.toString()), IGNORE_PATH_COL);
+	}
+	
+	@Test
 	public void testGetPendingFilters() throws MalformedURLException{
 		LinkedList<FilterItem> pendingItems = sql.getPendingFilters();
 		
@@ -377,6 +391,21 @@ public class AidDAOTest extends DatabaseTestCase{
 	}
 	
 	@Test
+	public void testDeleteByPathString() throws Exception {
+		sql.deleteDuplicateByPath("C:\\mutated\\custard\\is\\dangerous\\squirrel.jpg");
+		
+		Assertion.assertEquals(getFileTable(AidTables.Fileduplicate.toString(), deleteExpected_PATH), getDatabaseTable(AidTables.Fileduplicate.toString()));
+	}
+	
+	@Test
+	public void testDeleteByPath() throws Exception {
+		Path path = Paths.get("C:\\mutated\\custard\\is\\dangerous\\squirrel.jpg");
+		sql.deleteDuplicateByPath(path);
+		
+		Assertion.assertEquals(getFileTable(AidTables.Fileduplicate.toString(), deleteExpected_PATH), getDatabaseTable(AidTables.Fileduplicate.toString()));
+	}
+	
+	@Test
 	public void testMoveIndexToDuplicate() {
 		final String HASH = "5";
 		final String PATH = "D:\\test\\me\\now\\squirrel.jpg";
@@ -407,6 +436,12 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertTrue(sql.moveDuplicateToIndex(HASH));
 		assertThat(sql.size(AidTables.Fileduplicate), is(5));
 		assertTrue(sql.isHashed(HASH));
+	}
+	
+	@Test
+	public void testGetLocationById() {
+		String location = sql.getLocationById("1");
+		assertThat(location, is("UNKNOWN"));
 	}
 	
 	// ---------- Database Setup related methods ---------- //
