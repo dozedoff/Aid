@@ -376,6 +376,39 @@ public class AidDAOTest extends DatabaseTestCase{
 		Assertion.assertEquals(getFileTable(AidTables.Fileindex.toString(), deleteExpected_PATH), getDatabaseTable(AidTables.Fileindex.toString()));
 	}
 	
+	@Test
+	public void testMoveIndexToDuplicate() {
+		final String HASH = "5";
+		final String PATH = "D:\\test\\me\\now\\squirrel.jpg";
+		final String LOCATION = "LOCATION A";
+		final long SIZE = 123L;
+			
+		sql.addIndex(HASH, PATH, SIZE, LOCATION);
+		assertTrue(sql.isHashed(HASH));
+		
+		assertTrue(sql.moveIndexToDuplicate(HASH));
+		
+		assertFalse(sql.isHashed(HASH));
+		assertThat(sql.size(AidTables.Fileduplicate), is(5));
+	}
+	
+	@Test
+	public void testMoveDuplicateToIndex() {
+		final String HASH = "5";
+		final String PATH = "D:\\test\\me\\now\\squirrel.jpg";
+		final String PATH2 = "D:\\foo\\bar\\meerkat.gif";
+		final String LOCATION = "LOCATION A";
+		final long SIZE = 123L;
+		
+		assertTrue(sql.addDuplicate(HASH, PATH, SIZE, LOCATION));
+		assertTrue(sql.addDuplicate(HASH, PATH2, SIZE, LOCATION));
+		assertThat(sql.size(AidTables.Fileduplicate), is(6));
+		
+		assertTrue(sql.moveDuplicateToIndex(HASH));
+		assertThat(sql.size(AidTables.Fileduplicate), is(5));
+		assertTrue(sql.isHashed(HASH));
+	}
+	
 	// ---------- Database Setup related methods ---------- //
 	
 	@Override
