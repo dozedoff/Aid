@@ -39,6 +39,7 @@ import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.DataSetException;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
+import org.dbunit.ext.mysql.MySqlDataTypeFactory;
 import org.dbunit.util.fileloader.FlatXmlDataFileLoader;
 import org.junit.After;
 import org.junit.Before;
@@ -372,8 +373,11 @@ public class AidDAOTest extends DatabaseTestCase{
 	protected IDatabaseConnection getConnection() throws Exception {
 		Class.forName("com.mysql.jdbc.Driver"); 
 		Connection jdbcConnection = DriverManager.getConnection( "jdbc:mysql://localhost/test","test", "test"); 
-
-		return new DatabaseConnection(jdbcConnection);
+		
+		DatabaseConnection dbConn = new DatabaseConnection(jdbcConnection);
+		dbConn.getConfig().setProperty("http://www.dbunit.org/properties/datatypeFactory", new MySqlDataTypeFactory());
+		
+		return dbConn;
 	}
 
 	@Override
