@@ -104,7 +104,7 @@ public class Page implements Runnable, Parsable{
 			String relativeThreadUrl = thread.getElementsByClass("replylink").first().attr("href");
 			
 			try {
-				threadUrls.add(new URL(boardUrl.toString()+ "/" + relativeThreadUrl));
+				threadUrls.add(new URL(boardUrl.toString() + relativeThreadUrl));
 			} catch (MalformedURLException e) {
 				logger.warning("unable to process thread URL.\n " + relativeThreadUrl + "\n" + e.getMessage());
 			}
