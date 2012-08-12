@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import org.dbunit.Assertion;
 import org.dbunit.DatabaseTestCase;
 import org.dbunit.DatabaseUnitException;
+import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.DataSetException;
@@ -43,6 +44,7 @@ import org.dbunit.ext.mysql.MySqlDataTypeFactory;
 import org.dbunit.util.fileloader.FlatXmlDataFileLoader;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import config.DefaultMySQLconnection;
@@ -52,8 +54,9 @@ import filter.FilterState;
 
 
 public class AidDAOTest extends DatabaseTestCase{
-	AidDAO sql;
-	BoneConnectionPool bcp;
+	static boolean done = false;
+	static AidDAO sql;
+	static BoneConnectionPool bcp = null;
 	final String[] IGNORE_CACHE_COL = {"timestamp"};
 	final String[] IGNORE_THUMBS_DATA_COL = {"id"};
 	final String[] IGNORE_THUMBS_TRIGGER_COL = {"id","thumb"};
@@ -71,19 +74,21 @@ public class AidDAOTest extends DatabaseTestCase{
 	
 	
 	final byte[] TEST_BINARY = {1,2,3,4,5,6,7,8,9,0};
-
-	@Before
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		bcp = null;
-		
-		if(bcp == null){
-			bcp = new BoneConnectionPool(new DefaultMySQLconnection("127.0.0.1", 3306, "test", "test", "test"), 5);
-			bcp.startPool();
+	static{
+		try {
+			setupPool();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		
-		sql = new AidDAO(bcp);
+	}
+	
+	private static void setupPool() throws Exception {
+		if(! done){
+			bcp = new BoneConnectionPool(new DefaultMySQLconnection("127.0.0.1", 3306, "test", "test", "test"), 10);
+			bcp.startPool();
+			System.out.println("Pool created");
+			sql = new AidDAO(bcp);
+		}
 	}
 
 	@After
@@ -372,7 +377,7 @@ public class AidDAOTest extends DatabaseTestCase{
 	}
 	
 	// ---------- Database Setup related methods ---------- //
-
+	
 	@Override
 	protected IDatabaseConnection getConnection() throws Exception {
 		Class.forName("com.mysql.jdbc.Driver"); 
