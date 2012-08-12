@@ -922,7 +922,7 @@ public class AidDAO{
 	
 
 	protected int[] addPath(String fullPath){
-		int pathValue;
+		int DirectoryPathValue, FilePathpathValue;
 		
 		Connection cn = null;
 		PreparedStatement addDir = null;
@@ -937,20 +937,17 @@ public class AidDAO{
 			String path = fullPath.substring(0,split).toLowerCase(); // D:\foo\
 			int[] pathId = new int[2];
 	
-			pathValue = directoryLookup(path);
-			pathId[0] = pathAddQuery(addDir, pathValue, path);
+			DirectoryPathValue = directoryLookup(path);
+			FilePathpathValue = fileLookup(filename);
 			
-			pathValue = fileLookup(filename);
-			pathId[1] = pathAddQuery(addFile, pathValue, filename);
+			pathId[0] = pathAddQuery(addDir, DirectoryPathValue, path);
+			pathId[1] = pathAddQuery(addFile, FilePathpathValue, filename);
 	
 			return pathId;
 		} catch (SQLException e) {
 			logger.severe(e.getMessage());
-		} finally {
-			silentClose(null, addDir, null);
-			silentClose(cn, addFile, null);
 		}
-	
+		
 		return null;
 	}
 	
@@ -979,8 +976,6 @@ public class AidDAO{
 			}
 		}catch (SQLException e){
 			throw e;
-		}finally{
-			closeAll(ps);
 		}
 
 		return pathValue;
