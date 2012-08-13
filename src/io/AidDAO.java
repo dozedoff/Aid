@@ -638,30 +638,6 @@ public class AidDAO{
 		return defaultReturn;
 	}
 	
-	private String simpleStringQuery(String command){
-		ResultSet rs = null;
-		PreparedStatement ps = getPrepStmt(command);
-		
-		if(ps == null){
-			logger.warning("Could not carry out query for command \""+command+"\"");
-			return null;
-		}
-		
-		try {
-			rs = ps.executeQuery();
-
-			rs.next();
-			String string = rs.getString(1);
-			return string;
-		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
-		} finally{
-			closeAll(ps);
-		}
-		
-		return null;
-	}
-	
 	private String simpleStringQuery(String command, String key, String defaultValue){
 		ResultSet rs = null;
 		PreparedStatement ps = getPrepStmt(command);
@@ -688,26 +664,6 @@ public class AidDAO{
 		return result;
 	}
 	
-	private int simpleUpdate(String command, String key, int defaultReturn){
-		PreparedStatement ps = getPrepStmt(command);
-		
-		if(ps == null){
-			logger.warning("Could not carry out query for command \""+command+"\"");
-			return defaultReturn;
-		}
-		
-		try {
-			ps.setString(1, key);
-			return ps.executeUpdate();
-		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
-		} finally{
-			closeAll(ps);
-		}
-		
-		return defaultReturn;
-	}
-
 	public void pruneCache(long maxAge){
 		PreparedStatement ps = getPrepStmt("prune");
 
