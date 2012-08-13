@@ -178,7 +178,10 @@ public class AidDAO{
 		}
 		return null;
 	}
-	
+	/**
+	 * Use {@link AidDAO#getDuplicatesAndOriginal()} instead.
+	 */
+	@Deprecated
 	public LinkedList<String[]> getDuplicates(){
 		LinkedList<String[]> paths = new LinkedList<>();
 		String command = "getDuplicates";
@@ -190,7 +193,6 @@ public class AidDAO{
 		try {
 			rs = ps.executeQuery();
 
-			// id, dupeloc, dupepath, origLoc, origpath
 			while(rs.next()){
 				String[] dupe = new String[NUM_OF_COLS];
 				
@@ -201,15 +203,17 @@ public class AidDAO{
 				paths.add(dupe);
 			}
 
-			return paths;
-
 		} catch (SQLException e) {
 			logger.warning(SQL_OP_ERR+e.getMessage());
 		}finally{
 			closeAll(ps);
 			silentClose(null, ps, rs);
 		}
-		return null;
+		return paths;
+	}
+	
+	public LinkedList<String[]> getDuplicatesAndOriginal() {
+		return getDuplicates();
 	}
 
 	protected PreparedStatement getPrepStmt(String command){

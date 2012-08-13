@@ -20,6 +20,7 @@ package io;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItem;
+import static org.junit.matchers.JUnitMatchers.hasItems;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -449,6 +450,54 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertThat(location, is(TEST_LOCATION[0]));
 	}
 	
+	@Test
+	public void testGetBlacklisted() {
+		final String[] blacklisted = {"1", "2", "3", "4"};
+		
+		assertThat(sql.getBlacklistedFiles(), hasItems(blacklisted));
+		assertThat(sql.getBlacklistedFiles().size(), is(4));
+	}
+	
+	@Test
+	public void testGetDuplicatesAndOriginal() {
+		final String[] duplicateId = {"1", "2", "3", "4"};
+		LinkedList<String> ids = new LinkedList<>();
+
+		for(String id[] : sql.getDuplicatesAndOriginal()) {
+			ids.add(id[0]);
+		}
+		
+		assertThat(ids, hasItems(duplicateId));
+		assertThat(ids.size(), is(8));
+	}
+	
+	@Test
+	public void testGetPath() {
+		assertThat(sql.getPath("1"), is(relativePath(TEST_DIR[1] + TEST_FILE[1])));
+	}
+	
+	@Test
+	public void testGetSettingVersion() {
+		assertThat(sql.getSetting(DBsettings.SchemaVersion), is("2"));
+	}
+	
+	@Test
+	public void testUpdateDnw() {
+		final String HASH = "10";
+		
+		assertFalse(sql.isDnw(HASH));
+		sql.update(HASH, AidTables.Dnw);
+		assertTrue(sql.isDnw(HASH));
+	}
+	
+	@Test
+	public void testUpdateBlock() {
+		final String HASH = "10";
+		
+		assertFalse(sql.isBlacklisted(HASH));
+		sql.update(HASH, AidTables.Block);
+		assertTrue(sql.isBlacklisted(HASH));
+	}
 	// ---------- Database Setup related methods ---------- //
 	
 	@Override
