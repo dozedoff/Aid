@@ -22,9 +22,11 @@ import file.FileInfo;
 import filter.FilterItem;
 import filter.FilterState;
 import io.tables.Cache;
+import io.tables.Thumbnail;
 
 import java.awt.Image;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -59,6 +61,7 @@ public class AidDAO{
 	protected final ConnectionPool connPool;
 	
 	private Dao<Cache, String> cacheDAO = null;
+	private Dao<Thumbnail, Integer> ThumbnailDAO = null;
 
 	public AidDAO(ConnectionPool connPool){
 		this.connPool = connPool;
@@ -68,6 +71,7 @@ public class AidDAO{
 	private void createDaos() {
 		try{
 			cacheDAO = DaoManager.createDao(connPool.getConnectionSource(), Cache.class);
+			ThumbnailDAO = DaoManager.createDao(connPool.getConnectionSource(), Thumbnail.class);
 		}catch(SQLException e){
 			logger.severe("Unable to create DAO: " + e.getMessage());
 		}
@@ -84,8 +88,6 @@ public class AidDAO{
 		generateStatements();
 		
 		addPrepStmt("addCache"			, "INSERT INTO cache (id) VALUES (?) ON DUPLICATE KEY UPDATE timestamp = NOW()");
-		addPrepStmt("addThumb"			, "INSERT INTO thumbs (url, filename, thumb) VALUES(?,?,?)");
-		addPrepStmt("getThumb"			, "SELECT thumb FROM thumbs WHERE url = ? ORDER BY filename ASC");
 		addPrepStmt("pending"			, "SELECT count(*) FROM filter WHERE status = 1");
 		addPrepStmt("isCached"			, "SELECT timestamp FROM `cache` WHERE `id` = ?");
 		addPrepStmt("isArchive"			, "SELECT * FROM `archive` WHERE `id` = ?");
@@ -302,30 +304,12 @@ public class AidDAO{
 	}
 
 	public void addThumb(String url,String filename, byte[] data){
-		Connection cn = getConnection();
-		Blob blob = null;
-	
-		PreparedStatement ps = getPrepStmt("addThumb");
+		Thumbnail thumb = new Thumbnail(url, filename, data);
+		
 		try {
-			blob = cn.createBlob();
-			blob.setBytes(1, data);
-	
-			ps.setString(1, url);
-			ps.setString(2, filename);
-			ps.setBlob(3, blob);
-			ps.executeUpdate();
-	
+			ThumbnailDAO.create(thumb);
 		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+e.getMessage());
-		}finally{
-			try {
-				if(blob != null)
-					blob.free();
-			} catch (SQLException e) {
-				logger.severe(e.getMessage());
-			}
-			closeAll(ps);
-			silentClose(cn, ps, null);
+			logSQLerror(e);
 		}
 	}
 	
@@ -379,37 +363,25 @@ public class AidDAO{
 	}
 
 	public ArrayList<Image> getThumb(String url){
-		Blob blob = null;
-		ArrayList<Image> images = new ArrayList<Image>();
-		InputStream is;
-		String command = "getThumb";
-
-		ResultSet rs = null;
-		PreparedStatement ps = getPrepStmt(command);
-
+		LinkedList<Thumbnail> thumbs;
+		ArrayList<Image> images = new ArrayList<>(1);
+		
 		try {
-			ps.setString(1, url);
-			rs = ps.executeQuery();
-
-			while(rs.next()){
-				blob = rs.getBlob(1);
-				is = new BufferedInputStream(blob.getBinaryStream());
+			thumbs = new LinkedList<>(ThumbnailDAO.queryForEq("url", url));
+			images = new ArrayList<>(thumbs.size());
+			
+			for(Thumbnail thumb : thumbs){
+				InputStream	is = new ByteArrayInputStream(thumb.getThumb());
 				images.add(ImageIO.read(is));
 				is.close();
-				blob.free();
 			}
-
-			return images;
-
 		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+e.getMessage());
+			logSQLerror(e);
 		} catch (IOException e) {
 			logger.severe(e.getMessage());
-		}finally{
-			closeAll(ps);
-			silentClose(null, ps, rs);
 		}
-		return null;
+		
+		return images;
 	}
 
 	public int size(AidTables table){
