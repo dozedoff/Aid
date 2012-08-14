@@ -87,9 +87,7 @@ public class AidDAO{
 	private static void init(){
 		generateStatements();
 		
-		addPrepStmt("addCache"			, "INSERT INTO cache (id) VALUES (?) ON DUPLICATE KEY UPDATE timestamp = NOW()");
 		addPrepStmt("pending"			, "SELECT count(*) FROM filter WHERE status = 1");
-		addPrepStmt("isCached"			, "SELECT timestamp FROM `cache` WHERE `id` = ?");
 		addPrepStmt("isArchive"			, "SELECT * FROM `archive` WHERE `id` = ?");
 		addPrepStmt("isDnw"				, "SELECT * FROM `dnw` WHERE `id` = ?");
 		addPrepStmt("prune"				, "DELETE FROM `cache` WHERE `timestamp` < ?");
