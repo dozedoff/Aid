@@ -21,7 +21,7 @@ import static file.FileUtil.removeDriveLetter;
 import file.FileInfo;
 import filter.FilterItem;
 import filter.FilterState;
-import io.tables.CacheRecord;
+import io.tables.Cache;
 
 import java.awt.Image;
 import java.io.BufferedInputStream;
@@ -58,7 +58,7 @@ public class AidDAO{
 	protected final String SQL_OP_ERR = "MySQL operation failed: ";
 	protected final ConnectionPool connPool;
 	
-	private Dao<CacheRecord, String> cacheDAO = null;
+	private Dao<Cache, String> cacheDAO = null;
 
 	public AidDAO(ConnectionPool connPool){
 		this.connPool = connPool;
@@ -67,7 +67,7 @@ public class AidDAO{
 	
 	private void createDaos() {
 		try{
-			cacheDAO = DaoManager.createDao(connPool.getConnectionSource(), CacheRecord.class);
+			cacheDAO = DaoManager.createDao(connPool.getConnectionSource(), Cache.class);
 		}catch(SQLException e){
 			logger.severe("Unable to create DAO: " + e.getMessage());
 		}
@@ -286,7 +286,7 @@ public class AidDAO{
 		try {
 
 			String id = url.toString();
-			CacheRecord cacheRecord = new CacheRecord(id);
+			Cache cacheRecord = new Cache(id);
 
 			if (cacheDAO.idExists(id)) {
 				return false;

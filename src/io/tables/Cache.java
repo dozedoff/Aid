@@ -22,16 +22,16 @@ import java.util.Date;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName="cache")
-public class CacheRecord {
+@DatabaseTable
+public class Cache {
 	@DatabaseField(id=true, canBeNull=false)
 	private String id;
-	@DatabaseField()
+	@DatabaseField
 	private Date timestamp;
 	
-	public CacheRecord() {}
+	public Cache() {}
 	
-	public CacheRecord(String id) {
+	public Cache(String id) {
 		this.id = id;
 	}
 	
