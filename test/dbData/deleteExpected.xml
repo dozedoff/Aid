@@ -16,22 +16,6 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -->
-<?xml version='1.0' encoding='UTF-8'?>
-<!--Copyright (C) 2012  Nicholas Wright
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
--->
 <dataset>
 	<!-- filter Table -->
 	<filter id="http://foo.bar/5" board="vx" 	reason="and more" 		status="1" />
@@ -50,4 +34,10 @@
 	<!--fileindex Table -->
 	<fileindex id="1" size="34568" 	dir="1" filename="1" location="0"/>
 	<fileindex id="4" size="542322" 	dir="3" filename="2" location="2"/>
+	<fileindex id="7" size="86003" 		dir="2" filename="1" location="3"/>
+	
+		<!--fileduplicate Table -->
+	<fileduplicate id="1" size="34568" 		dir="1" filename="2" location="0"/>
+	<fileduplicate id="2" size="790332" 	dir="2" filename="1" location="1"/>
+	<fileduplicate id="4" size="542322" 	dir="2" filename="3" location="2"/>
 </dataset>

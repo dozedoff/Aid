@@ -3,7 +3,7 @@
 -- Server version:               5.5.24 - MySQL Community Server (GPL)
 -- Server OS:                    Win64
 -- HeidiSQL version:             7.0.0.4053
--- Date/time:                    2012-07-06 16:53:20
+-- Date/time:                    2012-08-08 17:48:51
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `block` (
   `id` varchar(64) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `hash` (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=ascii COMMENT='blocked Items. Programm will tag folders.';
+) ENGINE=MyISAM DEFAULT CHARSET=ascii COMMENT='Blocked Items. Programm will tag files.';
 
 -- Data exporting was unselected.
 
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `cache` (
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='recently downloaded files';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Recently downloaded files';
 
 -- Data exporting was unselected.
 
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `dirlist` (
   `dirpath` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `dirpath` (`dirpath`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='List of all known directories';
 
 -- Data exporting was unselected.
 
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `dnw` (
   `id` varchar(64) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `hash` (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=ascii COMMENT='unwanted files';
+) ENGINE=MyISAM DEFAULT CHARSET=ascii COMMENT='Unwanted files';
 
 -- Data exporting was unselected.
 
@@ -61,7 +61,9 @@ CREATE TABLE IF NOT EXISTS `dnw` (
 -- Creating temporary table to overcome VIEW dependency errors
 CREATE TABLE `dupeview` (
 	`id` VARCHAR(64) NOT NULL COLLATE 'ascii_general_ci',
+	`dupeloc` VARCHAR(30) NOT NULL COLLATE 'utf8_unicode_ci',
 	`dupePath` VARCHAR(510) NULL DEFAULT NULL COLLATE 'utf8_general_ci',
+	`origloc` VARCHAR(30) NOT NULL COLLATE 'utf8_unicode_ci',
 	`origPath` VARCHAR(510) NULL DEFAULT NULL COLLATE 'utf8_general_ci'
 ) ENGINE=MyISAM;
 
@@ -81,7 +83,7 @@ CREATE TABLE IF NOT EXISTS `fileduplicate` (
   CONSTRAINT `dup_dir_FK` FOREIGN KEY (`dir`) REFERENCES `dirlist` (`id`) ON DELETE CASCADE,
   CONSTRAINT `dup_file_fk` FOREIGN KEY (`filename`) REFERENCES `filelist` (`id`) ON DELETE CASCADE,
   CONSTRAINT `dup_location_FK` FOREIGN KEY (`location`) REFERENCES `location_tags` (`tag_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='all known files';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='List of duplicate files';
 
 -- Data exporting was unselected.
 
@@ -112,7 +114,7 @@ CREATE TABLE IF NOT EXISTS `filelist` (
   `filename` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `filename` (`filename`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='List of all known filenames';
 
 -- Data exporting was unselected.
 
@@ -141,6 +143,19 @@ CREATE TABLE `indexview` (
 ) ENGINE=MyISAM;
 
 
+-- Dumping structure for procedure aid.ListCompare
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `ListCompare`()
+    READS SQL DATA
+    SQL SECURITY INVOKER
+    COMMENT 'Compare the index with block and dnw tables'
+BEGIN
+select indexview.id, indexview.fullpath, indexview.location from indexview join dnw on indexview.id=dnw.id;
+select indexview.id, indexview.fullpath, indexview.location from indexview join block on indexview.id=block.id;
+END//
+DELIMITER ;
+
+
 -- Dumping structure for table aid.location_tags
 CREATE TABLE IF NOT EXISTS `location_tags` (
   `tag_id` smallint(8) unsigned NOT NULL,
@@ -148,7 +163,7 @@ CREATE TABLE IF NOT EXISTS `location_tags` (
   PRIMARY KEY (`tag_id`),
   UNIQUE KEY `tag_id` (`tag_id`),
   UNIQUE KEY `location` (`location`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='List of tags for different locations where data is stored';
 
 -- Data exporting was unselected.
 
@@ -158,9 +173,46 @@ CREATE TABLE IF NOT EXISTS `settings` (
   `name` varchar(20) NOT NULL,
   `param` text NOT NULL,
   UNIQUE KEY `name` (`name`)
-) ENGINE=MyISAM DEFAULT CHARSET=ascii;
+) ENGINE=MyISAM DEFAULT CHARSET=ascii COMMENT='Global settings for all clients';
 
 -- Data exporting was unselected.
+
+
+-- Dumping structure for procedure aid.StripDriveLetter
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `StripDriveLetter`()
+    MODIFIES SQL DATA
+    SQL SECURITY INVOKER
+BEGIN
+DECLARE done INT DEFAULT 0;
+  DECLARE i MEDIUMINT DEFAULT 0; 
+  DECLARE d VARCHAR(255) character set utf8;
+  DECLARE cur1 CURSOR FOR SELECT dirlist.id, SUBSTR(dirlist.dirpath FROM 3 FOR (CHAR_LENGTH(dirlist.dirpath))) FROM dirlist WHERE dirpath LIKE '_:%';
+
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+  SET unique_checks=0;
+  SET foreign_key_checks=0;
+
+  START TRANSACTION;
+  OPEN cur1;
+
+  read_loop: LOOP
+    FETCH cur1 INTO i,d;
+
+    IF done THEN
+      LEAVE read_loop;
+    END IF;
+    
+    UPDATE dirlist SET dirlist.dirpath = d WHERE dirlist.id = i;
+  END LOOP;
+
+  CLOSE cur1;
+  COMMIT;
+  
+  SET unique_checks=1;
+  SET foreign_key_checks=1;
+END//
+DELIMITER ;
 
 
 -- Dumping structure for table aid.thumbs
@@ -173,6 +225,29 @@ CREATE TABLE IF NOT EXISTS `thumbs` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Thumbnails for items in the Filter list';
 
 -- Data exporting was unselected.
+
+
+-- Dumping structure for procedure aid.WarmUpDB
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `WarmUpDB`()
+    READS SQL DATA
+    SQL SECURITY INVOKER
+    COMMENT 'Load all data in to memory (make sure there is enough memory available)'
+BEGIN
+	SELECT * FROM block;
+	SELECT * FROM  `cache`;
+	SELECT * FROM dirlist;
+	SELECT * FROM dnw;
+	SELECT * FROM fileduplicate;
+	SELECT * FROM fileindex;
+	SELECT * FROM filelist;
+	SELECT * FROM filter;
+	SELECT * FROM location_tags;
+	SELECT * FROM settings;
+	SELECT * FROM thumbs;
+END//
+DELIMITER ;
+
 
 -- Dumping structure for trigger aid.prune_thumbs_del
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
@@ -194,18 +269,19 @@ CREATE TRIGGER `prune_thumbs_up` AFTER UPDATE ON `filter` FOR EACH ROW BEGIN
 END//
 DELIMITER ;
 SET SQL_MODE=@OLD_SQL_MODE;
-/*!40014 SET FOREIGN_KEY_CHECKS=1 */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+
 
 -- Dumping structure for view aid.dupeview
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `dupeview`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `dupeview` AS SELECT `fileduplicate`.id, CONCAT(dirlist.dirpath, filelist.filename) AS dupePath, CONCAT(idir.dirpath, ifile.filename) AS origPath FROM 
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `dupeview` AS SELECT `fileduplicate`.id, dupeloc.location AS dupeloc, CONCAT(dirlist.dirpath, filelist.filename) AS dupePath, origloc.location AS origloc, CONCAT(idir.dirpath, ifile.filename) AS origPath FROM 
 	`fileduplicate` JOIN `fileindex` ON `fileduplicate`.id = `fileindex`.id 
-		JOIN filelist ON `fileduplicate`.filename=filelist.id 
-			JOIN dirlist ON `fileduplicate`.dir=dirlist.id 
-				JOIN dirlist as idir ON idir.id = `fileindex`.dir 
-					JOIN filelist as ifile ON `fileindex`.filename = ifile.id ;
+		JOIN filelist ON `fileduplicate`.filename=filelist.id
+			JOIN dirlist ON `fileduplicate`.dir=dirlist.id
+				JOIN location_tags AS origloc ON origloc.tag_id=fileindex.location
+					JOIN dirlist AS idir ON idir.id = `fileindex`.dir 
+						JOIN filelist AS ifile ON `fileindex`.filename = ifile.id
+							JOIN location_tags AS dupeloc ON dupeloc.tag_id=fileduplicate.location ;
 
 
 -- Dumping structure for view aid.indexview

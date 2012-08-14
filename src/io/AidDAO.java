@@ -182,7 +182,10 @@ public class AidDAO{
 		}
 		return null;
 	}
-	
+	/**
+	 * Use {@link AidDAO#getDuplicatesAndOriginal()} instead.
+	 */
+	@Deprecated
 	public LinkedList<String[]> getDuplicates(){
 		LinkedList<String[]> paths = new LinkedList<>();
 		String command = "getDuplicates";
@@ -194,7 +197,6 @@ public class AidDAO{
 		try {
 			rs = ps.executeQuery();
 
-			// id, dupeloc, dupepath, origLoc, origpath
 			while(rs.next()){
 				String[] dupe = new String[NUM_OF_COLS];
 				
@@ -205,42 +207,18 @@ public class AidDAO{
 				paths.add(dupe);
 			}
 
-			return paths;
-
 		} catch (SQLException e) {
 			logger.warning(SQL_OP_ERR+e.getMessage());
 		}finally{
 			closeAll(ps);
 			silentClose(null, ps, rs);
 		}
-		return null;
+		return paths;
 	}
 	
-//	public void addPrepStmt(String id,String stmt,int param1, int param2){
-//		PreparedStatement toAdd = null;
-//		try {
-//			toAdd = cn.prepareStatement(stmt,param1,param2);
-//			prepStmts.put(id, toAdd);
-//		} catch (SQLException e) {
-//			logger.severe("Prepared Statement could not be created,\n"+e.getMessage()+
-//					"\n"+id
-//					+"\n"+stmt);
-//		}
-//	}
-//
-//	public void addPrepStmt(String id,String stmt,int param1){
-//		PreparedStatement toAdd = null;
-//		try {
-//			toAdd = cn.prepareStatement(stmt,param1);
-//			prepStmts.put(id, toAdd);
-//		} catch (SQLException e) {
-//			logger.severe("Prepared Statement could not be created,\n"+e.getMessage()+
-//					"\n"+id
-//					+"\n"+stmt);
-//		} catch (NullPointerException npe) {
-//			logger.severe("Could not add Prepared Statment, invalid connection");
-//		}
-//	}
+	public LinkedList<String[]> getDuplicatesAndOriginal() {
+		return getDuplicates();
+	}
 
 	protected PreparedStatement getPrepStmt(String command){
 		if(prepStmts.containsKey(command)){
@@ -664,30 +642,6 @@ public class AidDAO{
 		return defaultReturn;
 	}
 	
-	private String simpleStringQuery(String command){
-		ResultSet rs = null;
-		PreparedStatement ps = getPrepStmt(command);
-		
-		if(ps == null){
-			logger.warning("Could not carry out query for command \""+command+"\"");
-			return null;
-		}
-		
-		try {
-			rs = ps.executeQuery();
-
-			rs.next();
-			String string = rs.getString(1);
-			return string;
-		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
-		} finally{
-			closeAll(ps);
-		}
-		
-		return null;
-	}
-	
 	private String simpleStringQuery(String command, String key, String defaultValue){
 		ResultSet rs = null;
 		PreparedStatement ps = getPrepStmt(command);
@@ -714,26 +668,6 @@ public class AidDAO{
 		return result;
 	}
 	
-	private int simpleUpdate(String command, String key, int defaultReturn){
-		PreparedStatement ps = getPrepStmt(command);
-		
-		if(ps == null){
-			logger.warning("Could not carry out query for command \""+command+"\"");
-			return defaultReturn;
-		}
-		
-		try {
-			ps.setString(1, key);
-			return ps.executeUpdate();
-		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
-		} finally{
-			closeAll(ps);
-		}
-		
-		return defaultReturn;
-	}
-
 	public void pruneCache(long maxAge){
 		PreparedStatement ps = getPrepStmt("prune");
 
@@ -887,8 +821,7 @@ public class AidDAO{
 			copyPrepStatement.executeUpdate();
 			deletePrepStatement.executeUpdate();
 			
-			cn.commit();
-			cn.setAutoCommit(true);
+			
 			
 			return true;
 		} catch (SQLException e) {
@@ -898,13 +831,62 @@ public class AidDAO{
 			
 			return false;
 		}finally{
+			
+			try {
+				cn.commit();
+				cn.setAutoCommit(true);
+			} catch (SQLException e) {
+				logger.severe("Failed to commit transaction: " + e.getMessage());
+			}
+			
 			closeAll(copyPrepStatement);
 			closeAll(deletePrepStatement);
 		}
 	}
+	
+	public boolean moveDuplicateToIndex(String id){
+		final String SQL_COPY_INDEX_STATEMENT = "INSERT INTO fileindex SELECT * FROM fileduplicate WHERE id = ? LIMIT 1" ;
+		final String SQL_DELETE_DUPLICATE_STATEMENT = "DELETE fd FROM fileduplicate AS fd JOIN fileindex AS fi ON fi.id=fd.id AND fi.dir=fd.dir AND fi.filename=fd.filename";
+		
+		Connection cn = null;
+		PreparedStatement copyPrepStatement = null, deletePrepStatement = null;
+		
+		try {
+			cn = getConnection();
+			cn.setAutoCommit(false);
+			
+			copyPrepStatement = cn.prepareStatement(SQL_COPY_INDEX_STATEMENT);
+			deletePrepStatement = cn.prepareStatement(SQL_DELETE_DUPLICATE_STATEMENT);
+			
+			copyPrepStatement.setString(1, id);
+			
+			copyPrepStatement.executeUpdate();
+			deletePrepStatement.executeUpdate();
+			
+			return true;
+		} catch (SQLException e) {
+			try {
+				cn.rollback();
+			} catch (SQLException e1) {logger.severe("Failed to perform transaction rollback");}
+			
+			return false;
+		}finally{
+			
+			try {
+				cn.commit();
+				cn.setAutoCommit(true);
+			} catch (SQLException e) {
+				logger.severe("Failed to commit transaction: " + e.getMessage());
+			}
+			
+			closeAll(copyPrepStatement);
+			closeAll(deletePrepStatement);
+		}
+	}
+	
 
 	protected int[] addPath(String fullPath){
-		int pathValue;
+		int DirectoryPathValue, FilePathpathValue;
 		
 		Connection cn = null;
 		PreparedStatement addDir = null;
@@ -919,20 +901,20 @@ public class AidDAO{
 			String path = fullPath.substring(0,split).toLowerCase(); // D:\foo\
 			int[] pathId = new int[2];
 	
-			pathValue = directoryLookup(path);
-			pathId[0] = pathAddQuery(addDir, pathValue, path);
+			DirectoryPathValue = directoryLookup(path);
+			FilePathpathValue = fileLookup(filename);
 			
-			pathValue = fileLookup(filename);
-			pathId[1] = pathAddQuery(addFile, pathValue, filename);
+			pathId[0] = pathAddQuery(addDir, DirectoryPathValue, path);
+			pathId[1] = pathAddQuery(addFile, FilePathpathValue, filename);
 	
 			return pathId;
 		} catch (SQLException e) {
 			logger.severe(e.getMessage());
-		} finally {
-			silentClose(null, addDir, null);
-			silentClose(cn, addFile, null);
+		}finally{
+			closeAll(addFile);
+			closeAll(addDir);
 		}
-	
+		
 		return null;
 	}
 	
