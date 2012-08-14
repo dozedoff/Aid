@@ -15,27 +15,27 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io;
+package io.tables;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName = "filelist")
-public class FilePathRecord {
+@DatabaseTable(tableName = "dirlist")
+public class DirectoryPathRecord {
 	@DatabaseField(generatedId=true)
 	private int id;
 	@DatabaseField
-	private String filename;
+	private String dirpath;
 
 	public int getId() {
 		return id;
 	}
 
-	public String getFilename() {
-		return filename;
+	public String getDirpath() {
+		return dirpath;
 	}
 
-	public void setFilename(String filename) {
-		this.filename = filename;
+	public void setDirpath(String dirpath) {
+		this.dirpath = dirpath;
 	}
 }

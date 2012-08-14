@@ -20,8 +20,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItem;
-import io.FilePathRecord;
-import io.IndexRecord;
+import io.tables.FilePathRecord;
+import io.tables.IndexRecord;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

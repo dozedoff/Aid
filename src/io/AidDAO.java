@@ -16,9 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package io;
+import static file.FileUtil.convertDirPathToString;
+import static file.FileUtil.removeDriveLetter;
+import file.FileInfo;
+import filter.FilterItem;
+import filter.FilterState;
+import io.tables.CacheRecord;
+
 import java.awt.Image;
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -40,13 +46,8 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
+import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
-
-import file.FileInfo;
-import filter.FilterItem;
-import filter.FilterState;
-
-import static file.FileUtil.*;
 /**
  * Class for database communication.
  */
@@ -57,10 +58,19 @@ public class AidDAO{
 	protected final String SQL_OP_ERR = "MySQL operation failed: ";
 	protected final ConnectionPool connPool;
 	
-	private final DaoManager daoManager = new DaoManager();
+	private Dao<CacheRecord, String> cacheDAO = null;
 
 	public AidDAO(ConnectionPool connPool){
 		this.connPool = connPool;
+		createDaos();
+	}
+	
+	private void createDaos() {
+		try{
+			cacheDAO = DaoManager.createDao(connPool.getConnectionSource(), CacheRecord.class);
+		}catch(SQLException e){
+			logger.severe("Unable to create DAO: " + e.getMessage());
+		}
 	}
 	
 	static{
@@ -272,24 +282,23 @@ public class AidDAO{
 	 * @return true if URL is already present else false.
 	 * Retruns true on error.
 	 */
-	public boolean addCache(URL url){
-		String id = url.toString();
-		PreparedStatement ps = getPrepStmt("addCache");
+	public boolean addCache(URL url) {
 		try {
-			ps.setString(1, id);
-			int res = ps.executeUpdate();
-	
-			if(res > 1)
-				return true; // entry was present
-			else
-				return false; // entry is new
-	
+
+			String id = url.toString();
+			CacheRecord cacheRecord = new CacheRecord(id);
+
+			if (cacheDAO.idExists(id)) {
+				return false;
+			} else {
+				cacheDAO.create(cacheRecord);
+				return true;
+			}
 		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+e.getMessage());
-		} finally {
-			closeAll(ps);
+			logger.warning(SQL_OP_ERR + e.getMessage());
 		}
-		return true;
+
+		return false;
 	}
 
 	public void addThumb(String url,String filename, byte[] data){
@@ -424,7 +433,20 @@ public class AidDAO{
 	 * Returns true on errors.
 	 */
 	public boolean isCached(String uniqueID){
-		return simpleBooleanQuery("isCached", uniqueID, true);
+		try {
+			return cacheDAO.idExists(uniqueID);
+		} catch (SQLException e) {
+			logSQLerror(e);
+			return true;
+		}
+	}
+	
+	private void logSQLerror(SQLException e) {
+		logSQLerror(e, "");
+	}
+	
+	private void logSQLerror(SQLException e, String command) {
+		logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
 	}
 
 	public boolean isDnw(String hash){

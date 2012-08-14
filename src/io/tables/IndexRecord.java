@@ -1,6 +1,6 @@
 /*  Copyright (C) 2012  Nicholas Wright
 	
-	part of 'Aid', an imageboard downloader.
+	part of 'AidUtil', a collection of maintenance tools for 'Aid'.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,27 +15,11 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io;
+package io.tables;
 
-import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName = "location_tags")
-public class LocationRecord {
-	@DatabaseField(generatedId=true)
-	private int tag_id;
-	@DatabaseField
-	private String location;
+@DatabaseTable(tableName="fileindex")
+public class IndexRecord extends FileRecord {
 
-	public int getTag_id() {
-		return tag_id;
-	}
-
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
 }

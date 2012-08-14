@@ -1,6 +1,6 @@
 /*  Copyright (C) 2012  Nicholas Wright
 	
-	part of 'AidUtil', a collection of maintenance tools for 'Aid'.
+	part of 'Aid', an imageboard downloader.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,11 +15,27 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io;
+package io.tables;
 
+import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName="fileindex")
-public class IndexRecord extends FileRecord {
+@DatabaseTable(tableName = "filelist")
+public class FilePathRecord {
+	@DatabaseField(generatedId=true)
+	private int id;
+	@DatabaseField
+	private String filename;
 
+	public int getId() {
+		return id;
+	}
+
+	public String getFilename() {
+		return filename;
+	}
+
+	public void setFilename(String filename) {
+		this.filename = filename;
+	}
 }
