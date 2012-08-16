@@ -26,6 +26,12 @@ public class LocationRecord {
 	private int tag_id;
 	@DatabaseField
 	private String location;
+	
+	public LocationRecord() {}
+	
+	public LocationRecord(String location) {
+		this.location = location;
+	}
 
 	public int getTag_id() {
 		return tag_id;

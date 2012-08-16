@@ -19,16 +19,23 @@ package learning;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.matchers.JUnitMatchers.hasItem;
+import file.FileInfo;
+import io.dao.IndexDAO;
+import io.tables.DirectoryPathRecord;
 import io.tables.FilePathRecord;
 import io.tables.IndexRecord;
+import io.tables.LocationRecord;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.j256.ormlite.dao.Dao;
@@ -37,17 +44,15 @@ import com.j256.ormlite.jdbc.JdbcPooledConnectionSource;
 import com.j256.ormlite.spring.DaoFactory;
 
 public class ORMliteForeignLearningTest {
-	JdbcPooledConnectionSource pool;
+	private static JdbcPooledConnectionSource pool;
 	DaoManager manager;
 	
-	@Before
-	public void setUp() throws Exception {
+	@BeforeClass
+	public static void setUp() throws Exception {
 			createConnectionPool();
-			
-			manager = new DaoManager();
 	}
 	
-	private void createConnectionPool() throws Exception{
+	private static void createConnectionPool() throws Exception{
 		pool = new JdbcPooledConnectionSource("jdbc:mysql://localhost/test", "test", "test");
 		pool.setTestBeforeGet(true);
 		pool.initialize();
@@ -66,22 +71,31 @@ public class ORMliteForeignLearningTest {
 	
 	@Test
 	public void testWriteRecord() throws SQLException {
-		Dao<IndexRecord, String> indexDAO = DaoFactory.createDao(pool, IndexRecord.class);
-		Dao<FilePathRecord, Integer> fileNameDAO = DaoFactory.createDao(pool, FilePathRecord.class);
-		IndexRecord record = new IndexRecord();
+		IndexDAO indexDAO = new IndexDAO(pool);
 		
-		record.setId("100");
-		record.setSize(9001);
-		record.setRelativePath(Paths.get("/non-existent/path/", "invisible.file"));
+		String hash = String.valueOf(Calendar.getInstance().getTimeInMillis());
 		
-		indexDAO.createIfNotExists(record);
+		FileInfo info = new FileInfo(Paths.get("\\bar\\foo\\", "apple.txt"), hash);
+		LocationRecord location = new LocationRecord("LOCATION A");
+		IndexRecord index = new IndexRecord(info, location);
+		indexDAO.create(index);
 		
-		FilePathRecord recordToFind = new FilePathRecord();
-		recordToFind.setFilename("invisible.file");
-		
-		List<FilePathRecord> filepath = fileNameDAO.queryForMatching(recordToFind);
-		
-		assertThat(filepath, hasItem(recordToFind));
+		assertTrue(indexDAO.idExists(hash));
 	}
-
+	
+	@Test
+	public void testLookup() throws SQLException {
+		Dao<DirectoryPathRecord, Integer> directoryDAO = DaoManager.createDao(pool, DirectoryPathRecord.class);
+		DirectoryPathRecord dirRec = new DirectoryPathRecord();
+		dirRec.setDirpath("\\foo\\bar\\");
+		List<DirectoryPathRecord> result = directoryDAO.queryForMatchingArgs(dirRec);
+		
+		if(result.isEmpty()){
+			directoryDAO.create(dirRec);
+		}else{
+			dirRec = result.get(0);
+		}
+		
+		assertThat(dirRec.getId(), is(1));
+	}
 }

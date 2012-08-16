@@ -76,6 +76,22 @@ public abstract class FileRecord {
 		this.directory.setDirpath(directory);
 		this.file.setFilename(filename);
 	}
+	
+	public DirectoryPathRecord getDirectory() {
+		return directory;
+	}
+
+	public void setDirectory(DirectoryPathRecord directory) {
+		this.directory = directory;
+	}
+
+	public FilePathRecord getFile() {
+		return file;
+	}
+
+	public void setFile(FilePathRecord file) {
+		this.file = file;
+	}
 
 	public String getLocation() {
 		return location.getLocation();

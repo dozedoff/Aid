@@ -26,6 +26,7 @@ import io.dao.IndexDAO;
 import io.dao.LocationDAO;
 import io.tables.Cache;
 import io.tables.DirectoryPathRecord;
+import io.tables.FilePathRecord;
 import io.tables.FileRecord;
 import io.tables.IndexRecord;
 import io.tables.LocationRecord;
@@ -71,6 +72,8 @@ public class AidDAO{
 	private Dao<Thumbnail, Integer> ThumbnailDAO = null;
 	private LocationDAO locationDao = null;
 	private IndexDAO indexDao;
+	private Dao<DirectoryPathRecord, Integer> directoryDAO;
+	private Dao<FilePathRecord, Integer> fileDAO;
 	
 
 	public AidDAO(ConnectionPool connPool){
@@ -88,6 +91,8 @@ public class AidDAO{
 			DaoManager.registerDao(cSource, indexDao);
 			locationDao = new LocationDAO(cSource);
 			DaoManager.registerDao(cSource, locationDao);
+			directoryDAO = DaoManager.createDao(cSource, DirectoryPathRecord.class);
+			fileDAO = DaoManager.createDao(cSource, FilePathRecord.class);
 		}catch(SQLException e){
 			logger.severe("Unable to create DAO: " + e.getMessage());
 		}
@@ -330,6 +335,13 @@ public class AidDAO{
 		try {
 			LocationRecord locationRec = locationDao.queryForLocation(location);
 			IndexRecord index = new IndexRecord(fileInfo, locationRec);
+			
+			if(indexDao.idExists(fileInfo.getHash())) {
+				return false;
+			}
+			
+			resolvePathIDs(index);
+			
 			int rowsChanged = indexDao.create(index);
 			
 			if(rowsChanged == 1){
@@ -341,6 +353,29 @@ public class AidDAO{
 		}
 		
 		return false;
+	}
+	
+	private void resolvePathIDs(FileRecord record) throws SQLException {
+		DirectoryPathRecord directory = record.getDirectory();
+		FilePathRecord file = record.getFile();
+		
+		List<DirectoryPathRecord> directories = directoryDAO.queryForMatchingArgs(directory);
+		List<FilePathRecord> files = fileDAO.queryForMatchingArgs(file);
+		
+		if(directories.isEmpty()){
+			directoryDAO.createOrUpdate(directory);
+		}else{
+			directory = directories.get(0);
+		}
+		
+		if(files.isEmpty()) {
+			fileDAO.createOrUpdate(file);
+		}else{
+			file = files.get(0);
+		}
+		
+		record.setDirectory(directory);
+		record.setFile(file);
 	}
 	
 	public boolean addIndex(String hash, String path, long size, String location){
@@ -444,6 +479,7 @@ public class AidDAO{
 	
 	private void logSQLerror(SQLException e) {
 		logSQLerror(e, "");
+		e.printStackTrace();
 	}
 	
 	private void logSQLerror(SQLException e, String command) {
