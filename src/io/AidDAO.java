@@ -19,13 +19,19 @@ package io;
 import static file.FileUtil.convertDirPathToString;
 import static file.FileUtil.removeDriveLetter;
 import file.FileInfo;
+import file.FileUtil;
 import filter.FilterItem;
 import filter.FilterState;
+import io.dao.IndexDAO;
+import io.dao.LocationDAO;
 import io.tables.Cache;
+import io.tables.DirectoryPathRecord;
+import io.tables.FileRecord;
+import io.tables.IndexRecord;
+import io.tables.LocationRecord;
 import io.tables.Thumbnail;
 
 import java.awt.Image;
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +39,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -44,12 +49,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.support.ConnectionSource;
 /**
  * Class for database communication.
  */
@@ -62,6 +69,9 @@ public class AidDAO{
 	
 	private Dao<Cache, String> cacheDAO = null;
 	private Dao<Thumbnail, Integer> ThumbnailDAO = null;
+	private LocationDAO locationDao = null;
+	private IndexDAO indexDao;
+	
 
 	public AidDAO(ConnectionPool connPool){
 		this.connPool = connPool;
@@ -70,8 +80,14 @@ public class AidDAO{
 	
 	private void createDaos() {
 		try{
-			cacheDAO = DaoManager.createDao(connPool.getConnectionSource(), Cache.class);
-			ThumbnailDAO = DaoManager.createDao(connPool.getConnectionSource(), Thumbnail.class);
+			ConnectionSource cSource = connPool.getConnectionSource();
+			
+			cacheDAO = DaoManager.createDao(cSource, Cache.class);
+			ThumbnailDAO = DaoManager.createDao(cSource, Thumbnail.class);
+			indexDao = new IndexDAO(cSource);
+			DaoManager.registerDao(cSource, indexDao);
+			locationDao = new LocationDAO(cSource);
+			DaoManager.registerDao(cSource, locationDao);
 		}catch(SQLException e){
 			logger.severe("Unable to create DAO: " + e.getMessage());
 		}
@@ -91,7 +107,6 @@ public class AidDAO{
 		addPrepStmt("isArchive"			, "SELECT * FROM `archive` WHERE `id` = ?");
 		addPrepStmt("isDnw"				, "SELECT * FROM `dnw` WHERE `id` = ?");
 		addPrepStmt("prune"				, "DELETE FROM `cache` WHERE `timestamp` < ?");
-		addPrepStmt("isHashed"			, "SELECT id FROM `fileindex` WHERE `id` = ?");
 		addPrepStmt("addIndex"			, "INSERT INTO `fileindex` (id, dir, filename, size, location) VALUES (?,?,?,?,(SELECT tag_id FROM location_tags WHERE location = ?)) ");
 		addPrepStmt("addDuplicate"		, "INSERT IGNORE INTO `fileduplicate` (id, dir, filename, size, location) VALUES (?,?,?,?,(SELECT tag_id FROM location_tags WHERE location = ?)) ");
 		addPrepStmt("isIndexedPath"		, "SELECT i.dir, i.filename FROM `fileindex` AS i JOIN dirlist ON dirlist.id = i.dir JOIN filelist ON filelist.id = i.filename JOIN location_tags ON i.location = location_tags.tag_id WHERE location_tags.location = ? AND dirlist.dirpath = ? AND filelist.filename = ?");
@@ -312,11 +327,27 @@ public class AidDAO{
 	}
 	
 	public boolean addIndex(FileInfo fileInfo, String location){
-		return addIndex(fileInfo.getHash(), fileInfo.getFilePath().toString(), fileInfo.getSize(), location);
+		try {
+			LocationRecord locationRec = locationDao.queryForLocation(location);
+			IndexRecord index = new IndexRecord(fileInfo, locationRec);
+			int rowsChanged = indexDao.create(index);
+			
+			if(rowsChanged == 1){
+				return true;
+			}
+			
+		} catch (SQLException e) {
+			logSQLerror(e);
+		}
+		
+		return false;
 	}
 	
 	public boolean addIndex(String hash, String path, long size, String location){
-		return fileDataInsert("addIndex", hash, path, size, location);
+		FileInfo info = new FileInfo(Paths.get(path), hash);
+		info.setSize(size);
+		
+		return addIndex(info, location);
 	}
 	
 	public boolean addDuplicate(String hash, String path, long size, String location){
@@ -424,7 +455,13 @@ public class AidDAO{
 	}
 
 	public boolean isHashed(String hash){
-		return simpleBooleanQuery("isHashed", hash, true);
+		try {
+			return indexDao.idExists(hash);
+		} catch (SQLException e) {
+			logSQLerror(e);
+		}
+		
+		return true;
 	}
 
 	public boolean isBlacklisted(String hash){
@@ -505,7 +542,7 @@ public class AidDAO{
 		return deleteIndexByPath(removeDriveLetter(Paths.get(fullpath.toLowerCase())));
 	}
 	
-	public int deleteIndexByPath(Path path){
+	public int deleteIndexByPath(Path path) {
 		final String command = "deleteIndexViaPath";
 		int affectedRows = -1;
 		path = removeDriveLetter(path);
@@ -523,9 +560,7 @@ public class AidDAO{
 			ps.setString(2, filename);
 			affectedRows = ps.executeUpdate();
 		} catch (SQLException e) {
-			logger.severe(SQL_OP_ERR+command+": "+e.getMessage());
-		} finally{
-			closeAll(ps);
+			logSQLerror(e);
 		}
 		
 		return affectedRows;
@@ -738,6 +773,7 @@ public class AidDAO{
 	 * @return path as a String or null if not found
 	 */
 	public String getPath(String hash){
+		//TODO replace with DAO
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		

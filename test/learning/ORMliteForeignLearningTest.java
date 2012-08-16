@@ -71,7 +71,6 @@ public class ORMliteForeignLearningTest {
 		IndexRecord record = new IndexRecord();
 		
 		record.setId("100");
-		record.setLocation("TEST");
 		record.setSize(9001);
 		record.setRelativePath(Paths.get("/non-existent/path/", "invisible.file"));
 		

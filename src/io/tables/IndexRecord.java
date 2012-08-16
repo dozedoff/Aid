@@ -19,7 +19,15 @@ package io.tables;
 
 import com.j256.ormlite.table.DatabaseTable;
 
+import file.FileInfo;
+
 @DatabaseTable(tableName="fileindex")
 public class IndexRecord extends FileRecord {
+public IndexRecord() {}
+
+public IndexRecord(FileInfo info, LocationRecord location) {
+	super(info, location);
+}
+
 
 }

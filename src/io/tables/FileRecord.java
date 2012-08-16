@@ -22,6 +22,9 @@ import java.nio.file.Paths;
 
 import com.j256.ormlite.field.DatabaseField;
 
+import file.FileInfo;
+import file.FileUtil;
+
 public abstract class FileRecord {
 	@DatabaseField(id=true)
 	private String id;
@@ -33,6 +36,16 @@ public abstract class FileRecord {
 	private FilePathRecord file = new FilePathRecord();
 	@DatabaseField(canBeNull = false, foreign = true, columnName="location", foreignAutoRefresh=true, foreignAutoCreate=true)
 	private LocationRecord location = new LocationRecord();
+	
+	public FileRecord() {}
+	
+	public FileRecord(FileInfo info, LocationRecord location) {
+		setId(info.getHash());
+		setLocation(location);
+		Path relativePath = FileUtil.removeDriveLetter(info.getFilePath());
+		setRelativePath(relativePath);
+		setSize(info.getSize());
+	}
 
 	public String getId() {
 		return id;
@@ -57,18 +70,18 @@ public abstract class FileRecord {
 	}
 
 	public void setRelativePath(Path relativePath) {
-		String directory = relativePath.getParent().toString();
+		String directory = relativePath.getParent().toString() + "\\";
 		String filename = relativePath.getFileName().toString();
 		
 		this.directory.setDirpath(directory);
-		file.setFilename(filename);
+		this.file.setFilename(filename);
 	}
 
 	public String getLocation() {
 		return location.getLocation();
 	}
 
-	public void setLocation(String location) {
-		this.location.setLocation(location);
+	public void setLocation(LocationRecord location) {
+		this.location = location;
 	}
 }
