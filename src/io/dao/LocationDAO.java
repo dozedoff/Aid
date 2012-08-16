@@ -31,12 +31,16 @@ public class LocationDAO extends BaseDaoImpl<LocationRecord, Integer> {
 	}
 	
 	public LocationRecord queryForLocation(String location) throws SQLException {
-		List<LocationRecord> locations = queryForEq("location", location);
+		LocationRecord loc = new LocationRecord();
+		loc.setLocation(location);
+		List<LocationRecord> locations = queryForMatchingArgs(loc);
 		
 		if(locations.isEmpty()){
 			return new LocationRecord();
 		}else{
 			return locations.get(0);
 		}
+		
+		
 	}
 }
