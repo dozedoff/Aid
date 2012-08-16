@@ -41,7 +41,8 @@ CREATE TABLE IF NOT EXISTS `dirlist` (
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `dirpath` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `dirpath` (`dirpath`)
+  KEY `dirpath` (`dirpath`),
+  UNIQUE KEY `dirpath_unique` (`dirpath`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='List of all known directories';
 
 -- Data exporting was unselected.
@@ -113,7 +114,8 @@ CREATE TABLE IF NOT EXISTS `filelist` (
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `filename` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `filename` (`filename`)
+  KEY `filename` (`filename`),
+  UNIQUE KEY `filename_unique` (`filename`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='List of all known filenames';
 
 -- Data exporting was unselected.
