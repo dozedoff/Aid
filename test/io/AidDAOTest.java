@@ -68,7 +68,7 @@ public class AidDAOTest extends DatabaseTestCase{
 	
 	final String[] TEST_DIR = {"", "D:\\foo\\bar\\", "D:\\test\\me\\now\\", "D:\\mutated\\custard\\is\\dangerous\\"};
 	final String[] TEST_FILE = {"", "foo.png", "squirrel.jpg", "meerkat.gif"};
-	final String[] TEST_LOCATION = {"UNKNOWN", "LOCATION A", "LOCATION B", "ARCHIVE"};
+	final String[] TEST_LOCATION = {"", "UNKNOWN", "LOCATION A", "LOCATION B", "ARCHIVE"};
 			
 	final String AidDAOTest_PATH = "/dbData/AidDAOTest.xml";
 	final String addExpected_PATH = "/dbData/addExpected.xml";
@@ -259,7 +259,7 @@ public class AidDAOTest extends DatabaseTestCase{
 	
 	@Test
 	public void testAddIndex() throws Exception{
-		sql.addIndex("54321", "D:\\foo\\panda.png", 123455L, TEST_LOCATION[1]);
+		sql.addIndex("54321", "D:\\foo\\panda.png", 123455L, TEST_LOCATION[2]);
 		
 		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Fileindex.toString(), addExpected_PATH), getDatabaseTable(AidTables.Fileindex.toString()), IGNORE_ADD_HASH_COL);
 		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Dirlist.toString(), addExpected_PATH), getDatabaseTable(AidTables.Dirlist.toString()), IGNORE_PATH_COL);
@@ -272,7 +272,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		FileInfo info = new FileInfo(filePath, "54321");
 		info.setSize(123455L);
 		
-		sql.addIndex(info, TEST_LOCATION[1]);
+		sql.addIndex(info, TEST_LOCATION[2]);
 		
 		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Fileindex.toString(), addExpected_PATH), getDatabaseTable(AidTables.Fileindex.toString()), IGNORE_ADD_HASH_COL);
 		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Dirlist.toString(), addExpected_PATH), getDatabaseTable(AidTables.Dirlist.toString()), IGNORE_PATH_COL);
@@ -319,23 +319,23 @@ public class AidDAOTest extends DatabaseTestCase{
 	
 	@Test
 	public void testGetTagId(){
-		assertThat(sql.getTagId(TEST_LOCATION[1]), is(1));
 		assertThat(sql.getTagId(TEST_LOCATION[2]), is(2));
+		assertThat(sql.getTagId(TEST_LOCATION[3]), is(3));
 		assertThat(sql.getTagId("NOT-IN-LIST"), is(-1));
 	}
 	
 	@Test
 	public void testIsValidTag(){
-		assertTrue(sql.isValidTag(TEST_LOCATION[0]));
 		assertTrue(sql.isValidTag(TEST_LOCATION[1]));
 		assertTrue(sql.isValidTag(TEST_LOCATION[2]));
+		assertTrue(sql.isValidTag(TEST_LOCATION[3]));
 		assertFalse(sql.isValidTag("NOT-IN-LIST"));
 		assertFalse(sql.isValidTag(null));
 	}
 	
 	@Test
 	public void testAddDuplicate() throws Exception{
-		sql.addDuplicate("545", "D:\\foo\\panda.png", 123L, TEST_LOCATION[1]);
+		sql.addDuplicate("545", "D:\\foo\\panda.png", 123L, TEST_LOCATION[2]);
 		
 		
 		//TODO can ignore cols be removed?
@@ -346,22 +346,22 @@ public class AidDAOTest extends DatabaseTestCase{
 	
 	@Test
 	public void testGetLocationIndexSize(){
-		assertThat(sql.getLocationIndexSize(TEST_LOCATION[0]), is(1));
 		assertThat(sql.getLocationIndexSize(TEST_LOCATION[1]), is(1));
-		assertThat(sql.getLocationIndexSize(TEST_LOCATION[2]), is(2));
+		assertThat(sql.getLocationIndexSize(TEST_LOCATION[2]), is(1));
+		assertThat(sql.getLocationIndexSize(TEST_LOCATION[3]), is(2));
 	}
 	
 	@Test
 	public void testGetLocationFilelist(){
-		assertThat(sql.getLocationFilelist(TEST_LOCATION[0]).size(),is(1));
-		assertThat(sql.getLocationFilelist(TEST_LOCATION[0]), hasItem(relativePath(TEST_DIR[1] + TEST_FILE[1])));
-		
 		assertThat(sql.getLocationFilelist(TEST_LOCATION[1]).size(),is(1));
-		assertThat(sql.getLocationFilelist(TEST_LOCATION[1]), hasItem(relativePath(TEST_DIR[2] + TEST_FILE[2])));
+		assertThat(sql.getLocationFilelist(TEST_LOCATION[1]), hasItem(relativePath(TEST_DIR[1] + TEST_FILE[1])));
 		
-		assertThat(sql.getLocationFilelist(TEST_LOCATION[2]).size(),is(2));
-		assertThat(sql.getLocationFilelist(TEST_LOCATION[2]), hasItem(relativePath(TEST_DIR[3] + TEST_FILE[3])));
-		assertThat(sql.getLocationFilelist(TEST_LOCATION[2]), hasItem(relativePath(TEST_DIR[3] + TEST_FILE[2])));
+		assertThat(sql.getLocationFilelist(TEST_LOCATION[2]).size(),is(1));
+		assertThat(sql.getLocationFilelist(TEST_LOCATION[2]), hasItem(relativePath(TEST_DIR[2] + TEST_FILE[2])));
+		
+		assertThat(sql.getLocationFilelist(TEST_LOCATION[3]).size(),is(2));
+		assertThat(sql.getLocationFilelist(TEST_LOCATION[3]), hasItem(relativePath(TEST_DIR[3] + TEST_FILE[3])));
+		assertThat(sql.getLocationFilelist(TEST_LOCATION[3]), hasItem(relativePath(TEST_DIR[3] + TEST_FILE[2])));
 	}
 	
 	private String relativePath(String path) {
@@ -382,11 +382,11 @@ public class AidDAOTest extends DatabaseTestCase{
 	
 	@Test
 	public void testIsIndexedPath(){
-		assertTrue(sql.isIndexedPath(Paths.get(TEST_DIR[1]+TEST_FILE[1]), TEST_LOCATION[0]));
-		assertFalse(sql.isIndexedPath(Paths.get(TEST_DIR[1]+TEST_FILE[1]), TEST_LOCATION[1]));
+		assertTrue(sql.isIndexedPath(Paths.get(TEST_DIR[1]+TEST_FILE[1]), TEST_LOCATION[1]));
+		assertFalse(sql.isIndexedPath(Paths.get(TEST_DIR[1]+TEST_FILE[1]), TEST_LOCATION[2]));
 		
-		assertTrue(sql.isIndexedPath(Paths.get(TEST_DIR[3]+TEST_FILE[2]), TEST_LOCATION[2]));
-		assertFalse(sql.isIndexedPath(Paths.get(TEST_DIR[3]+TEST_FILE[2]), TEST_LOCATION[1]));
+		assertTrue(sql.isIndexedPath(Paths.get(TEST_DIR[3]+TEST_FILE[2]), TEST_LOCATION[3]));
+		assertFalse(sql.isIndexedPath(Paths.get(TEST_DIR[3]+TEST_FILE[2]), TEST_LOCATION[2]));
 	}
 	
 	@Test
@@ -416,7 +416,7 @@ public class AidDAOTest extends DatabaseTestCase{
 	public void testMoveIndexToDuplicate() {
 		final String HASH = "5";
 		final String PATH = TEST_DIR[2] + TEST_FILE[2];
-		final String LOCATION = TEST_LOCATION[1];
+		final String LOCATION = TEST_LOCATION[2];
 		final long SIZE = 123L;
 			
 		sql.addIndex(HASH, PATH, SIZE, LOCATION);
@@ -433,7 +433,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		final String HASH = "5";
 		final String PATH = TEST_DIR[2] + TEST_FILE[2];
 		final String PATH2 = TEST_DIR[1] + TEST_FILE[3];
-		final String LOCATION = TEST_LOCATION[1];
+		final String LOCATION = TEST_LOCATION[2];
 		final long SIZE = 123L;
 		
 		assertTrue(sql.addDuplicate(HASH, PATH, SIZE, LOCATION));
@@ -448,13 +448,13 @@ public class AidDAOTest extends DatabaseTestCase{
 	@Test
 	public void testGetLocationById() {
 		String location = sql.getLocationById("3");
-		assertThat(location, is(TEST_LOCATION[2]));
+		assertThat(location, is(TEST_LOCATION[3]));
 	}
 	
 	@Test
 	public void testGetLocationByIdInvalidID() {
 		String location = sql.getLocationById("999");
-		assertThat(location, is(TEST_LOCATION[0]));
+		assertThat(location, is(TEST_LOCATION[1]));
 	}
 	
 	@Test

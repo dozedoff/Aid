@@ -32,12 +32,12 @@
 	<block id="3" />
 
 	<!--fileindex Table -->
-	<fileindex id="1" size="34568" 	dir="1" filename="1" location="0"/>
-	<fileindex id="4" size="542322" 	dir="3" filename="2" location="2"/>
-	<fileindex id="7" size="86003" 		dir="2" filename="1" location="3"/>
+	<fileindex id="1" size="34568" 	dir="1" filename="1" location="1"/>
+	<fileindex id="4" size="542322" 	dir="3" filename="2" location="3"/>
+	<fileindex id="7" size="86003" 		dir="2" filename="1" location="4"/>
 	
 		<!--fileduplicate Table -->
-	<fileduplicate id="1" size="34568" 		dir="1" filename="2" location="0"/>
-	<fileduplicate id="2" size="790332" 	dir="2" filename="1" location="1"/>
-	<fileduplicate id="4" size="542322" 	dir="2" filename="3" location="2"/>
+	<fileduplicate id="1" size="34568" 		dir="1" filename="2" location="1"/>
+	<fileduplicate id="2" size="790332" 	dir="2" filename="1" location="2"/>
+	<fileduplicate id="4" size="542322" 	dir="2" filename="3" location="3"/>
 </dataset>

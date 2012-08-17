@@ -19,7 +19,6 @@ package io;
 import static file.FileUtil.convertDirPathToString;
 import static file.FileUtil.removeDriveLetter;
 import file.FileInfo;
-import file.FileUtil;
 import filter.FilterItem;
 import filter.FilterState;
 import io.dao.IndexDAO;
@@ -57,6 +56,8 @@ import javax.imageio.ImageIO;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.support.ConnectionSource;
 /**
  * Class for database communication.
@@ -66,6 +67,7 @@ public class AidDAO{
 	protected static Logger logger = Logger.getLogger(AidDAO.class.getName());
 	protected final String RS_CLOSE_ERR = "Could not close ResultSet: ";
 	protected final String SQL_OP_ERR = "MySQL operation failed: ";
+	private final String DEFAULT_LOCATION = "UNKNOWN";
 	protected final ConnectionPool connPool;
 	
 	private Dao<Cache, String> cacheDAO = null;
@@ -120,8 +122,6 @@ public class AidDAO{
 		addPrepStmt("getFilename"		, "SELECT id FROM filelist WHERE filename = ?");
 		addPrepStmt("getSetting"		, "SELECT param	FROM settings WHERE name = ?");
 		addPrepStmt("getPath"			, "SELECT  CONCAT(dirlist.dirpath,filelist.filename) FROM `fileindex` as a JOIN filelist ON a.filename = filelist.id JOIN dirlist ON a.dir = dirlist.id WHERE  a.id = ?");
-		addPrepStmt("getLocFilelist"	, "SELECT  CONCAT(dirlist.dirpath,filelist.filename) as fullpath FROM `fileindex` as a JOIN filelist ON a.filename = filelist.id JOIN dirlist ON a.dir = dirlist.id JOIN location_tags ON a.location = location_tags.tag_id WHERE  location_tags.location = ?");
-		addPrepStmt("getLocIndexSize"	, "select count(`fileindex`.dir) from `fileindex` JOIN location_tags ON `fileindex`.location = location_tags.tag_id WHERE location_tags.location = ?");
 		addPrepStmt("hlUpdateBlock"		, "INSERT IGNORE INTO block (id) VALUES (?)");
 		addPrepStmt("hlUpdateDnw"		, "INSERT IGNORE INTO dnw (id) VALUES (?)");
 		addPrepStmt("addFilter"			, "INSERT IGNORE INTO filter (id, board, reason, status) VALUES (?,?,?,?)");
@@ -136,7 +136,6 @@ public class AidDAO{
 		addPrepStmt("deleteIndexViaPath", "DELETE fi FROM fileindex AS fi JOIN dirlist AS dl ON fi.dir=dl.id JOIN filelist AS fl ON fi.filename=fl.id  WHERE dl.dirpath = ? AND fl.filename = ?");
 		addPrepStmt("deleteDuplicateViaPath", "DELETE fi FROM fileduplicate AS fi JOIN dirlist AS dl ON fi.dir=dl.id JOIN filelist AS fl ON fi.filename=fl.id  WHERE dl.dirpath = ? AND fl.filename = ?");
 		addPrepStmt("getDuplicates"		, "SELECT dv.id, dv.dupeloc, dv.dupePath  FROM dupeview AS dv UNION SELECT dv.id, dv.origloc, dv.origPath  FROM dupeview AS dv");
-		addPrepStmt("getLocationById"	, "SELECT lt.location FROM fileindex AS fi JOIN location_tags AS lt ON fi.location = lt.tag_id WHERE fi.id = ?");
 	}
 	
 	private static void generateStatements(){
@@ -829,39 +828,71 @@ public class AidDAO{
 		return null;
 	}
 	
-	public ArrayList<String> getLocationFilelist(String locationTag){
-		// allocate an array that is large enough to hold all the data
-		ArrayList<String> paths = new ArrayList<>(getLocationIndexSize(locationTag));
-		String command = "getLocFilelist";
+	public ArrayList<Path> getLocationPathList(String locationTag) {
+		ArrayList<Path> pathList = new ArrayList<>();
 		
-		ResultSet rs = null;
-		PreparedStatement ps = getPrepStmt(command);
-
 		try {
-			ps.setString(1, locationTag);
-			rs = ps.executeQuery();
-
-			while(rs.next()){
-				paths.add(rs.getString(1));
+			List<LocationRecord> locRec = locationDao.queryForEq("location", locationTag);
+			
+			if(! locRec.isEmpty()){
+				IndexRecord index = new IndexRecord();
+				index.setLocation(locRec.get(0));
+				List<IndexRecord> results = indexDao.queryForMatchingArgs(index);
+				
+				for(IndexRecord result : results){
+					pathList.add(result.getRelativePath());
+				}
 			}
-
-			return paths;
-
 		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+e.getMessage());
-		}finally{
-			closeAll(ps);
-			silentClose(null, ps, rs);
+			logSQLerror(e);
 		}
-		return null;
+		
+		return pathList;
 	}
 	
-	public int getLocationIndexSize(String locationTag){
-		return simpleIntQuery("getLocIndexSize", locationTag, -1);
+	public ArrayList<String> getLocationFilelist(String locationTag) {
+		ArrayList<Path> pathList = getLocationPathList(locationTag);
+		ArrayList<String> pathStrings = new ArrayList<>(pathList.size());
+
+		for (Path path : pathList) {
+			pathStrings.add(path.toString());
+		}
+
+		return pathStrings;
 	}
 	
-	public String getLocationById(String id){
-		return simpleStringQuery("getLocationById", id,"UNKNOWN");
+	public int getLocationIndexSize(String locationTag) {
+		try {
+			LocationRecord locRec = locationDao.queryForLocation(locationTag);
+
+			if (locRec == null) {
+				return -1;
+			}
+			SelectArg selectLoc = new SelectArg();
+			selectLoc.setValue(locRec.getTag_id());
+			PreparedQuery<IndexRecord> indexPrep = indexDao.queryBuilder()
+					.setCountOf(true).where().eq("location", selectLoc)
+					.prepare();
+			return (int) indexDao.countOf(indexPrep);
+		} catch (SQLException e) {
+			logSQLerror(e);
+		}
+
+		return -1;
+	}
+	
+	public String getLocationById(String id) {
+		try {
+			IndexRecord index = indexDao.queryForId(id);
+			if (index == null) {
+				return DEFAULT_LOCATION;
+			} else {
+				return index.getLocation();
+			}
+		} catch (SQLException e) {
+			logSQLerror(e);
+		}
+		return DEFAULT_LOCATION;
 	}
 	
 	public boolean moveIndexToDuplicate(String id){
@@ -949,7 +980,7 @@ public class AidDAO{
 	}
 	
 
-	protected int[] addPath(String fullPath){
+	private int[] addPath(String fullPath){
 		int DirectoryPathValue, FilePathpathValue;
 		
 		Connection cn = null;
@@ -990,7 +1021,7 @@ public class AidDAO{
 		return simpleIntQuery("getFilename", filename, -1);
 	}
 	
-	protected int pathAddQuery(PreparedStatement ps, int pathLookUp, String path) throws SQLException{
+	private int pathAddQuery(PreparedStatement ps, int pathLookUp, String path) throws SQLException{
 		int pathValue = -1;
 		ResultSet rs = null;
 

@@ -167,7 +167,7 @@ CREATE TABLE IF NOT EXISTS `location_tags` (
   UNIQUE KEY `location` (`location`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='List of tags for different locations where data is stored';
 
--- Data exporting was unselected.
+INSERT IGNORE INTO `location_tags` (`tag_id`, `location`) VALUES (1, 'UNKNOWN');
 
 
 -- Dumping structure for table aid.settings

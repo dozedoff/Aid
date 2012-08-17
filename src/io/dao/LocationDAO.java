@@ -36,7 +36,7 @@ public class LocationDAO extends BaseDaoImpl<LocationRecord, Integer> {
 		List<LocationRecord> locations = queryForMatchingArgs(loc);
 		
 		if(locations.isEmpty()){
-			return new LocationRecord();
+			return null;
 		}else{
 			return locations.get(0);
 		}

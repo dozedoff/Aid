@@ -31,11 +31,11 @@ public abstract class FileRecord {
 	@DatabaseField
 	private long size;
 	@DatabaseField(canBeNull = false, foreign = true, columnName="dir", foreignAutoRefresh=true, foreignAutoCreate=true)
-	private DirectoryPathRecord directory = new DirectoryPathRecord();
+	private DirectoryPathRecord directory = null;
 	@DatabaseField(canBeNull = false, foreign = true, columnName="filename", foreignAutoRefresh=true, foreignAutoCreate=true)
-	private FilePathRecord file = new FilePathRecord();
+	private FilePathRecord file = null;
 	@DatabaseField(canBeNull = false, foreign = true, columnName="location", foreignAutoRefresh=true, foreignAutoCreate=true)
-	private LocationRecord location = new LocationRecord();
+	private LocationRecord location = null;
 	
 	public FileRecord() {}
 	
@@ -64,14 +64,21 @@ public abstract class FileRecord {
 	}
 
 	public Path getRelativePath() {
-		String directory = this.directory.getDirpath();
-		String filename = file.getFilename();
-		return Paths.get(directory, filename);
+		if (this.directory == null || this.file == null) {
+			return null;
+		} else {
+			String directory = this.directory.getDirpath();
+			String filename = file.getFilename();
+			return Paths.get(directory, filename);
+		}
 	}
 
 	public void setRelativePath(Path relativePath) {
 		String directory = relativePath.getParent().toString() + "\\";
 		String filename = relativePath.getFileName().toString();
+		
+		this.directory = new DirectoryPathRecord();
+		this.file = new FilePathRecord();
 		
 		this.directory.setDirpath(directory);
 		this.file.setFilename(filename);
@@ -94,6 +101,9 @@ public abstract class FileRecord {
 	}
 
 	public String getLocation() {
+		if(location == null){
+			return null;
+		}
 		return location.getLocation();
 	}
 
