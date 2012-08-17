@@ -21,10 +21,12 @@ import static file.FileUtil.removeDriveLetter;
 import file.FileInfo;
 import filter.FilterItem;
 import filter.FilterState;
+import io.dao.DuplicateDAO;
 import io.dao.IndexDAO;
 import io.dao.LocationDAO;
 import io.tables.Cache;
 import io.tables.DirectoryPathRecord;
+import io.tables.DuplicateRecord;
 import io.tables.FilePathRecord;
 import io.tables.FileRecord;
 import io.tables.IndexRecord;
@@ -76,6 +78,7 @@ public class AidDAO{
 	private IndexDAO indexDao;
 	private Dao<DirectoryPathRecord, Integer> directoryDAO;
 	private Dao<FilePathRecord, Integer> fileDAO;
+	private DuplicateDAO duplicateDAO;
 	
 
 	public AidDAO(ConnectionPool connPool){
@@ -95,6 +98,8 @@ public class AidDAO{
 			DaoManager.registerDao(cSource, locationDao);
 			directoryDAO = DaoManager.createDao(cSource, DirectoryPathRecord.class);
 			fileDAO = DaoManager.createDao(cSource, FilePathRecord.class);
+			duplicateDAO = new DuplicateDAO(cSource);
+			DaoManager.registerDao(cSource, duplicateDAO);
 		}catch(SQLException e){
 			logger.severe("Unable to create DAO: " + e.getMessage());
 		}
@@ -113,7 +118,6 @@ public class AidDAO{
 		addPrepStmt("pending"			, "SELECT count(*) FROM filter WHERE status = 1");
 		addPrepStmt("isDnw"				, "SELECT * FROM `dnw` WHERE `id` = ?");
 		addPrepStmt("prune"				, "DELETE FROM `cache` WHERE `timestamp` < ?");
-		addPrepStmt("addDuplicate"		, "INSERT IGNORE INTO `fileduplicate` (id, dir, filename, size, location) VALUES (?,?,?,?,(SELECT tag_id FROM location_tags WHERE location = ?)) ");
 		addPrepStmt("isIndexedPath"		, "SELECT i.dir, i.filename FROM `fileindex` AS i JOIN dirlist ON dirlist.id = i.dir JOIN filelist ON filelist.id = i.filename JOIN location_tags ON i.location = location_tags.tag_id WHERE location_tags.location = ? AND dirlist.dirpath = ? AND filelist.filename = ?");
 		addPrepStmt("isBlacklisted"		, "SELECT * FROM `block` WHERE `id` = ?");
 		addPrepStmt("getDirectory"		, "SELECT id FROM dirlist WHERE dirpath = ?");
@@ -381,37 +385,26 @@ public class AidDAO{
 	}
 	
 	public boolean addDuplicate(String hash, String path, long size, String location){
-		return fileDataInsert("addDuplicate", hash, path, size, location);
-	}
-	
-	private boolean fileDataInsert(String command, String hash, String origPath, long size, String location){
-		PreparedStatement ps = getPrepStmt(command);
-		String path = removeDriveLetter(origPath).toLowerCase();
+		FileInfo info = new FileInfo(Paths.get(path), hash);
+		info.setSize(size);
+		try {
+			LocationRecord locationRec = locationDao.queryForLocation(location);
+			DuplicateRecord index = new DuplicateRecord(info, locationRec);
 		
-		try{
-			int[] pathId = addPath(path);
-
-			if (pathId == null){
-				logger.warning("Invalid path data");
-				return false;
+			resolvePathIDs(index);
+			
+			int rowsChanged = duplicateDAO.create(index);
+			
+			if(rowsChanged == 1){
+				return true;
 			}
-
-			ps.setString(1, hash);
-			ps.setInt(2, pathId[0]);
-			ps.setInt(3, pathId[1]);
-			ps.setLong(4, size);
-			ps.setString(5, location);
-			ps.execute();
-			return true;
-		} catch(SQLException e){
-			logger.warning(SQL_OP_ERR+e.getMessage());
-		} finally {
-			closeAll(ps);
+			
+		} catch (SQLException e) {
+			logSQLerror(e);
 		}
-
+		
 		return false;
 	}
-
 
 	/**
 	 * Get the number of pending filter items.
@@ -713,32 +706,6 @@ public class AidDAO{
 		return defaultReturn;
 	}
 	
-	private String simpleStringQuery(String command, String key, String defaultValue){
-		ResultSet rs = null;
-		PreparedStatement ps = getPrepStmt(command);
-		String result = defaultValue;
-		
-		if(ps == null){
-			logger.warning("Could not carry out query for command \""+command+"\"");
-			return null;
-		}
-		
-		try {
-			ps.setString(1, key);
-			rs = ps.executeQuery();
-
-			rs.next();
-			result = rs.getString(1);
-			return result;
-		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
-		} finally{
-			closeAll(ps);
-		}
-		
-		return result;
-	}
-	
 	public void pruneCache(long maxAge){
 		PreparedStatement ps = getPrepStmt("prune");
 
@@ -977,40 +944,6 @@ public class AidDAO{
 		}
 	}
 	
-
-	private int[] addPath(String fullPath){
-		int DirectoryPathValue, FilePathpathValue;
-		
-		Connection cn = null;
-		PreparedStatement addDir = null;
-		PreparedStatement addFile = null;
-		try{
-			cn = getConnection();
-			addDir = cn.prepareStatement("INSERT INTO dirlist (dirpath) VALUES (?)",PreparedStatement.RETURN_GENERATED_KEYS);
-			addFile = cn.prepareStatement("INSERT INTO filelist (filename) VALUES (?)",PreparedStatement.RETURN_GENERATED_KEYS);
-			
-			int split = fullPath.lastIndexOf("\\")+1;
-			String filename = fullPath.substring(split).toLowerCase(); // bar.txt
-			String path = fullPath.substring(0,split).toLowerCase(); // D:\foo\
-			int[] pathId = new int[2];
-	
-			DirectoryPathValue = directoryLookup(path);
-			FilePathpathValue = fileLookup(filename);
-			
-			pathId[0] = pathAddQuery(addDir, DirectoryPathValue, path);
-			pathId[1] = pathAddQuery(addFile, FilePathpathValue, filename);
-	
-			return pathId;
-		} catch (SQLException e) {
-			logger.severe(e.getMessage());
-		}finally{
-			closeAll(addFile);
-			closeAll(addDir);
-		}
-		
-		return null;
-	}
-	
 	protected int directoryLookup(String path) throws SQLException{
 		return simpleIntQuery("getDirectory", convertDirPathToString(removeDriveLetter(Paths.get(path))).toLowerCase(), -1);
 	}
@@ -1019,28 +952,6 @@ public class AidDAO{
 		return simpleIntQuery("getFilename", filename, -1);
 	}
 	
-	private int pathAddQuery(PreparedStatement ps, int pathLookUp, String path) throws SQLException{
-		int pathValue = -1;
-		ResultSet rs = null;
-
-		try{
-			if(pathLookUp == -1){
-				ps.setString(1, path);
-				ps.execute();
-
-				rs = ps.getGeneratedKeys();
-				rs.next();
-				pathValue = rs.getInt(1); 
-			} else {
-				pathValue = pathLookUp;
-			}
-		}catch (SQLException e){
-			throw e;
-		}
-
-		return pathValue;
-	}
-
 	public boolean addFilter(FilterItem fi) {
 		return addFilter(fi.getUrl().toString(), fi.getBoard(), fi.getReason(), fi.getState());
 	}
