@@ -111,10 +111,8 @@ public class AidDAO{
 		generateStatements();
 		
 		addPrepStmt("pending"			, "SELECT count(*) FROM filter WHERE status = 1");
-		addPrepStmt("isArchive"			, "SELECT * FROM `archive` WHERE `id` = ?");
 		addPrepStmt("isDnw"				, "SELECT * FROM `dnw` WHERE `id` = ?");
 		addPrepStmt("prune"				, "DELETE FROM `cache` WHERE `timestamp` < ?");
-		addPrepStmt("addIndex"			, "INSERT INTO `fileindex` (id, dir, filename, size, location) VALUES (?,?,?,?,(SELECT tag_id FROM location_tags WHERE location = ?)) ");
 		addPrepStmt("addDuplicate"		, "INSERT IGNORE INTO `fileduplicate` (id, dir, filename, size, location) VALUES (?,?,?,?,(SELECT tag_id FROM location_tags WHERE location = ?)) ");
 		addPrepStmt("isIndexedPath"		, "SELECT i.dir, i.filename FROM `fileindex` AS i JOIN dirlist ON dirlist.id = i.dir JOIN filelist ON filelist.id = i.filename JOIN location_tags ON i.location = location_tags.tag_id WHERE location_tags.location = ? AND dirlist.dirpath = ? AND filelist.filename = ?");
 		addPrepStmt("isBlacklisted"		, "SELECT * FROM `block` WHERE `id` = ?");
@@ -131,8 +129,6 @@ public class AidDAO{
 		addPrepStmt("filterTime"		, "UPDATE filter SET timestamp = ? WHERE id = ?");
 		addPrepStmt("oldestFilter"		, "SELECT id FROM filter ORDER BY timestamp ASC LIMIT 1");
 		addPrepStmt("compareBlacklisted", "SELECT a.id, CONCAT(dirlist.dirpath,filelist.filename) FROM (select fileindex.id,dir, filename FROM block join fileindex on block.id = fileindex.id) AS a JOIN filelist ON a.filename=filelist.id Join dirlist ON a.dir=dirlist.id");
-		addPrepStmt("isValidTag"		, "SELECT tag_id FROM location_tags WHERE location = ?");
-		addPrepStmt("getTagId"			, "SELECT tag_id FROM location_tags WHERE location = ?");
 		addPrepStmt("deleteIndexViaPath", "DELETE fi FROM fileindex AS fi JOIN dirlist AS dl ON fi.dir=dl.id JOIN filelist AS fl ON fi.filename=fl.id  WHERE dl.dirpath = ? AND fl.filename = ?");
 		addPrepStmt("deleteDuplicateViaPath", "DELETE fi FROM fileduplicate AS fi JOIN dirlist AS dl ON fi.dir=dl.id JOIN filelist AS fl ON fi.filename=fl.id  WHERE dl.dirpath = ? AND fl.filename = ?");
 		addPrepStmt("getDuplicates"		, "SELECT dv.id, dv.dupeloc, dv.dupePath  FROM dupeview AS dv UNION SELECT dv.id, dv.origloc, dv.origPath  FROM dupeview AS dv");
@@ -503,12 +499,25 @@ public class AidDAO{
 		return simpleBooleanQuery("isBlacklisted", hash, false);
 	}
 	
-	public boolean isValidTag(String tag){
-		return simpleBooleanQuery("isValidTag", tag, false);
+	public boolean isValidTag(String tag) {
+		if (getTagId(tag) == -1) {
+			return false;
+		} else {
+			return true;
+		}
 	}
-	
-	public int getTagId(String tag){
-		return simpleIntQuery("getTagId", tag, -1);
+
+	public int getTagId(String tag) {
+		try {
+			LocationRecord locRec = locationDao.queryForLocation(tag);
+
+			if (locRec != null) {
+				return locRec.getTag_id();
+			}
+		} catch (SQLException e) {
+			logSQLerror(e);
+		}
+		return -1;
 	}
 	
 	public void update(String id, AidTables table){
