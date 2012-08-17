@@ -24,8 +24,10 @@ import filter.FilterState;
 import io.dao.DuplicateDAO;
 import io.dao.IndexDAO;
 import io.dao.LocationDAO;
+import io.tables.BlacklistRecord;
 import io.tables.Cache;
 import io.tables.DirectoryPathRecord;
+import io.tables.DnwRecord;
 import io.tables.DuplicateRecord;
 import io.tables.FilePathRecord;
 import io.tables.FileRecord;
@@ -79,6 +81,8 @@ public class AidDAO{
 	private Dao<DirectoryPathRecord, Integer> directoryDAO;
 	private Dao<FilePathRecord, Integer> fileDAO;
 	private DuplicateDAO duplicateDAO;
+	private Dao<DnwRecord, String> dnwDAO;
+	private Dao<BlacklistRecord, String> blackListDAO;
 	
 
 	public AidDAO(ConnectionPool connPool){
@@ -100,6 +104,8 @@ public class AidDAO{
 			fileDAO = DaoManager.createDao(cSource, FilePathRecord.class);
 			duplicateDAO = new DuplicateDAO(cSource);
 			DaoManager.registerDao(cSource, duplicateDAO);
+			dnwDAO = DaoManager.createDao(cSource, DnwRecord.class);
+			blackListDAO = DaoManager.createDao(cSource, BlacklistRecord.class);
 		}catch(SQLException e){
 			logger.severe("Unable to create DAO: " + e.getMessage());
 		}
@@ -116,10 +122,8 @@ public class AidDAO{
 		generateStatements();
 		
 		addPrepStmt("pending"			, "SELECT count(*) FROM filter WHERE status = 1");
-		addPrepStmt("isDnw"				, "SELECT * FROM `dnw` WHERE `id` = ?");
 		addPrepStmt("prune"				, "DELETE FROM `cache` WHERE `timestamp` < ?");
 		addPrepStmt("isIndexedPath"		, "SELECT i.dir, i.filename FROM `fileindex` AS i JOIN dirlist ON dirlist.id = i.dir JOIN filelist ON filelist.id = i.filename JOIN location_tags ON i.location = location_tags.tag_id WHERE location_tags.location = ? AND dirlist.dirpath = ? AND filelist.filename = ?");
-		addPrepStmt("isBlacklisted"		, "SELECT * FROM `block` WHERE `id` = ?");
 		addPrepStmt("getSetting"		, "SELECT param	FROM settings WHERE name = ?");
 		addPrepStmt("getPath"			, "SELECT  CONCAT(dirlist.dirpath,filelist.filename) FROM `fileindex` as a JOIN filelist ON a.filename = filelist.id JOIN dirlist ON a.dir = dirlist.id WHERE  a.id = ?");
 		addPrepStmt("hlUpdateBlock"		, "INSERT IGNORE INTO block (id) VALUES (?)");
@@ -473,7 +477,20 @@ public class AidDAO{
 	}
 
 	public boolean isDnw(String hash){
-		return simpleBooleanQuery("isDnw", hash, true);
+		if(hash == null){
+			return false;
+		}
+		
+		boolean result = true;
+		
+		try {
+			result = dnwDAO.idExists(hash);
+			return result;
+		} catch (SQLException e) {
+			logSQLerror(e);
+		}
+		
+		return true;
 	}
 
 	public boolean isHashed(String hash){
@@ -487,7 +504,13 @@ public class AidDAO{
 	}
 
 	public boolean isBlacklisted(String hash){
-		return simpleBooleanQuery("isBlacklisted", hash, false);
+		try {
+			return blackListDAO.idExists(hash);
+		} catch (SQLException e) {
+			logSQLerror(e);
+		}
+		
+		return true;
 	}
 	
 	public boolean isValidTag(String tag) {
