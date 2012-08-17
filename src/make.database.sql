@@ -177,7 +177,7 @@ CREATE TABLE IF NOT EXISTS `settings` (
   UNIQUE KEY `name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=ascii COMMENT='Global settings for all clients';
 
--- Data exporting was unselected.
+INSERT IGNORE INTO `settings` (`name`, `param`) VALUES ('SchemaVersion', '2')
 
 
 -- Dumping structure for procedure aid.StripDriveLetter

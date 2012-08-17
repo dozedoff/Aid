@@ -46,6 +46,7 @@ import org.dbunit.util.fileloader.FlatXmlDataFileLoader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import config.DefaultMySQLconnection;
@@ -446,7 +447,13 @@ public class AidDAOTest extends DatabaseTestCase{
 	
 	@Test
 	public void testGetLocationById() {
-		String location = sql.getLocationById("1");
+		String location = sql.getLocationById("3");
+		assertThat(location, is(TEST_LOCATION[2]));
+	}
+	
+	@Test
+	public void testGetLocationByIdInvalidID() {
+		String location = sql.getLocationById("999");
 		assertThat(location, is(TEST_LOCATION[0]));
 	}
 	
