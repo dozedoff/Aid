@@ -120,8 +120,6 @@ public class AidDAO{
 		addPrepStmt("prune"				, "DELETE FROM `cache` WHERE `timestamp` < ?");
 		addPrepStmt("isIndexedPath"		, "SELECT i.dir, i.filename FROM `fileindex` AS i JOIN dirlist ON dirlist.id = i.dir JOIN filelist ON filelist.id = i.filename JOIN location_tags ON i.location = location_tags.tag_id WHERE location_tags.location = ? AND dirlist.dirpath = ? AND filelist.filename = ?");
 		addPrepStmt("isBlacklisted"		, "SELECT * FROM `block` WHERE `id` = ?");
-		addPrepStmt("getDirectory"		, "SELECT id FROM dirlist WHERE dirpath = ?");
-		addPrepStmt("getFilename"		, "SELECT id FROM filelist WHERE filename = ?");
 		addPrepStmt("getSetting"		, "SELECT param	FROM settings WHERE name = ?");
 		addPrepStmt("getPath"			, "SELECT  CONCAT(dirlist.dirpath,filelist.filename) FROM `fileindex` as a JOIN filelist ON a.filename = filelist.id JOIN dirlist ON a.dir = dirlist.id WHERE  a.id = ?");
 		addPrepStmt("hlUpdateBlock"		, "INSERT IGNORE INTO block (id) VALUES (?)");
@@ -942,14 +940,6 @@ public class AidDAO{
 			closeAll(copyPrepStatement);
 			closeAll(deletePrepStatement);
 		}
-	}
-	
-	protected int directoryLookup(String path) throws SQLException{
-		return simpleIntQuery("getDirectory", convertDirPathToString(removeDriveLetter(Paths.get(path))).toLowerCase(), -1);
-	}
-	
-	protected int fileLookup(String filename) throws SQLException{
-		return simpleIntQuery("getFilename", filename, -1);
 	}
 	
 	public boolean addFilter(FilterItem fi) {

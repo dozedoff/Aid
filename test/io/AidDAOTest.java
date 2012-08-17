@@ -369,18 +369,6 @@ public class AidDAOTest extends DatabaseTestCase{
 	}
 	
 	@Test
-	public void testDirectoryLookup() throws SQLException{
-		assertThat(sql.directoryLookup("foo"), is(-1));
-		assertThat(sql.directoryLookup(TEST_DIR[1]), is(1));
-	}
-	
-	@Test
-	public void testFileLookup() throws SQLException{
-		assertThat(sql.fileLookup("derp"), is(-1));
-		assertThat(sql.fileLookup(TEST_FILE[3]), is(3));
-	}
-	
-	@Test
 	public void testIsIndexedPath(){
 		assertTrue(sql.isIndexedPath(Paths.get(TEST_DIR[1]+TEST_FILE[1]), TEST_LOCATION[1]));
 		assertFalse(sql.isIndexedPath(Paths.get(TEST_DIR[1]+TEST_FILE[1]), TEST_LOCATION[2]));
