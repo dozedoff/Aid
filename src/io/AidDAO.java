@@ -817,22 +817,11 @@ public class AidDAO{
 	 * @return path as a String or null if not found
 	 */
 	public String getPath(String hash){
-		//TODO replace with DAO
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		
-		try{
-			ps = getPrepStmt("getPath");
-			ps.setString(1, hash);
-			rs = ps.executeQuery();
-			
-			if(rs.next()){
-				return rs.getString(1);
-			}
-		} catch(SQLException e){
-			logger.warning(SQL_OP_ERR+e.getMessage());
-		} finally {
-			closeAll(ps);
+		try {
+			IndexRecord index = indexDao.queryForId(hash);
+			return index.getRelativePath().toString();
+		} catch (SQLException e) {
+			logSQLerror(e);
 		}
 		return null;
 	}
