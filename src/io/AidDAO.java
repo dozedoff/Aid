@@ -135,8 +135,6 @@ public class AidDAO{
 		addPrepStmt("filterTime"		, "UPDATE filter SET timestamp = ? WHERE id = ?");
 		addPrepStmt("oldestFilter"		, "SELECT id FROM filter ORDER BY timestamp ASC LIMIT 1");
 		addPrepStmt("compareBlacklisted", "SELECT a.id, CONCAT(dirlist.dirpath,filelist.filename) FROM (select fileindex.id,dir, filename FROM block join fileindex on block.id = fileindex.id) AS a JOIN filelist ON a.filename=filelist.id Join dirlist ON a.dir=dirlist.id");
-		addPrepStmt("deleteIndexViaPath", "DELETE fi FROM fileindex AS fi JOIN dirlist AS dl ON fi.dir=dl.id JOIN filelist AS fl ON fi.filename=fl.id  WHERE dl.dirpath = ? AND fl.filename = ?");
-		addPrepStmt("deleteDuplicateViaPath", "DELETE fi FROM fileduplicate AS fi JOIN dirlist AS dl ON fi.dir=dl.id JOIN filelist AS fl ON fi.filename=fl.id  WHERE dl.dirpath = ? AND fl.filename = ?");
 		addPrepStmt("getDuplicates"		, "SELECT dv.id, dv.dupeloc, dv.dupePath  FROM dupeview AS dv UNION SELECT dv.id, dv.origloc, dv.origPath  FROM dupeview AS dv");
 	}
 	
@@ -597,30 +595,23 @@ public class AidDAO{
 	}
 	
 	public int deleteIndexByPath(String fullpath){
-		return deleteIndexByPath(removeDriveLetter(Paths.get(fullpath.toLowerCase())));
+		return deleteIndexByPath(Paths.get(fullpath.toLowerCase()));
 	}
 	
 	public int deleteIndexByPath(Path path) {
-		final String command = "deleteIndexViaPath";
-		int affectedRows = -1;
-		path = removeDriveLetter(path);
-		String dir = convertDirPathToString(path.getParent());
+		FileInfo info = new FileInfo(path);
+		IndexRecord index = new IndexRecord(info, null);
+		int affectedRows = 0;
 		
-		if(dir == null){
-			return affectedRows;
-		}
-		
-		String filename = path.getFileName().toString();
-		
-		PreparedStatement ps = getPrepStmt(command);
 		try {
-			ps.setString(1, dir);
-			ps.setString(2, filename);
-			affectedRows = ps.executeUpdate();
+			resolvePathIDs(index);
+			List<IndexRecord> results = indexDao.queryForMatching(index);
+			if(! results.isEmpty()){
+				affectedRows = indexDao.delete(results.get(0));
+			}
 		} catch (SQLException e) {
 			logSQLerror(e);
 		}
-		
 		return affectedRows;
 	}
 	
@@ -629,46 +620,20 @@ public class AidDAO{
 	}
 	
 	public int deleteDuplicateByPath(Path path){
-		final String command = "deleteDuplicateViaPath";
-		int affectedRows = -1;
-		path = removeDriveLetter(path);
-		String dir = convertDirPathToString(path.getParent());
+		FileInfo info = new FileInfo(path);
+		DuplicateRecord index = new DuplicateRecord(info, null);
+		int affectedRows = 0;
 		
-		if(dir == null){
-			return affectedRows;
-		}
-		
-		String filename = path.getFileName().toString();
-		
-		PreparedStatement ps = getPrepStmt(command);
 		try {
-			ps.setString(1, dir);
-			ps.setString(2, filename);
-			affectedRows = ps.executeUpdate();
+			resolvePathIDs(index);
+			List<DuplicateRecord> results = duplicateDAO.queryForMatching(index);
+			if(! results.isEmpty()){
+				affectedRows = duplicateDAO.delete(results.get(0));
+			}
 		} catch (SQLException e) {
-			logger.severe(SQL_OP_ERR+command+": "+e.getMessage());
-		} finally{
-			closeAll(ps);
+			logSQLerror(e);
 		}
-		
 		return affectedRows;
-	}
-	
-	private boolean simpleBooleanQuery(String command, String key, Boolean defaultReturn){
-		ResultSet rs = null;
-		PreparedStatement ps = getPrepStmt(command);
-		try {
-			ps.setString(1, key);
-			rs = ps.executeQuery();
-			boolean b = rs.next();
-			return b;
-		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
-		} finally{
-			closeAll(ps);
-		}
-		
-		return defaultReturn;
 	}
 	
 	private int simpleIntQuery(String command){
@@ -697,34 +662,6 @@ public class AidDAO{
 		}
 		
 		return intValue;
-	}
-	
-	private int simpleIntQuery(String command, String key, int defaultReturn){
-		ResultSet rs = null;
-		PreparedStatement ps = getPrepStmt(command);
-		
-		if(ps == null){
-			logger.warning("Could not carry out query for command \""+command+"\"");
-			return defaultReturn;
-		}
-		
-		try {
-			ps.setString(1, key);
-			rs = ps.executeQuery();
-
-			if(rs.next()){
-				int intValue = rs.getInt(1);
-				return intValue;
-			}else{
-				return defaultReturn;
-			}
-		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
-		} finally{
-			closeAll(ps);
-		}
-		
-		return defaultReturn;
 	}
 	
 	public void pruneCache(long maxAge){
