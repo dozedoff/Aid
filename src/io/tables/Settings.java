@@ -15,28 +15,33 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.dao;
+package io.tables;
 
-import io.tables.IndexRecord;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
-import java.sql.SQLException;
-import java.util.List;
-
-import com.j256.ormlite.dao.BaseDaoImpl;
-import com.j256.ormlite.support.ConnectionSource;
-
-public class IndexDAO extends BaseDaoImpl<IndexRecord, String> {
-	public IndexDAO(ConnectionSource cs) throws SQLException {
-		super(cs, IndexRecord.class);
-	}
+@DatabaseTable
+public class Settings {
+	@DatabaseField(id=true)
+	String name;
+	@DatabaseField
+	String param;
 	
-	public IndexRecord queryForFirst(IndexRecord index) throws SQLException {
-		List<IndexRecord> records = queryForMatchingArgs(index);
-		
-		if(records.isEmpty()){
-			return null;
-		}else{
-			return records.get(0);
-		}
+	public Settings() {}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getParam() {
+		return param;
+	}
+
+	public void setParam(String param) {
+		this.param = param;
 	}
 }

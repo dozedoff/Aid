@@ -16,12 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package io;
-import static file.FileUtil.convertDirPathToString;
 import static file.FileUtil.removeDriveLetter;
 import file.FileInfo;
 import filter.FilterItem;
 import filter.FilterState;
+import io.dao.CacheDAO;
 import io.dao.DuplicateDAO;
+import io.dao.FilterDAO;
 import io.dao.IndexDAO;
 import io.dao.LocationDAO;
 import io.tables.BlacklistRecord;
@@ -33,6 +34,7 @@ import io.tables.FilePathRecord;
 import io.tables.FileRecord;
 import io.tables.IndexRecord;
 import io.tables.LocationRecord;
+import io.tables.Settings;
 import io.tables.Thumbnail;
 
 import java.awt.Image;
@@ -50,7 +52,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -74,15 +75,17 @@ public class AidDAO{
 	private final String DEFAULT_LOCATION = "UNKNOWN";
 	protected final ConnectionPool connPool;
 	
-	private Dao<Cache, String> cacheDAO = null;
-	private Dao<Thumbnail, Integer> ThumbnailDAO = null;
-	private LocationDAO locationDao = null;
+	private CacheDAO cacheDAO;
+	private Dao<Thumbnail, Integer> ThumbnailDAO;
+	private LocationDAO locationDao;
 	private IndexDAO indexDao;
 	private Dao<DirectoryPathRecord, Integer> directoryDAO;
 	private Dao<FilePathRecord, Integer> fileDAO;
 	private DuplicateDAO duplicateDAO;
 	private Dao<DnwRecord, String> dnwDAO;
 	private Dao<BlacklistRecord, String> blackListDAO;
+	private FilterDAO filterDAO;
+	private Dao<Settings, String> settingDao;
 	
 
 	public AidDAO(ConnectionPool connPool){
@@ -94,7 +97,8 @@ public class AidDAO{
 		try{
 			ConnectionSource cSource = connPool.getConnectionSource();
 			
-			cacheDAO = DaoManager.createDao(cSource, Cache.class);
+			cacheDAO = new CacheDAO(cSource);
+			DaoManager.registerDao(cSource, cacheDAO);
 			ThumbnailDAO = DaoManager.createDao(cSource, Thumbnail.class);
 			indexDao = new IndexDAO(cSource);
 			DaoManager.registerDao(cSource, indexDao);
@@ -106,6 +110,9 @@ public class AidDAO{
 			DaoManager.registerDao(cSource, duplicateDAO);
 			dnwDAO = DaoManager.createDao(cSource, DnwRecord.class);
 			blackListDAO = DaoManager.createDao(cSource, BlacklistRecord.class);
+			filterDAO = new FilterDAO(cSource);
+			DaoManager.registerDao(cSource, filterDAO);
+			settingDao = DaoManager.createDao(cSource, Settings.class);
 		}catch(SQLException e){
 			logger.severe("Unable to create DAO: " + e.getMessage());
 		}
@@ -121,21 +128,8 @@ public class AidDAO{
 	private static void init(){
 		generateStatements();
 		
-		addPrepStmt("pending"			, "SELECT count(*) FROM filter WHERE status = 1");
-		addPrepStmt("prune"				, "DELETE FROM `cache` WHERE `timestamp` < ?");
-		addPrepStmt("isIndexedPath"		, "SELECT i.dir, i.filename FROM `fileindex` AS i JOIN dirlist ON dirlist.id = i.dir JOIN filelist ON filelist.id = i.filename JOIN location_tags ON i.location = location_tags.tag_id WHERE location_tags.location = ? AND dirlist.dirpath = ? AND filelist.filename = ?");
-		addPrepStmt("getSetting"		, "SELECT param	FROM settings WHERE name = ?");
-		addPrepStmt("getPath"			, "SELECT  CONCAT(dirlist.dirpath,filelist.filename) FROM `fileindex` as a JOIN filelist ON a.filename = filelist.id JOIN dirlist ON a.dir = dirlist.id WHERE  a.id = ?");
-		addPrepStmt("hlUpdateBlock"		, "INSERT IGNORE INTO block (id) VALUES (?)");
-		addPrepStmt("hlUpdateDnw"		, "INSERT IGNORE INTO dnw (id) VALUES (?)");
-		addPrepStmt("addFilter"			, "INSERT IGNORE INTO filter (id, board, reason, status) VALUES (?,?,?,?)");
-		addPrepStmt("updateFilter"		, "UPDATE filter SET status = ? WHERE id = ?");
-		addPrepStmt("filterState"		, "SELECT status FROM filter WHERE  id = ?");
-		addPrepStmt("pendingFilter"		, "SELECT board, reason, id FROM filter WHERE status = 1 ORDER BY board, reason ASC");
-		addPrepStmt("filterTime"		, "UPDATE filter SET timestamp = ? WHERE id = ?");
-		addPrepStmt("oldestFilter"		, "SELECT id FROM filter ORDER BY timestamp ASC LIMIT 1");
-		addPrepStmt("compareBlacklisted", "SELECT a.id, CONCAT(dirlist.dirpath,filelist.filename) FROM (select fileindex.id,dir, filename FROM block join fileindex on block.id = fileindex.id) AS a JOIN filelist ON a.filename=filelist.id Join dirlist ON a.dir=dirlist.id");
 		addPrepStmt("getDuplicates"		, "SELECT dv.id, dv.dupeloc, dv.dupePath  FROM dupeview AS dv UNION SELECT dv.id, dv.origloc, dv.origPath  FROM dupeview AS dv");
+		addPrepStmt("compareBlacklisted", "SELECT a.id, CONCAT(dirlist.dirpath,filelist.filename) FROM (select fileindex.id,dir, filename FROM block join fileindex on block.id = fileindex.id) AS a JOIN filelist ON a.filename=filelist.id Join dirlist ON a.dir=dirlist.id");
 	}
 	
 	private static void generateStatements(){
@@ -167,6 +161,10 @@ public class AidDAO{
 		}
 	}
 
+	/**
+	 * Use DAO instead.
+	 */
+	@Deprecated
 	public boolean batchExecute(String[] statements){
 		Connection cn = getConnection();
 		Statement req = null;
@@ -188,6 +186,7 @@ public class AidDAO{
 	}
 	
 	public LinkedList<String> getBlacklistedFiles(){
+		//TODO replace with raw query
 		LinkedList<String> images = new LinkedList<>();
 		String command = "compareBlacklisted";
 		
@@ -216,6 +215,7 @@ public class AidDAO{
 	 */
 	@Deprecated
 	public LinkedList<String[]> getDuplicates(){
+		//TODO replace with raw query
 		LinkedList<String[]> paths = new LinkedList<>();
 		String command = "getDuplicates";
 		final int NUM_OF_COLS = 3;
@@ -411,7 +411,12 @@ public class AidDAO{
 	 * @return Number of pending items.
 	 */
 	public int getPending(){
-		return simpleIntQuery("pending");
+		try {
+			return filterDAO.getPendingFilterCount();
+		} catch (SQLException e) {
+			logSQLerror(e);
+		}
+		return -1;
 	}
 
 	public ArrayList<Image> getThumb(String url){
@@ -436,6 +441,10 @@ public class AidDAO{
 		return images;
 	}
 
+	/**
+	 * Use DAO instead.
+	 */
+	@Deprecated
 	public int size(AidTables table){
 		return simpleIntQuery("size"+table.toString());
 	}
@@ -532,65 +541,42 @@ public class AidDAO{
 		return -1;
 	}
 	
-	public void update(String id, AidTables table){
-		PreparedStatement update = null;
-		String command = null;
-		
-		if(table.equals(AidTables.Block)){
-			command = "hlUpdateBlock";
-		}else if (table.equals(AidTables.Dnw)){
-			command = "hlUpdateDnw";
-		}else{
-			logger.severe("Unhandled enum Table: "+table.toString());
-			return;
-		}
-
-		try{
-			update = getPrepStmt(command);
-			update.setString(1, id);
-			update.executeUpdate();
-		}catch (SQLException e){
-			logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
-		}finally{
-			closeAll(update);
+	public void update(String id, AidTables table) {
+		DnwRecord dnw = new DnwRecord(id);
+		BlacklistRecord blacklist = new BlacklistRecord(id);
+		try {
+			if (table.equals(AidTables.Block)) {
+				blackListDAO.createOrUpdate(blacklist);
+			} else if (table.equals(AidTables.Dnw)) {
+				dnwDAO.createOrUpdate(dnw);
+			} else {
+				logger.severe("Unhandled enum Table: " + table.toString());
+				return;
+			}
+		} catch (SQLException e) {
+			logSQLerror(e);
 		}
 	}
 	
 	
 	//TODO add isIndexedPath(Path fullPath)
 	
-	public boolean isIndexedPath(Path fullpath, String locationTag){
+	public boolean isIndexedPath(Path fullpath, String locationTag) {
 		Path relPath = removeDriveLetter(fullpath);
-		String filename = relPath.getFileName().toString().toLowerCase();
-		Path parent = relPath.getParent();
-		String dir;
-		
-		dir = convertDirPathToString(parent);
-		
-		if(dir == null){
-			logger.warning("IndexPathLookup for null parent: " + parent + filename);
-			return false;
-		}
-		
-		ResultSet rs = null;
-		final String command = "isIndexedPath";
-		
-		PreparedStatement ps = getPrepStmt(command);
-		
+		LocationRecord locRec;
 		try {
-			ps.setString(1, locationTag);
-			ps.setString(2, dir);
-			ps.setString(3, filename);
-			
-			rs = ps.executeQuery();
-			boolean b = rs.next();
-			return b;
+			locRec = locationDao.queryForLocation(locationTag);
+			FileInfo info = new FileInfo(relPath);
+			IndexRecord index = new IndexRecord(info, locRec);
+			resolvePathIDs(index);
+			index = indexDao.queryForFirst(index);
+			if (index != null) {
+				return true;
+			}
 		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
-		} finally{
-			closeAll(ps);
+			logSQLerror(e);
 		}
-		
+
 		return false;
 	}
 	
@@ -665,18 +651,16 @@ public class AidDAO{
 	}
 	
 	public void pruneCache(long maxAge){
-		PreparedStatement ps = getPrepStmt("prune");
-
 		try {
-			ps.setTimestamp(1,new Timestamp(maxAge));
-			ps.executeUpdate();
+			cacheDAO.pruneCache(maxAge);
 		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+e.getMessage());
-		} finally {
-			closeAll(ps);
+			logSQLerror(e);
 		}
 	}
-
+	/**
+	 * Use DAO instead.
+	 */
+	@Deprecated
 	public int delete(AidTables table, String id){
 		PreparedStatement ps = getPrepStmt("delete"+table.toString());
 		if(ps == null){
@@ -713,25 +697,14 @@ public class AidDAO{
 		}
 	}
 
-	public String getSetting(DBsettings settingName){
-		String command = "getSetting";
-		ResultSet rs = null;
-		PreparedStatement ps = getPrepStmt(command);
-		
+	public String getSetting(DBsettings settingName) {
 		try {
-			ps.setString(1, settingName.toString());
-			rs = ps.executeQuery();
-
-			rs.next();
-			String string = rs.getString(1);
-			return string;
+			Settings setting = settingDao.queryForId(settingName.toString());
+			return setting.getParam();
 		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+e.getMessage());
-		} finally{
-			closeAll(ps);
-			silentClose(null, ps, rs);
+			logSQLerror(e);
 		}
-		
+
 		return null;
 	}
 	
@@ -903,7 +876,19 @@ public class AidDAO{
 	}
 	
 	public boolean addFilter(FilterItem fi) {
-		return addFilter(fi.getUrl().toString(), fi.getBoard(), fi.getReason(), fi.getState());
+		try {
+			String id = filterDAO.extractId(fi);
+			if(filterDAO.idExists(id)){
+				return false;
+			}
+			
+			filterDAO.create(fi);
+			return true;
+		} catch (SQLException e) {
+			logSQLerror(e);
+		}
+
+		return false;
 	}
 
 	/**
@@ -915,58 +900,32 @@ public class AidDAO{
 	 * @return true if the filter was added, else false
 	 */
 	public boolean addFilter(String id, String board, String reason, FilterState state) {
-		PreparedStatement addFilter =getPrepStmt("addFilter");
 		try {
-			addFilter.setString(1, id);
-			addFilter.setString(2, board);
-			addFilter.setString(3, reason);
-			addFilter.setShort(4, (short) state.ordinal());
-			int res = addFilter.executeUpdate();
-	
-			if(res == 0){
-				logger.warning("filter already exists!");
-				return false;
-			}else{
-				return true;
-			}
-		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+e.getMessage());
-		} finally {
-			closeAll(addFilter);
-		}
+			FilterItem filter = new FilterItem(new URL(id), board, reason, state);
+			return addFilter(filter);
+		} catch (MalformedURLException e) {}
 	
 		return false;
 	}
 
 	public void updateState(String id, FilterState state) {
-		PreparedStatement updateFilter = getPrepStmt("updateFilter");
 		try {
-			updateFilter.setShort(1, (short)state.ordinal());
-			updateFilter.setString(2, id);
-			updateFilter.executeUpdate();
+			FilterItem filter = filterDAO.queryForId(id);
+			filter.setState(state);
+			filterDAO.update(filter);
 		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+e.getMessage());
-		} finally {
-			closeAll(updateFilter);
+			logSQLerror(e);
 		}
 	}
 
 	public FilterState getFilterState(String id) {
-		ResultSet rs = null;
-		PreparedStatement ps = null;
 		try {
-			ps = getPrepStmt("filterState");
-			ps.setString(1, id);
-			rs = ps.executeQuery();
-			if(rs.next()){
-				FilterState fs = FilterState.values()[(int)rs.getShort(1)];
-				return fs; 
-			}
+			FilterItem filter = filterDAO.queryForId(id);
+			return filter.getState();
 		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+e.getMessage());
-		}finally{
-			closeAll(ps);
+			logSQLerror(e);
 		}
+		
 		return FilterState.UNKNOWN;
 	}
 
@@ -975,59 +934,29 @@ public class AidDAO{
 	 * @return a list of all pending filter items
 	 */
 	public LinkedList<FilterItem> getPendingFilters() {
-		PreparedStatement pendingFilter = getPrepStmt("pendingFilter");
-		ResultSet rs = null;
-	
 		try {
-			rs = pendingFilter.executeQuery();
-			LinkedList<FilterItem> result = new LinkedList<FilterItem>();
-			while(rs.next()){
-				URL url;
-				url = new URL(rs.getString("id"));
-	
-				result.add(new FilterItem(url, rs.getString("board"), rs.getString("reason"),  FilterState.PENDING));
-			}
-			
-			return result;
+			List<FilterItem> results = filterDAO.queryForEq("status", FilterState.PENDING);
+			return new LinkedList<>(results);
 		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+e.getMessage());
-		} catch (MalformedURLException e) {
-			logger.warning("Unable to create URL "+e.getMessage());
-		}finally{
-			closeAll(pendingFilter);
+			logSQLerror(e);
 		}
 		return new LinkedList<FilterItem>();
 	}
 
 	public void updateFilterTimestamp(String id) {
-		PreparedStatement updateTimestamp = getPrepStmt("filterTime");
 		try {
-			updateTimestamp.setTimestamp(1, new Timestamp(Calendar.getInstance().getTimeInMillis()));
-			updateTimestamp.setString(2, id);
-			updateTimestamp.executeUpdate();
+			filterDAO.updateFilterTimestamp(id);
 		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+e.getMessage());
-		} finally {
-			closeAll(updateTimestamp);
+			logSQLerror(e);
 		}
 	}
 
 	public String getOldestFilter() {
-		ResultSet rs = null;
-		PreparedStatement getOldest = getPrepStmt("oldestFilter");
-	
 		try {
-			rs = getOldest.executeQuery();
-			if(rs.next()){
-				String s = rs.getString(1);
-				return s;
-			}else {
-				return null;
-			}
+			URL oldestUrl = filterDAO.getOldestFilter().getUrl();
+			return oldestUrl.toString();
 		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+e.getLocalizedMessage());
-		}finally{
-			closeAll(getOldest);
+			logSQLerror(e);
 		}
 		return null;
 	}

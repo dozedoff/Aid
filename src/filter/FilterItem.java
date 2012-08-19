@@ -18,20 +18,34 @@
 package filter;
 
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
+
+import com.j256.ormlite.field.DataType;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 /**
  * This class stores the information about a item in the filter.
  * Information include: location, state and reason.
  */
+@DatabaseTable(tableName="filter")
 public class FilterItem implements Serializable{
 	
 	private static final long serialVersionUID = -9148296011482486975L;
 
+	@DatabaseField(canBeNull=false)
 	private String board;
+	@DatabaseField(canBeNull=false)
 	private String reason;
+	@DatabaseField(id=true, canBeNull=false)
+	private String id;
 	private URL url;
+	@DatabaseField(canBeNull=false, dataType = DataType.ENUM_INTEGER, columnName="status")
 	private FilterState state;
+	@DatabaseField
+	private Date timestamp;
 	private String displayString;
 	
 	private void updateDiplayString(){
@@ -41,15 +55,28 @@ public class FilterItem implements Serializable{
 		displayString = String.format(format, board,pageNr,reason);
 	}
 	
+	/**
+	 * This constructor is only intended for the DAO.
+	 */
+	@Deprecated
+	public FilterItem() {}
+	
 	public FilterItem( URL url,String board, String reason, FilterState state){
 		this.board = board;
 		this.reason = reason;
 		this.url = url;
 		this.state = state;
+		this.id = url.toString();
 		updateDiplayString();
 	}
 	
 	public URL getUrl(){
+		if(url == null){
+			try {
+				url = new URL(id);
+			} catch (MalformedURLException e) {}
+		}
+		
 		return url;
 	}
 	
@@ -69,6 +96,10 @@ public class FilterItem implements Serializable{
 		return board;
 	}
 	
+	public Date getTimestamp() {
+		return timestamp;
+	}
+
 	@Override
 	public String toString(){
 		return displayString;

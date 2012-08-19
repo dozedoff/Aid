@@ -17,26 +17,33 @@
  */
 package io.dao;
 
-import io.tables.IndexRecord;
-
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Date;
+
+import io.tables.Cache;
 
 import com.j256.ormlite.dao.BaseDaoImpl;
+import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.PreparedDelete;
+import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.support.ConnectionSource;
 
-public class IndexDAO extends BaseDaoImpl<IndexRecord, String> {
-	public IndexDAO(ConnectionSource cs) throws SQLException {
-		super(cs, IndexRecord.class);
+public class CacheDAO extends BaseDaoImpl<Cache, String> {
+	PreparedDelete<Cache> pruneCacheQuery;
+	SelectArg timestamp;
+	
+	public CacheDAO(ConnectionSource cSource) throws SQLException {
+		super(cSource, Cache.class);
+		timestamp = new SelectArg();
+		DeleteBuilder<Cache, String> del = deleteBuilder();
+		del.where().le("timestamp", timestamp);
+		pruneCacheQuery = del.prepare();
 	}
 	
-	public IndexRecord queryForFirst(IndexRecord index) throws SQLException {
-		List<IndexRecord> records = queryForMatchingArgs(index);
-		
-		if(records.isEmpty()){
-			return null;
-		}else{
-			return records.get(0);
-		}
+	public int pruneCache(long timestampInMillis) throws SQLException {
+		Date date = new Date(timestampInMillis);
+		timestamp.setValue(date);
+		int updated = delete(pruneCacheQuery);
+		return updated;
 	}
 }
