@@ -31,7 +31,7 @@ public abstract class FileRecord {
 	@DatabaseField
 	private long size;
 	@DatabaseField(canBeNull = false, foreign = true, columnName="dir", foreignAutoRefresh=true, foreignAutoCreate=true)
-	private DirectoryPathRecord directory = null;
+	protected DirectoryPathRecord directory = null;
 	@DatabaseField(canBeNull = false, foreign = true, columnName="filename", foreignAutoRefresh=true, foreignAutoCreate=true)
 	private FilePathRecord file = null;
 	@DatabaseField(canBeNull = false, foreign = true, columnName="location", foreignAutoRefresh=true, foreignAutoCreate=true)

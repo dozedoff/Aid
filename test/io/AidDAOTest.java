@@ -22,6 +22,8 @@ import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 import static org.junit.matchers.JUnitMatchers.hasItems;
 
+import io.tables.FileRecord;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -458,8 +460,8 @@ public class AidDAOTest extends DatabaseTestCase{
 		final String[] duplicateId = {"1", "2", "3", "4"};
 		LinkedList<String> ids = new LinkedList<>();
 
-		for(String id[] : sql.getDuplicatesAndOriginal()) {
-			ids.add(id[0]);
+		for(FileRecord record : sql.getDuplicatesAndOriginal()) {
+			ids.add(record.getId());
 		}
 		
 		assertThat(ids, hasItems(duplicateId));

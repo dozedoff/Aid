@@ -50,7 +50,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -127,8 +126,6 @@ public class AidDAO{
 	 */
 	private static void init(){
 		generateStatements();
-		
-		addPrepStmt("getDuplicates"		, "SELECT dv.id, dv.dupeloc, dv.dupePath  FROM dupeview AS dv UNION SELECT dv.id, dv.origloc, dv.origPath  FROM dupeview AS dv");
 		addPrepStmt("compareBlacklisted", "SELECT a.id, CONCAT(dirlist.dirpath,filelist.filename) FROM (select fileindex.id,dir, filename FROM block join fileindex on block.id = fileindex.id) AS a JOIN filelist ON a.filename=filelist.id Join dirlist ON a.dir=dirlist.id");
 	}
 	
@@ -215,38 +212,22 @@ public class AidDAO{
 	 */
 	@Deprecated
 	public LinkedList<String[]> getDuplicates(){
-		//TODO replace with raw query
-		LinkedList<String[]> paths = new LinkedList<>();
-		String command = "getDuplicates";
 		final int NUM_OF_COLS = 3;
-		
-		ResultSet rs = null;
-		PreparedStatement ps = getPrepStmt(command);
+		LinkedList<String[]> duplicates = new LinkedList<>();
+		LinkedList<FileRecord> records = duplicateDAO.getDuplicatesAndOriginals();
 
-		try {
-			rs = ps.executeQuery();
-
-			while(rs.next()){
-				String[] dupe = new String[NUM_OF_COLS];
-				
-				for(int i=0; i < NUM_OF_COLS; i++){
-					dupe[i] = rs.getString(i+1);
-				}
-				
-				paths.add(dupe);
-			}
-
-		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+e.getMessage());
-		}finally{
-			closeAll(ps);
-			silentClose(null, ps, rs);
+		for(FileRecord record : records){
+			String[] dupe = new String[NUM_OF_COLS];
+			dupe[0] = record.getId();
+			dupe[1] = record.getLocation();
+			dupe[2] = record.getRelativePath().toString();
+			duplicates.add(dupe);
 		}
-		return paths;
+		return duplicates;
 	}
 	
-	public LinkedList<String[]> getDuplicatesAndOriginal() {
-		return getDuplicates();
+	public LinkedList<FileRecord> getDuplicatesAndOriginal() {
+		return duplicateDAO.getDuplicatesAndOriginals();
 	}
 
 	protected PreparedStatement getPrepStmt(String command){
@@ -540,7 +521,10 @@ public class AidDAO{
 		}
 		return -1;
 	}
-	
+	/**
+	 * Use the relevant DAO instead.
+	 */
+	@Deprecated
 	public void update(String id, AidTables table) {
 		DnwRecord dnw = new DnwRecord(id);
 		BlacklistRecord blacklist = new BlacklistRecord(id);

@@ -23,6 +23,7 @@ import file.FileInfo;
 
 @DatabaseTable(tableName="fileduplicate")
 public class DuplicateRecord extends FileRecord {
+	
 public DuplicateRecord() {}
 
 public DuplicateRecord(FileInfo info, LocationRecord location) {
