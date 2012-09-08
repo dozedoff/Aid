@@ -21,7 +21,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 import static org.junit.matchers.JUnitMatchers.hasItems;
-
 import io.tables.FileRecord;
 
 import java.net.MalformedURLException;
@@ -37,7 +36,6 @@ import java.util.LinkedList;
 import org.dbunit.Assertion;
 import org.dbunit.DatabaseTestCase;
 import org.dbunit.DatabaseUnitException;
-import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.DataSetException;
@@ -46,13 +44,9 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.ext.mysql.MySqlDataTypeFactory;
 import org.dbunit.util.fileloader.FlatXmlDataFileLoader;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import config.DefaultMySQLconnection;
-
 import file.FileInfo;
 import filter.FilterItem;
 import filter.FilterState;
@@ -180,11 +174,13 @@ public class AidDAOTest extends DatabaseTestCase{
 		Assertion.assertEquals(getFileTable(AidTables.Block.toString(), deleteExpected_PATH), getDatabaseTable(AidTables.Block.toString()));
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testFilterSize(){
 		assertThat(sql.size(AidTables.Filter), is(8));
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testCacheSize(){
 		assertThat(sql.size(AidTables.Cache), is(4));
@@ -312,6 +308,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertThat(sql.getOldestFilter(), is("http://foo.bar/3"));
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testCachePrune(){
 		sql.pruneCache(Calendar.getInstance().getTimeInMillis());
@@ -402,6 +399,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		Assertion.assertEquals(getFileTable(AidTables.Fileduplicate.toString(), deleteExpected_PATH), getDatabaseTable(AidTables.Fileduplicate.toString()));
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testMoveIndexToDuplicate() {
 		final String HASH = "5";
@@ -418,6 +416,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertThat(sql.size(AidTables.Fileduplicate), is(5));
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testMoveDuplicateToIndex() {
 		final String HASH = "5";
@@ -478,6 +477,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertThat(sql.getSetting(DBsettings.SchemaVersion), is("2"));
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testUpdateDnw() {
 		final String HASH = "10";
@@ -487,6 +487,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertTrue(sql.isDnw(HASH));
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testUpdateBlock() {
 		final String HASH = "10";

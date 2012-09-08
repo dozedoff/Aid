@@ -118,24 +118,6 @@ public class AidDAO{
 			logger.severe("Unable to create DAO: " + e.getMessage());
 		}
 	}
-	
-	static{
-		init();
-	}
-
-	/**
-	 * Initialize the class, preparing the statements needed for the methods.
-	 */
-	private static void init(){
-		generateStatements();
-	}
-	
-	private static void generateStatements(){
-		for(AidTables table : AidTables.values()){
-			addPrepStmt("size"+table.toString(), "SELECT count(*) FROM "+table.toString());
-			addPrepStmt("delete"+table.toString(), "DELETE FROM " +table.toString() + " WHERE id = ?");
-		}
-	}
 
 	protected Connection getConnection(){
 		try {
@@ -410,11 +392,33 @@ public class AidDAO{
 	}
 
 	/**
-	 * Use DAO instead.
+	 * Use DAO countOf() instead.
 	 */
 	@Deprecated
-	public int size(AidTables table){
-		return simpleIntQuery("size"+table.toString());
+	public int size(AidTables table) {
+		long value = -1L;
+
+		try {
+			switch (table) {
+			case Filter:
+				value = filterDAO.countOf();
+				break;
+
+			case Cache:
+				value = cacheDAO.countOf();
+				break;
+
+			case Fileduplicate:
+				value = duplicateDAO.countOf();
+				break;
+
+			default:
+				break;
+			}
+		} catch (SQLException e) {
+			logSQLerror(e);
+		}
+		return (int) value;
 	}
 
 	/**
@@ -513,16 +517,21 @@ public class AidDAO{
 	 */
 	@Deprecated
 	public void update(String id, AidTables table) {
-		DnwRecord dnw = new DnwRecord(id);
-		BlacklistRecord blacklist = new BlacklistRecord(id);
 		try {
-			if (table.equals(AidTables.Block)) {
+			switch (table) {
+			case Block:
+				BlacklistRecord blacklist = new BlacklistRecord(id);
 				blackListDAO.createOrUpdate(blacklist);
-			} else if (table.equals(AidTables.Dnw)) {
+				break;
+				
+			case Dnw:
+				DnwRecord dnw = new DnwRecord(id);
 				dnwDAO.createOrUpdate(dnw);
-			} else {
+				break;
+
+			default:
 				logger.severe("Unhandled enum Table: " + table.toString());
-				return;
+				break;
 			}
 		} catch (SQLException e) {
 			logSQLerror(e);
@@ -593,34 +602,6 @@ public class AidDAO{
 		return affectedRows;
 	}
 	
-	private int simpleIntQuery(String command){
-		ResultSet rs = null;
-		PreparedStatement ps = getPrepStmt(command);
-		int intValue = -1;
-		
-		if(ps == null){
-			logger.warning("Could not carry out query for command \""+command+"\"");
-			return -1;
-		}
-		
-		try {
-			rs = ps.executeQuery();
-
-			if(rs.next()){
-				intValue = rs.getInt(1);
-				return intValue;
-			}else{
-				return intValue;
-			}
-		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
-		} finally{
-			closeAll(ps);
-		}
-		
-		return intValue;
-	}
-	
 	public void pruneCache(long maxAge){
 		try {
 			cacheDAO.pruneCache(maxAge);
@@ -628,27 +609,42 @@ public class AidDAO{
 			logSQLerror(e);
 		}
 	}
+	
 	/**
 	 * Use DAO instead.
 	 */
 	@Deprecated
-	public int delete(AidTables table, String id){
-		PreparedStatement ps = getPrepStmt("delete"+table.toString());
-		if(ps == null){
-			logger.warning("Could not delete entry "+ id +" for table "+table.toString());
-			return -1;
-		}
-		
+	public int delete(AidTables table, String id) {
+		int affected = -1;
+
 		try {
-			ps.setString(1, id);
-			return ps.executeUpdate();
-		} catch (Exception e) {
-			logger.warning(SQL_OP_ERR+e.getMessage());
-		} finally {
-			closeAll(ps);
+			switch (table) {
+			case Filter:
+				affected = filterDAO.deleteById(id);
+				break;
+
+			case Fileindex:
+				affected = indexDao.deleteById(id);
+				break;
+
+			case Dnw:
+				affected = dnwDAO.deleteById(id);
+				break;
+
+			case Block:
+				affected = blackListDAO.deleteById(id);
+				break;
+
+			default:
+				logger.severe("Unable to perform delete for table "
+						+ table.toString());
+				break;
+			}
+		} catch (SQLException e) {
+			logSQLerror(e);
 		}
-		
-		return -1;
+
+		return affected;
 	}
 
 	public void sendStatement(String sqlStatment){
