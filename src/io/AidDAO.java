@@ -20,6 +20,7 @@ import static file.FileUtil.removeDriveLetter;
 import file.FileInfo;
 import filter.FilterItem;
 import filter.FilterState;
+import io.dao.BlacklistDAO;
 import io.dao.CacheDAO;
 import io.dao.DuplicateDAO;
 import io.dao.FilterDAO;
@@ -82,7 +83,7 @@ public class AidDAO{
 	private Dao<FilePathRecord, Integer> fileDAO;
 	private DuplicateDAO duplicateDAO;
 	private Dao<DnwRecord, String> dnwDAO;
-	private Dao<BlacklistRecord, String> blackListDAO;
+	private BlacklistDAO blackListDAO;
 	private FilterDAO filterDAO;
 	private Dao<Settings, String> settingDao;
 	
@@ -108,7 +109,8 @@ public class AidDAO{
 			duplicateDAO = new DuplicateDAO(cSource);
 			DaoManager.registerDao(cSource, duplicateDAO);
 			dnwDAO = DaoManager.createDao(cSource, DnwRecord.class);
-			blackListDAO = DaoManager.createDao(cSource, BlacklistRecord.class);
+			blackListDAO = new BlacklistDAO(cSource);
+			DaoManager.registerDao(cSource, blackListDAO);
 			filterDAO = new FilterDAO(cSource);
 			DaoManager.registerDao(cSource, filterDAO);
 			settingDao = DaoManager.createDao(cSource, Settings.class);
@@ -126,7 +128,6 @@ public class AidDAO{
 	 */
 	private static void init(){
 		generateStatements();
-		addPrepStmt("compareBlacklisted", "SELECT a.id, CONCAT(dirlist.dirpath,filelist.filename) FROM (select fileindex.id,dir, filename FROM block join fileindex on block.id = fileindex.id) AS a JOIN filelist ON a.filename=filelist.id Join dirlist ON a.dir=dirlist.id");
 	}
 	
 	private static void generateStatements(){
@@ -183,29 +184,15 @@ public class AidDAO{
 	}
 	
 	public LinkedList<String> getBlacklistedFiles(){
-		//TODO replace with raw query
 		LinkedList<String> images = new LinkedList<>();
-		String command = "compareBlacklisted";
 		
-		ResultSet rs = null;
-		PreparedStatement ps = getPrepStmt(command);
-
 		try {
-			rs = ps.executeQuery();
-
-			while(rs.next()){
-				images.add(rs.getString(1));
-			}
-
-			return images;
-
+			images = blackListDAO.getBlacklisted();
 		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+e.getMessage());
-		}finally{
-			closeAll(ps);
-			silentClose(null, ps, rs);
+			logSQLerror(e);
 		}
-		return null;
+		
+		return images;
 	}
 	/**
 	 * Use {@link AidDAO#getDuplicatesAndOriginal()} instead.
