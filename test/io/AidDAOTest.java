@@ -145,6 +145,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		Assertion.assertEqualsIgnoreCols(getFileTable(AidTables.Filter.toString(), updateStateExpected_PATH), getDatabaseTable(AidTables.Filter.toString()),IGNORE_CACHE_COL);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testDelete() throws Exception{
 		// filter table
@@ -215,6 +216,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		Assertion.assertEqualsIgnoreCols(getFileTable("thumbs", triggerExpected_PATH), getDatabaseTable("thumbs"), IGNORE_THUMBS_TRIGGER_COL);
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testTriggerThumbsDelete() throws Exception{
 		sql.delete(AidTables.Filter, "http://foo.bar/1");
@@ -288,6 +290,7 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertThat(pendingItems, hasItem(new FilterItem(new URL("http://foo.bar/7"),"sa", "rain",  FilterState.PENDING)));
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testGetOldestFilter(){
 		assertThat(sql.getOldestFilter(), is("http://foo.bar/1"));
