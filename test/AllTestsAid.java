@@ -26,6 +26,6 @@ import org.junit.runners.Suite.SuiteClasses;
 					Filter.class, 
 					Io.class
 })
-public class AllTests {
+public class AllTestsAid {
 
 }
