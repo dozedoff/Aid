@@ -757,89 +757,24 @@ public class AidDAO{
 		}
 		return DEFAULT_LOCATION;
 	}
-	
+
 	public boolean moveIndexToDuplicate(String id){
-		final String SQL_COPY_INDEX_STATEMENT = "INSERT INTO fileduplicate SELECT * FROM fileindex WHERE id = ?";
-		final String SQL_DELETE_INDEX_STATEMENT = "DELETE FROM fileindex WHERE id = ?";
-		
-		Connection cn = null;
-		PreparedStatement copyPrepStatement = null, deletePrepStatement = null;
-		
 		try {
-			cn = getConnection();
-			
-			cn.setAutoCommit(false);
-			
-			copyPrepStatement = cn.prepareStatement(SQL_COPY_INDEX_STATEMENT);
-			deletePrepStatement = cn.prepareStatement(SQL_DELETE_INDEX_STATEMENT);
-			
-			copyPrepStatement.setString(1, id);
-			deletePrepStatement.setString(1, id);
-			
-			copyPrepStatement.executeUpdate();
-			deletePrepStatement.executeUpdate();
-			
-			
-			
-			return true;
+			return indexDao.moveIndexToDuplicate(id);
 		} catch (SQLException e) {
-			try {
-				cn.rollback();
-			} catch (SQLException e1) {logger.severe("Failed to perform transaction rollback");}
-			
-			return false;
-		}finally{
-			
-			try {
-				cn.commit();
-				cn.setAutoCommit(true);
-			} catch (SQLException e) {
-				logger.severe("Failed to commit transaction: " + e.getMessage());
-			}
-			
-			closeAll(copyPrepStatement);
-			closeAll(deletePrepStatement);
+			logSQLerror(e);
 		}
+		
+		return false;
 	}
-	
+
 	public boolean moveDuplicateToIndex(String id){
-		final String SQL_COPY_INDEX_STATEMENT = "INSERT INTO fileindex SELECT * FROM fileduplicate WHERE id = ? LIMIT 1" ;
-		final String SQL_DELETE_DUPLICATE_STATEMENT = "DELETE fd FROM fileduplicate AS fd JOIN fileindex AS fi ON fi.id=fd.id AND fi.dir=fd.dir AND fi.filename=fd.filename";
-		
-		Connection cn = null;
-		PreparedStatement copyPrepStatement = null, deletePrepStatement = null;
-		
 		try {
-			cn = getConnection();
-			cn.setAutoCommit(false);
-			
-			copyPrepStatement = cn.prepareStatement(SQL_COPY_INDEX_STATEMENT);
-			deletePrepStatement = cn.prepareStatement(SQL_DELETE_DUPLICATE_STATEMENT);
-			
-			copyPrepStatement.setString(1, id);
-			
-			copyPrepStatement.executeUpdate();
-			deletePrepStatement.executeUpdate();
-			
-			return true;
+			return duplicateDAO.moveDuplicateToIndex(id);
 		} catch (SQLException e) {
-			try {
-				cn.rollback();
-			} catch (SQLException e1) {logger.severe("Failed to perform transaction rollback");}
-			
-			return false;
-		}finally{
-			
-			try {
-				cn.commit();
-				cn.setAutoCommit(true);
-			} catch (SQLException e) {
-				logger.severe("Failed to commit transaction: " + e.getMessage());
-			}
-			
-			closeAll(copyPrepStatement);
-			closeAll(deletePrepStatement);
+			logSQLerror(e);
 		}
+		return false;
 	}
 	
 	public boolean addFilter(FilterItem fi) {

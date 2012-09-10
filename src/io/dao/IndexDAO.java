@@ -21,8 +21,10 @@ import io.tables.IndexRecord;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import com.j256.ormlite.dao.BaseDaoImpl;
+import com.j256.ormlite.misc.TransactionManager;
 import com.j256.ormlite.support.ConnectionSource;
 
 public class IndexDAO extends BaseDaoImpl<IndexRecord, String> {
@@ -38,5 +40,19 @@ public class IndexDAO extends BaseDaoImpl<IndexRecord, String> {
 		}else{
 			return records.get(0);
 		}
+	}
+	
+	public boolean moveIndexToDuplicate(final String id) throws SQLException{
+		final String SQL_COPY_INDEX_STATEMENT = "INSERT INTO fileduplicate SELECT * FROM fileindex WHERE id = ?";
+		
+		return TransactionManager.callInTransaction(connectionSource, new Callable<Boolean>() {
+
+			@Override
+			public Boolean call() throws Exception {
+				updateRaw(SQL_COPY_INDEX_STATEMENT, id);
+				deleteById(id);
+				return true;
+			}
+		});
 	}
 }

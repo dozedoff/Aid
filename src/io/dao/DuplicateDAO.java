@@ -27,15 +27,18 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.concurrent.Callable;
 
 import com.j256.ormlite.dao.BaseDaoImpl;
 import com.j256.ormlite.dao.GenericRawResults;
 import com.j256.ormlite.dao.RawRowMapper;
+import com.j256.ormlite.misc.TransactionManager;
 import com.j256.ormlite.support.ConnectionSource;
 
 public class DuplicateDAO extends BaseDaoImpl<DuplicateRecord, String> {
 	final String DUPLICATE_STMT = "SELECT dv.id, dv.dupeloc AS loc, dv.dupePath AS path FROM dupeview AS dv";
 	final String ORIGINAL_STMT = "SELECT dv.id, dv.origloc AS loc, dv.origPath AS path  FROM dupeview AS dv";
+	
 	RawRowMapper<IndexRecord> indexMapper;
 	RawRowMapper<DuplicateRecord> duplicateMapper;
 	
@@ -98,5 +101,20 @@ public class DuplicateDAO extends BaseDaoImpl<DuplicateRecord, String> {
 		}
 		
 		return records;
+	}
+	
+	public boolean moveDuplicateToIndex(final String id) throws SQLException{
+		final String SQL_COPY_INDEX_STATEMENT = "INSERT INTO fileindex SELECT * FROM fileduplicate WHERE id = ? LIMIT 1" ;
+		final String SQL_DELETE_DUPLICATE_STATEMENT = "DELETE fd FROM fileduplicate AS fd JOIN fileindex AS fi ON fi.id=fd.id AND fi.dir=fd.dir AND fi.filename=fd.filename";
+		
+		return TransactionManager.callInTransaction(connectionSource, new Callable<Boolean>() {
+
+			@Override
+			public Boolean call() throws Exception {
+				updateRaw(SQL_COPY_INDEX_STATEMENT, id);
+				updateRaw(SQL_DELETE_DUPLICATE_STATEMENT);
+				return true;
+			}
+		});
 	}
 }
