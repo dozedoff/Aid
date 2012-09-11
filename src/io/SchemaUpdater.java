@@ -52,6 +52,11 @@ public class SchemaUpdater {
 					// update from version 1 to 2
 					if(! sql.batchExecute(UPDATE_1_TO_2))
 						throw new SchemaUpdateException("Batch command UPDATE_1_TO_2 failed");
+					
+				case 2:
+					// update from version 2 to 3
+					if(! sql.batchExecute(UPDATE_2_TO_3))
+						throw new SchemaUpdateException("Batch command UPDATE_2_TO_3 failed");
 				default:
 			}
 		} catch (NumberFormatException  e) {
@@ -66,4 +71,10 @@ public class SchemaUpdater {
 			"ALTER TABLE `dnw` CHANGE COLUMN `hash` `id` VARCHAR(64) NOT NULL COLLATE 'ascii_general_ci' FIRST",
 			"UPDATE settings SET param='2' WHERE name ='SchemaVersion'"
 	};
+	
+	private final static String[] UPDATE_2_TO_3 ={
+		"ALTER TABLE `location_tags` CHANGE COLUMN `tag_id` `tag_id` SMALLINT(8) UNSIGNED NOT NULL AUTO_INCREMENT FIRST;",
+		"INSERT IGNORE INTO `location_tags` (`tag_id`, `location`) VALUES (2, 'ARCHIVE');",
+		"UPDATE settings SET param='3' WHERE name ='SchemaVersion'"
+};
 }
