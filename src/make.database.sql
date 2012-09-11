@@ -160,7 +160,7 @@ DELIMITER ;
 
 -- Dumping structure for table aid.location_tags
 CREATE TABLE IF NOT EXISTS `location_tags` (
-  `tag_id` smallint(8) unsigned NOT NULL,
+  `tag_id` smallint(8) unsigned NOT NULL AUTO_INCREMENT,
   `location` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`tag_id`),
   UNIQUE KEY `tag_id` (`tag_id`),
@@ -168,7 +168,7 @@ CREATE TABLE IF NOT EXISTS `location_tags` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='List of tags for different locations where data is stored';
 
 INSERT IGNORE INTO `location_tags` (`tag_id`, `location`) VALUES (1, 'UNKNOWN');
-
+INSERT IGNORE INTO `location_tags` (`tag_id`, `location`) VALUES (2, 'ARCHIVE');
 
 -- Dumping structure for table aid.settings
 CREATE TABLE IF NOT EXISTS `settings` (

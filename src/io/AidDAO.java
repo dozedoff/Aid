@@ -283,6 +283,11 @@ public class AidDAO{
 	public boolean addIndex(FileInfo fileInfo, String location){
 		try {
 			LocationRecord locationRec = locationDao.queryForLocation(location);
+			
+			if(locationRec == null) {
+				locationRec = locationDao.createIfNotExists(new LocationRecord(location));
+			}
+			
 			IndexRecord index = new IndexRecord(fileInfo, locationRec);
 			
 			if(indexDao.idExists(fileInfo.getHash())) {

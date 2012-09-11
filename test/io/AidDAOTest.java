@@ -267,6 +267,12 @@ public class AidDAOTest extends DatabaseTestCase{
 	}
 	
 	@Test
+	public void testAddIndexInvalidLocation() {
+		assertTrue(sql.addIndex("9001", "D:\\foobar\\apple.jpg", 111L, "DERP"));
+		assertThat(sql.getLocationById("9001"), is("DERP"));
+	}
+	
+	@Test
 	public void testAddIndexFileInfo() throws Exception{
 		Path filePath = Paths.get("D:\\foo\\panda.png");
 		FileInfo info = new FileInfo(filePath, "54321");
