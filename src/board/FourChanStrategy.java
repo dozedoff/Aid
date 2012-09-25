@@ -38,7 +38,7 @@ public class FourChanStrategy implements SiteStrategy {
 	
 	@Override
 	public boolean validSiteStrategy(URL siteUrl) {
-		if(siteUrl.getHost().equals("http://4chan.org")){
+		if(siteUrl.getHost().equals("http://www.4chan.org/")){
 			return true;
 		}else{
 			return false;
@@ -58,39 +58,36 @@ public class FourChanStrategy implements SiteStrategy {
 	}
 
 	@Override
-	public List<PageThread> parsePage(URL boardUrl, Page page) {
+	public List<PageThread> parsePage(URL pageUrl) {
 		LinkedList<PageThread> pageThreads = new LinkedList<>();
-		
-		URL pageUrl = page.getPageUrl();
 		String html = "";
+		Document pageDocument;
 		
 		try {
-			html = getHtml.get(pageUrl);
+			pageDocument = Jsoup.connect(pageUrl.toString()).userAgent("Mozilla").get();
 		} catch (Exception e){
-			logger.warning("Failed to process page " + page.getPageUrl().toString() + " Cause: " + e.getMessage());
+			logger.warning("Failed to process page " + pageUrl.toString() + " Cause: " + e.getMessage());
 			return pageThreads;
 		}
-		
-		Document pageDocument = Jsoup.parse(html);
 		
 		Elements board = pageDocument.select("#delform > div.board");
 		Elements threads = board.first().getElementsByClass("thread");
 		
 		for(Element thread : threads){
-			String relativeThreadUrl = thread.getElementsByClass("replylink").first().attr("href");
+			String absoluteThreadUrl = thread.getElementsByClass("replylink").first().attr("abs:href");
 			
 			try {
-				URL threadUrl = new URL(boardUrl.toString() + relativeThreadUrl);
+				URL threadUrl = new URL(absoluteThreadUrl);
 				PageThread pageThread = new PageThread(threadUrl);
 				pageThreads.add(pageThread);
 			} catch (MalformedURLException e) {
-				logger.warning("unable to process thread URL.\n " + relativeThreadUrl + "\n" + e.getMessage());
+				logger.warning("unable to process thread URL.\n " + absoluteThreadUrl + "\n" + e.getMessage());
 			}
 		}
 		
 		return pageThreads;
 	}
-
+	
 	@Override
 	public AbstractList<Post> parseThread(PageThread pageThread) {
 		// TODO Auto-generated method stub

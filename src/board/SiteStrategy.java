@@ -27,6 +27,6 @@ public interface SiteStrategy {
 	public AbstractList<URL> findBoards();
 	public int getBoardPageCount(URL boardUrl);
 	
-	public List<PageThread> parsePage(URL boardUrl, Page page);
+	public List<PageThread> parsePage(URL pageUrl);
 	public AbstractList<Post> parseThread(PageThread pageThread);
 }
