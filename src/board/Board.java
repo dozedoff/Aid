@@ -17,14 +17,15 @@
  */
 package board;
 
+import java.net.URL;
 import java.text.DateFormat;
 import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import java.util.logging.*;
+import java.util.logging.Logger;
 
 import thread.WorkQueue;
 
@@ -38,14 +39,24 @@ public class Board {
 	private String boardId;
 	private String lastRun ="";
 	private boolean stoppped = true;
+	final private URL boardUrl;
+	final private SiteStrategy siteStartegy;
 	private final int WAIT_TIME = 60 * 1000 * 60; // 1 hour
 	
 	private static final Logger LOGGER = Logger.getLogger(Board.class.getName());
 	
-	public Board(AbstractList<Page> pages, WorkQueue pageQueue, String boardId){
-		this.pages = pages;
+	public Board(URL boardUrl, WorkQueue pageQueue, String boardId){
+		this.boardUrl = boardUrl;
 		this.pageQueue = pageQueue;
 		this.boardId = boardId;
+		
+		siteStartegy = findSiteStrategy(boardUrl);
+	}
+	
+	private SiteStrategy findSiteStrategy(URL boardUrl){
+		//TODO code me
+		// get strategy list, iterate and test
+		return new FourChanStrategy();
 	}
 
 	public void stop(){
@@ -91,11 +102,11 @@ public class Board {
 		}
 
 		this.stoppped = false;
-		pageAdder.schedule(new PageAdder(delay), delay*60*1000, WAIT_TIME);
+		pageAdder.schedule(new BoardWorker(delay), delay*60*1000, WAIT_TIME);
 	}
 
-	class PageAdder extends TimerTask{
-		public PageAdder(int delay){
+	class BoardWorker extends TimerTask{
+		public BoardWorker(int delay){
 			setTime(delay);
 		}
 
@@ -104,10 +115,7 @@ public class Board {
 			//TODO add muli-queueing protection
 
 			setTime(0);
-
-			for(Page p : pages){
-				pageQueue.execute(p);
-			}
+			processBoard();
 		}
 
 		/**
@@ -120,6 +128,11 @@ public class Board {
 			DateFormat df;
 			df = DateFormat.getTimeInstance(DateFormat.MEDIUM);
 			lastRun = df.format(cal.getTime());
+		}
+		
+		private void processBoard() {
+			int numOfPages = siteStartegy.getBoardPageCount(boardUrl);
+			ArrayList<URL> pageUrls = PageUrlFactory.makePages(boardUrl, numOfPages);
 		}
 	}
 }
