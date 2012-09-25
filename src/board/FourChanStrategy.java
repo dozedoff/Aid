@@ -38,9 +38,9 @@ public class FourChanStrategy implements SiteStrategy {
 	
 	@Override
 	public boolean validSiteStrategy(URL siteUrl) {
-		if(siteUrl.getHost().equals("http://www.4chan.org/")){
+		if (siteUrl.getHost().equals("http://www.4chan.org/")) {
 			return true;
-		}else{
+		} else {
 			return false;
 		}
 	}
@@ -60,31 +60,31 @@ public class FourChanStrategy implements SiteStrategy {
 	@Override
 	public List<PageThread> parsePage(URL pageUrl) {
 		LinkedList<PageThread> pageThreads = new LinkedList<>();
-		String html = "";
 		Document pageDocument;
-		
+
 		try {
 			pageDocument = Jsoup.connect(pageUrl.toString()).userAgent("Mozilla").get();
-		} catch (Exception e){
-			logger.warning("Failed to process page " + pageUrl.toString() + " Cause: " + e.getMessage());
+		} catch (Exception e) {
+			logger.warning("Failed to process page " + pageUrl.toString()
+					+ " Cause: " + e.getMessage());
 			return pageThreads;
 		}
-		
+
 		Elements board = pageDocument.select("#delform > div.board");
 		Elements threads = board.first().getElementsByClass("thread");
-		
-		for(Element thread : threads){
+
+		for (Element thread : threads) {
 			String absoluteThreadUrl = thread.getElementsByClass("replylink").first().attr("abs:href");
-			
+
 			try {
 				URL threadUrl = new URL(absoluteThreadUrl);
 				PageThread pageThread = new PageThread(threadUrl);
 				pageThreads.add(pageThread);
 			} catch (MalformedURLException e) {
-				logger.warning("unable to process thread URL.\n " + absoluteThreadUrl + "\n" + e.getMessage());
+				logger.warning("Unable to process thread URL.\n "
+						+ absoluteThreadUrl + "\n" + e.getMessage());
 			}
 		}
-		
 		return pageThreads;
 	}
 	
@@ -93,5 +93,4 @@ public class FourChanStrategy implements SiteStrategy {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 }
