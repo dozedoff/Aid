@@ -19,6 +19,7 @@ package board;
 
 import java.net.URL;
 import java.util.AbstractList;
+import java.util.List;
 
 public interface SiteStrategy {
 	public boolean validSiteStrategy(URL siteUrl);
@@ -26,6 +27,6 @@ public interface SiteStrategy {
 	public AbstractList<URL> findBoards();
 	public int getBoardPageCount(URL boardUrl);
 	
-	public AbstractList<PageThread> parsePage(Page page);
+	public List<PageThread> parsePage(URL boardUrl, Page page);
 	public AbstractList<Post> parseThread(PageThread pageThread);
 }
