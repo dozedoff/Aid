@@ -225,11 +225,12 @@ public class Main implements ActionListener{
 		for(String s : subP){
 			String[] param = s.split(";");
 			try{
-				ArrayList<Page> pList = PageFactory.makePages(baseUrl+param[0], Integer.parseInt(param[1]), filter, imageLoader);
-				Board b = new Board(pList, pageQueue,param[0]);
+				Board b = new Board(new URL(baseUrl+param[0]), pageQueue,param[0]);
 				boards.addElement(b);
 			}catch(IndexOutOfBoundsException oob){
 				logger.warning("Sub_pages is not configured correctly");
+			} catch (MalformedURLException e) {
+				logger.warning("Invalid board URL " + e.getMessage());
 			}
 		}
 
