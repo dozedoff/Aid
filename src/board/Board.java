@@ -23,6 +23,8 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Logger;
@@ -133,6 +135,27 @@ public class Board {
 		private void processBoard() {
 			int numOfPages = siteStartegy.getBoardPageCount(boardUrl);
 			ArrayList<URL> pageUrls = PageUrlFactory.makePages(boardUrl, numOfPages);
+			List<PageThread> pageThreads = parsePages(pageUrls);
+			
+			//TODO finish me
+			
+			// compare pageThreads against filter
+			// parse pageThreads -> posts
+			// compare posts against word filter
+			// get image URLs
+			// compare URLs against cache
+			// add URLs for download
+		}
+		
+		private List<PageThread> parsePages(List<URL> pageUrls){
+			LinkedList<PageThread> pageThreads = new LinkedList<>();
+			
+			for(URL page : pageUrls){
+				List<PageThread> threads = siteStartegy.parsePage(page);
+				pageThreads.addAll(threads);
+			}
+			
+			return pageThreads;
 		}
 	}
 }
