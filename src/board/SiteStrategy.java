@@ -18,14 +18,14 @@
 package board;
 
 import java.net.URL;
+import java.util.AbstractList;
 
 public interface SiteStrategy {
-	public boolean validSiteStrategy();
+	public boolean validSiteStrategy(URL siteUrl);
 	
-	public void findBoards();
+	public AbstractList<URL> findBoards();
 	public int getBoardPageCount(URL boardUrl);
 	
-	public void parsePage();
-	public void parseThread();
-	public void parsePost();
+	public AbstractList<PageThread> parsePage(Page page);
+	public AbstractList<Post> parseThread(PageThread pageThread);
 }
