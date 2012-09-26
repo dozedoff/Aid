@@ -56,8 +56,10 @@ import javax.swing.UIManager;
 
 import thread.WorkQueue;
 import board.Board;
+import board.FourChanStrategy;
 import board.Page;
 import board.PageFactory;
+import board.SiteStrategy;
 import config.AppSetting;
 import config.DefaultAppSettings;
 import config.DefaultLoggerSettings;
@@ -221,11 +223,14 @@ public class Main implements ActionListener{
 
 		// parse subpages
 		String[] subP = subPages.split(",");
+		
+		
 
 		for(String s : subP){
 			String[] param = s.split(";");
 			try{
-				Board b = new Board(new URL(baseUrl+param[0]), pageQueue,param[0]);
+				SiteStrategy strategy = findSiteStrategy(checkAliveUrl); //TODO change settings to contain list of site URLs
+				Board b = new Board(new URL(baseUrl+param[0]),param[0], strategy);
 				boards.addElement(b);
 			}catch(IndexOutOfBoundsException oob){
 				logger.warning("Sub_pages is not configured correctly");
@@ -244,6 +249,12 @@ public class Main implements ActionListener{
 		y = Integer.parseInt(appSettings.getProperty(AppSetting.ypos.toString()));
 		
 		aid.setLocation(x,y);
+	}
+	
+	private SiteStrategy findSiteStrategy(URL boardUrl){
+		//TODO code me
+		// get strategy list, iterate and test
+		return new FourChanStrategy();
 	}
 
 	/**

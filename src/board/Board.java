@@ -47,18 +47,10 @@ public class Board {
 	
 	private static final Logger LOGGER = Logger.getLogger(Board.class.getName());
 	
-	public Board(URL boardUrl, WorkQueue pageQueue, String boardId){
+	public Board(URL boardUrl, String boardId, SiteStrategy siteStrategy){
 		this.boardUrl = boardUrl;
-		this.pageQueue = pageQueue;
 		this.boardId = boardId;
-		
-		siteStartegy = findSiteStrategy(boardUrl);
-	}
-	
-	private SiteStrategy findSiteStrategy(URL boardUrl){
-		//TODO code me
-		// get strategy list, iterate and test
-		return new FourChanStrategy();
+		this.siteStartegy = siteStrategy;
 	}
 
 	public void stop(){
@@ -97,7 +89,7 @@ public class Board {
 	}
 
 	public void start(int delay){
-		pageAdder = new Timer("Board "+boardId+" job adder", true);
+		pageAdder = new Timer("Board "+boardId+" worker", true);
 
 		for(Page p : pages){
 			p.setStop(false);
