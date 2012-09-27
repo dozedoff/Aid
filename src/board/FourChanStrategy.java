@@ -17,6 +17,7 @@
  */
 package board;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.AbstractList;
@@ -90,7 +91,51 @@ public class FourChanStrategy implements SiteStrategy {
 	
 	@Override
 	public AbstractList<Post> parseThread(PageThread pageThread) {
-		// TODO Auto-generated method stub
-		return null;
+		LinkedList<Post> postList = new LinkedList<>();
+		
+		String threadUrl = pageThread.getThreadUrl().toString();
+		
+		Document pageDocument;
+		try {
+			pageDocument = Jsoup.connect(threadUrl).userAgent("Mozilla").get();
+		} catch (IOException e) {
+			logger.warning("Failed to parse " + threadUrl);
+			return postList;
+		}
+		
+		Element thread = pageDocument.select("#delform > div.board > div.thread").first();
+		Elements posts = thread.getElementsByClass("post");
+		
+		for(Element post : posts){
+			Post postObject = new Post();
+			
+			Elements fileElements = post.getElementsByClass("file");
+			
+			for(Element file : fileElements){
+				String imageUrl = "?";
+				try{
+					Element imageInfo = file.select("div.fileInfo > span.fileText").first();
+					if(imageInfo == null){
+						// the image was deleted
+						continue;
+					}
+					
+					postObject.setImageName(imageInfo.select("span").attr("title"));
+					imageUrl = imageInfo.select("a").attr("href");
+					
+					postObject.setImageUrl(new URL("https:" + imageUrl));
+				}catch(MalformedURLException mue){
+					logger.warning("Invalid image URL (" + imageUrl+ ") in thread " + threadUrl);
+					postObject.setImageName(null);
+					postObject.setImageUrl(null);
+				}
+			}
+			
+			postObject.setComment(post.getElementsByClass("postMessage").first().ownText());
+			
+			postList.add(postObject);
+		}
+		
+		return postList;
 	}
 }
