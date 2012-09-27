@@ -54,10 +54,6 @@ public class Board {
 	}
 
 	public void stop(){
-		for(Page p : pages){
-			p.setStop(true);
-		}
-
 		this.stoppped = true;
 		if(pageAdder != null)
 			pageAdder.cancel();
@@ -90,10 +86,6 @@ public class Board {
 
 	public void start(int delay){
 		pageAdder = new Timer("Board "+boardId+" worker", true);
-
-		for(Page p : pages){
-			p.setStop(false);
-		}
 
 		this.stoppped = false;
 		pageAdder.schedule(new BoardWorker(delay), delay*60*1000, WAIT_TIME);

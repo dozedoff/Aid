@@ -225,7 +225,8 @@ public class Main implements ActionListener{
 		String[] subP = subPages.split(",");
 		
 		
-
+		//TODO put this into setting loader class?
+		
 		for(String s : subP){
 			String[] param = s.split(";");
 			try{

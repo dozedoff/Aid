@@ -22,6 +22,7 @@ import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.hamcrest.CoreMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.net.URL;
 import java.util.LinkedList;
 
 import org.junit.Before;
@@ -35,17 +36,17 @@ public class BoardTest {
 	LinkedList<Page> pages;
 	WorkQueue pageQueue;
 	Page page;
-	
+	SiteStrategy strategy;
 	
 	@Before
-	public void setup(){
+	public void setup() throws Exception {
 		pages = new LinkedList<>();
 		pageQueue = mock(WorkQueue.class);
 		page = mock(Page.class);
-		
+		strategy = mock(SiteStrategy.class);
 		pages.add(page);
-		
-		board = new Board(pages, pageQueue, "t");
+
+		board = new Board(new URL("http://foo.bar/"), "t", strategy);
 	}
 	
 	@Test
