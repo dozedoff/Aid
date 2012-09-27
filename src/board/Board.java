@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 import javax.print.attribute.standard.PageRanges;
 
 import filter.Filter;
+import filter.FilterItem;
 import filter.FilterState;
 
 /**
@@ -127,10 +128,7 @@ public class Board {
 			//TODO finish me
 			
 			filterPageThreads(pageThreads);
-			// parse pageThreads -> posts
-			// compare posts against word filter
-			// get image URLs
-			// compare URLs against cache
+			processPageThreads(pageThreads);
 			// add URLs for download
 		}
 		
@@ -164,6 +162,56 @@ public class Board {
 				return true;
 			}else{
 				return false;
+			}
+		}
+		
+		private void processPageThreads(List<PageThread> pageThreads) {
+			for (PageThread thread : pageThreads) {
+				List<Post> posts = siteStartegy.parseThread(thread);
+				String reason = filterPosts(posts);
+				
+				if (reason != null){
+					suspendThread(thread.getThreadUrl(), reason);
+					continue;
+				}
+				
+				filterImages(posts);
+			}
+		}
+		
+		private String filterPosts(List<Post> posts) {
+			String reason = null;
+			for (Post post : posts) {
+				reason = filter.checkPost(post);
+				
+				if (reason != null){
+					break;
+				}
+			}
+			
+			return reason;
+		}
+		
+		private void suspendThread(URL threadUrl, String reason) {
+			FilterItem filterItem = new FilterItem(threadUrl, boardId, reason, FilterState.PENDING);
+			filter.reviewThread(filterItem);
+		}
+		
+		private void filterImages(List<Post> posts) {
+			Iterator<Post> iterator = posts.iterator();
+			
+			while(iterator.hasNext()){
+				Post currentPost = iterator.next();
+				
+				if(currentPost.hasImage()){
+					URL imageUrl = currentPost.getImageUrl();
+					
+					if(filter.isCached(imageUrl)) {
+						iterator.remove();
+					}
+				}else{
+					iterator.remove();
+				}
 			}
 		}
 	}
