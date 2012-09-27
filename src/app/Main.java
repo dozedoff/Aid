@@ -231,7 +231,7 @@ public class Main implements ActionListener{
 			String[] param = s.split(";");
 			try{
 				SiteStrategy strategy = findSiteStrategy(checkAliveUrl); //TODO change settings to contain list of site URLs
-				Board b = new Board(new URL(baseUrl+param[0]),param[0], strategy);
+				Board b = new Board(new URL(baseUrl+param[0]),param[0], strategy, filter);
 				boards.addElement(b);
 			}catch(IndexOutOfBoundsException oob){
 				logger.warning("Sub_pages is not configured correctly");

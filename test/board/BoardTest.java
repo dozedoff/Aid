@@ -17,10 +17,10 @@
  */
 package board;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
-import static org.hamcrest.CoreMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 import java.net.URL;
 import java.util.LinkedList;
@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import thread.WorkQueue;
+import filter.Filter;
 
 public class BoardTest {
 	Board board;
@@ -37,6 +38,7 @@ public class BoardTest {
 	WorkQueue pageQueue;
 	Page page;
 	SiteStrategy strategy;
+	Filter filter;
 	
 	@Before
 	public void setup() throws Exception {
@@ -44,9 +46,12 @@ public class BoardTest {
 		pageQueue = mock(WorkQueue.class);
 		page = mock(Page.class);
 		strategy = mock(SiteStrategy.class);
+		filter = mock(Filter.class);
+		
+		
 		pages.add(page);
 
-		board = new Board(new URL("http://foo.bar/"), "t", strategy);
+		board = new Board(new URL("http://foo.bar/"), "t", strategy, filter);
 	}
 	
 	@Test

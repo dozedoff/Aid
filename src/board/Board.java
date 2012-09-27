@@ -19,38 +19,41 @@ package board;
 
 import java.net.URL;
 import java.text.DateFormat;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Logger;
 
-import thread.WorkQueue;
+import javax.print.attribute.standard.PageRanges;
+
+import filter.Filter;
+import filter.FilterState;
 
 /**
  * Represents a whole board.
  */
 public class Board {
-	private AbstractList<Page> pages;
-	private WorkQueue pageQueue;
 	private Timer pageAdder;
 	private String boardId;
 	private String lastRun ="";
 	private boolean stoppped = true;
 	final private URL boardUrl;
 	final private SiteStrategy siteStartegy;
+	final private Filter filter;
 	private final int WAIT_TIME = 60 * 1000 * 60; // 1 hour
 	
 	private static final Logger LOGGER = Logger.getLogger(Board.class.getName());
 	
-	public Board(URL boardUrl, String boardId, SiteStrategy siteStrategy){
+	public Board(URL boardUrl, String boardId, SiteStrategy siteStrategy, Filter filter){
 		this.boardUrl = boardUrl;
 		this.boardId = boardId;
 		this.siteStartegy = siteStrategy;
+		this.filter = filter;
 	}
 
 	public void stop(){
@@ -123,7 +126,7 @@ public class Board {
 			
 			//TODO finish me
 			
-			// compare pageThreads against filter
+			filterPageThreads(pageThreads);
 			// parse pageThreads -> posts
 			// compare posts against word filter
 			// get image URLs
@@ -140,6 +143,28 @@ public class Board {
 			}
 			
 			return pageThreads;
+		}
+		
+		private void filterPageThreads(List<PageThread> pageThreads) {
+			Iterator<PageThread> iterator = pageThreads.iterator();
+			
+			while(iterator.hasNext()){
+				PageThread currentPageThread = iterator.next();
+				
+				if(isBlockedByFilter(currentPageThread)){
+					iterator.remove();
+				}
+			}
+		}
+		
+		private boolean isBlockedByFilter(PageThread pageThread){
+			FilterState state = filter.getFilterState(pageThread.getThreadUrl());
+			
+			if(state == FilterState.DENY || state == FilterState.PENDING) {
+				return true;
+			}else{
+				return false;
+			}
 		}
 	}
 }
