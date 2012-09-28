@@ -17,7 +17,10 @@
  */
 package board;
 
+import io.ImageLoader;
+
 import java.net.URL;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -46,15 +49,17 @@ public class Board {
 	final private URL boardUrl;
 	final private SiteStrategy siteStartegy;
 	final private Filter filter;
+	final private ImageLoader imageLoader;
 	private final int WAIT_TIME = 60 * 1000 * 60; // 1 hour
 	
 	private static final Logger LOGGER = Logger.getLogger(Board.class.getName());
 	
-	public Board(URL boardUrl, String boardId, SiteStrategy siteStrategy, Filter filter){
+	public Board(URL boardUrl, String boardId, SiteStrategy siteStrategy, Filter filter, ImageLoader imageLoader){
 		this.boardUrl = boardUrl;
 		this.boardId = boardId;
 		this.siteStartegy = siteStrategy;
 		this.filter = filter;
+		this.imageLoader = imageLoader;
 	}
 
 	public void stop(){
@@ -125,11 +130,8 @@ public class Board {
 			ArrayList<URL> pageUrls = PageUrlFactory.makePages(boardUrl, numOfPages);
 			List<PageThread> pageThreads = parsePages(pageUrls);
 			
-			//TODO finish me
-			
 			filterPageThreads(pageThreads);
 			processPageThreads(pageThreads);
-			// add URLs for download
 		}
 		
 		private List<PageThread> parsePages(List<URL> pageUrls){
@@ -176,6 +178,7 @@ public class Board {
 				}
 				
 				filterImages(posts);
+				queueForDownload(posts, thread.getThreadNumber());
 			}
 		}
 		
@@ -212,6 +215,16 @@ public class Board {
 				}else{
 					iterator.remove();
 				}
+			}
+		}
+		
+		private void queueForDownload(List<Post> posts, int threadNumber) {
+			for(Post post : posts){
+				String threadId = String.valueOf(threadNumber);
+				String imageName = post.getImageName();
+				String relativeImagePath = Paths.get(boardId, threadId, imageName).toString();
+
+				imageLoader.add(post.getImageUrl(), relativeImagePath);
 			}
 		}
 	}

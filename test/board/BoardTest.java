@@ -22,6 +22,8 @@ import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.mockito.Mockito.mock;
 
+import io.ImageLoader;
+
 import java.net.URL;
 import java.util.LinkedList;
 
@@ -39,6 +41,7 @@ public class BoardTest {
 	Page page;
 	SiteStrategy strategy;
 	Filter filter;
+	ImageLoader imageLoader;
 	
 	@Before
 	public void setup() throws Exception {
@@ -47,11 +50,11 @@ public class BoardTest {
 		page = mock(Page.class);
 		strategy = mock(SiteStrategy.class);
 		filter = mock(Filter.class);
-		
+		imageLoader = mock(ImageLoader.class);
 		
 		pages.add(page);
 
-		board = new Board(new URL("http://foo.bar/"), "t", strategy, filter);
+		board = new Board(new URL("http://foo.bar/"), "t", strategy, filter, imageLoader);
 	}
 	
 	@Test
