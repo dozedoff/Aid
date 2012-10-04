@@ -22,6 +22,8 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import io.TextFileReader;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -43,11 +45,17 @@ import org.junit.Test;
 public class FourChanStrategyTest {
 	SiteStrategy strategy;
 	static Server server = new Server();
+	static String mainPage, page, thread;
 	
 	@BeforeClass
 	static public void before() throws Exception{
 		server.setHandler(new TestHandler());
 		server.start();
+		
+		TextFileReader tfr = new TextFileReader();
+		
+		
+		mainPage = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData\\mainPage.html"));
 	}
 
 	@Before
@@ -93,8 +101,10 @@ public class FourChanStrategyTest {
 			response.setContentType("text/html;charset=utf-8");
 			response.setStatus(HttpServletResponse.SC_OK);
 			baseRequest.setHandled(true);
-
-			if(request.getRequestURI().equals("/a/2")){
+			
+			if(request.getRequestURI().equals("/")){
+			
+			}else if(request.getRequestURI().equals("/a/2")){
 				//TODO add page data here
 			}else if(request.getRequestURI().equals("a/res/1234567")){
 				//TODO add thread data here
