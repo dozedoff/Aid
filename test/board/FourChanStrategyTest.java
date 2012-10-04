@@ -22,20 +22,42 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.hamcrest.core.Is;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class FourChanStrategyTest {
 	SiteStrategy strategy;
+	static Server server = new Server();
+	
+	@BeforeClass
+	static public void before() throws Exception{
+		server.setHandler(new TestHandler());
+		server.start();
+	}
 
 	@Before
 	public void setUp() throws Exception {
 		strategy = new FourChanStrategy();
+	}
+	
+	@AfterClass
+	static public void after() throws Exception{
+		server.stop();
 	}
 
 	@Test
@@ -61,6 +83,25 @@ public class FourChanStrategyTest {
 	@Test
 	public void testParseThread() {
 		fail("Not yet implemented");
+	}
+	
+	static class TestHandler extends AbstractHandler{
+		@Override
+		public void handle(String arg0, Request baseRequest, HttpServletRequest request,
+				HttpServletResponse response) throws IOException, ServletException {
+
+			response.setContentType("text/html;charset=utf-8");
+			response.setStatus(HttpServletResponse.SC_OK);
+			baseRequest.setHandled(true);
+
+			if(request.getRequestURI().equals("/a/2")){
+				//TODO add page data here
+			}else if(request.getRequestURI().equals("a/res/1234567")){
+				//TODO add thread data here
+			}else{
+				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			}
+		}
 	}
 
 }
