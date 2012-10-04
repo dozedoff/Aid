@@ -20,9 +20,9 @@ package board;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.AbstractList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import net.GetHtml;
 
@@ -47,7 +47,7 @@ public class FourChanStrategy implements SiteStrategy {
 	}
 
 	@Override
-	public AbstractList<URL> findBoards() {
+	public Map<String, URL> findBoards(URL siteUrl) {
 		// TODO look at Html source
 		return null;
 	}
@@ -90,7 +90,7 @@ public class FourChanStrategy implements SiteStrategy {
 	}
 	
 	@Override
-	public AbstractList<Post> parseThread(PageThread pageThread) {
+	public List<Post> parseThread(PageThread pageThread) {
 		LinkedList<Post> postList = new LinkedList<>();
 		
 		String threadUrl = pageThread.getThreadUrl().toString();
