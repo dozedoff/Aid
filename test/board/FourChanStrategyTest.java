@@ -21,11 +21,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.matchers.JUnitMatchers.hasItems;
 import io.TextFileReader;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -99,7 +102,26 @@ public class FourChanStrategyTest {
 
 	@Test
 	public void testParsePage() throws Exception {
-		fail("Not yet implemented");
+		List<PageThread> pageThreads = strategy.parsePage(boardUrl);
+		LinkedList<URL> pageUrls = new LinkedList<>();
+		LinkedList<URL> correctUrls = new LinkedList<>();
+		
+		int replyNr[] = {1418, 7897, 7910, 1461, 1454, 1456, 1450, 1449, 1448, 1447};
+		
+		for(int i : replyNr){
+			correctUrls.add(new URL("http://localhost/newhtml/res/" + String.valueOf(i)));
+		}
+		
+		for(PageThread pt : pageThreads){
+			pageUrls.add(pt.getThreadUrl());
+		}
+		
+		URL correctArray[] = new URL[0];
+		
+		correctUrls.toArray(correctArray);
+		assertThat(pageUrls, hasItems(correctArray));
+		
+		
 	}
 
 	@Test
