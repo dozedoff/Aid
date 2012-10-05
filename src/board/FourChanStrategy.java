@@ -113,11 +113,10 @@ public class FourChanStrategy implements SiteStrategy {
 			return pageThreads;
 		}
 
-		Elements board = pageDocument.select("#delform > div.board");
-		Elements threads = board.first().getElementsByClass("thread");
+		Elements threadLinks = pageDocument.select("a.replylink");
 
-		for (Element thread : threads) {
-			String absoluteThreadUrl = thread.getElementsByClass("replylink").first().attr("abs:href");
+		for (Element thread : threadLinks) {
+			String absoluteThreadUrl = thread.attr("abs:href");
 
 			try {
 				URL threadUrl = new URL(absoluteThreadUrl);
