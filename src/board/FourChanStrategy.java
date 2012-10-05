@@ -20,6 +20,7 @@ package board;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -53,8 +54,32 @@ public class FourChanStrategy implements SiteStrategy {
 
 	@Override
 	public Map<String, URL> findBoards(URL siteUrl) {
-		// TODO look at Html source
-		return null;
+		HashMap<String, URL> boardMap = new HashMap<>();
+		Document mainDocument;
+
+		try {
+			mainDocument = Jsoup.connect(siteUrl.toString()).userAgent("Mozilla").get();
+		} catch (Exception e) {
+			logger.warning("Failed to process Mainpage " + siteUrl.toString()
+					+ " Cause: " + e.getMessage());
+			return boardMap;
+		}
+
+		Elements boards = mainDocument.select("a.boardlink");
+
+		for (Element boardEntry : boards){
+			String url = boardEntry.attr("href");
+			String name = boardEntry.attr("title");
+			
+			try {
+				String fullUrl = "http:" + url;
+				boardMap.put(name, new URL(fullUrl));
+			} catch (Exception e) {
+				logger.warning("Could not add Board " + name + " due to: " + e.getMessage());
+			}
+		}
+		
+		return boardMap;
 	}
 
 	@Override
