@@ -18,18 +18,14 @@
 package board;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.junit.matchers.JUnitMatchers.hasItems;
-
 import io.TextFileReader;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -39,7 +35,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.hamcrest.core.Is;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -49,7 +44,8 @@ public class FourChanStrategyTest {
 	SiteStrategy strategy;
 	static Server server;
 	static String mainPage, boardPage, thread;
-	static Map<String, URL> boardMap = new HashMap<>();
+	
+	static URL mainUrl, boardUrl, threadUrl;
 	
 	@BeforeClass
 	static public void before() throws Exception{
@@ -63,11 +59,10 @@ public class FourChanStrategyTest {
 		mainPage = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData\\mainPage.html"));
 		boardPage = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData\\pageTestData"));
 		thread = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData\\threadData.html"));
-		
-		boardMap.put("Photography", new URL("http://localhost/p/"));
-		boardMap.put("Music", new URL("http://localhost/mu/"));
-		boardMap.put("Fashion", new URL("http://localhost/fa/"));
-		boardMap.put("Sports", new URL("http://localhost/sp/"));
+
+		mainUrl = new URL("http://localhost/");
+		boardUrl = new URL("http://localhost/htmlnew");
+		threadUrl = new URL("http://localhost/p/res/57867301");
 	}
 
 	@Before
@@ -89,7 +84,7 @@ public class FourChanStrategyTest {
 	@Test
 	public void testFindBoards() throws Exception {
 		Map<String, URL> foundBoards;
-		foundBoards = strategy.findBoards(new URL("http://localhost/"));
+		foundBoards = strategy.findBoards(mainUrl);
 		
 		assertThat(foundBoards.get("Photography"), is(new URL("http://boards.4chan.org/p/")));
 		assertThat(foundBoards.get("Music"), is(new URL("http://boards.4chan.org/mu/")));
