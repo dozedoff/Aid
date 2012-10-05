@@ -126,7 +126,25 @@ public class FourChanStrategyTest {
 
 	@Test
 	public void testParseThread() {
-		fail("Not yet implemented");
+		PageThread pt = new PageThread(threadUrl);
+		List<Post> posts = strategy.parseThread(pt);
+		int images = 0, comments = 0;
+		
+		assertThat(posts.size(), is(13));
+		
+		for(Post p : posts){
+			if(p.hasComment()){
+				comments++;
+			}
+			
+			if(p.hasImage()){
+				images++;
+			}
+		}
+		
+		assertThat(images, is(8));
+		assertThat(comments, is(13));
+	
 	}
 	
 	static class TestHandler extends AbstractHandler{
@@ -144,7 +162,7 @@ public class FourChanStrategyTest {
 				response.getWriter().println(mainPage);
 			}else if(requestUri.equals("/htmlnew")){
 				response.getWriter().println(boardPage);
-			}else if(requestUri.equals("p/res/57867301")){
+			}else if(requestUri.equals("/p/res/57867301")){
 				response.getWriter().println(thread);
 			}else{
 				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
