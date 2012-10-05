@@ -45,7 +45,7 @@ import org.junit.Test;
 public class FourChanStrategyTest {
 	SiteStrategy strategy;
 	static Server server = new Server();
-	static String mainPage, page, thread;
+	static String mainPage, boardPage, thread;
 	
 	@BeforeClass
 	static public void before() throws Exception{
@@ -56,6 +56,8 @@ public class FourChanStrategyTest {
 		
 		
 		mainPage = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData\\mainPage.html"));
+		boardPage = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData\\pageTestData"));
+		thread = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData\\threadData.html"));
 	}
 
 	@Before
@@ -103,11 +105,11 @@ public class FourChanStrategyTest {
 			baseRequest.setHandled(true);
 			
 			if(request.getRequestURI().equals("/")){
-			
-			}else if(request.getRequestURI().equals("/a/2")){
-				//TODO add page data here
-			}else if(request.getRequestURI().equals("a/res/1234567")){
-				//TODO add thread data here
+				response.getWriter().println(mainPage);
+			}else if(request.getRequestURI().equals("/htmlnew")){
+				response.getWriter().println(boardPage);
+			}else if(request.getRequestURI().equals("p/res/57867301")){
+				response.getWriter().println(thread);
 			}else{
 				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			}
