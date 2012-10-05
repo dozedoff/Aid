@@ -32,8 +32,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Logger;
 
-import javax.print.attribute.standard.PageRanges;
-
 import filter.Filter;
 import filter.FilterItem;
 import filter.FilterState;
@@ -178,7 +176,7 @@ public class Board {
 				}
 				
 				filterImages(posts);
-				queueForDownload(posts, getThreadNumber(thread));
+				queueForDownload(posts, siteStartegy.getThreadNumber(thread));
 			}
 		}
 		
@@ -226,12 +224,6 @@ public class Board {
 
 				imageLoader.add(post.getImageUrl(), relativeImagePath);
 			}
-		}
-		
-		// example: /a/res/43587987
-		private int getThreadNumber(URL threadUrl){
-				String urlFragments[] = threadUrl.toString().split("/");
-				return Integer.parseInt(urlFragments[urlFragments.length-1]);
 		}
 	}
 }

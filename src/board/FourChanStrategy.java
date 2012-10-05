@@ -178,4 +178,17 @@ public class FourChanStrategy implements SiteStrategy {
 		
 		return postList;
 	}
+
+	@Override
+	public int getThreadNumber(URL threadUrl) {
+		// example: /a/res/43587987
+		String urlFragments[] = threadUrl.toString().split("/");
+		return Integer.parseInt(urlFragments[urlFragments.length - 1]);
+	}
+
+	@Override
+	public String getBoardLetters(URL threadUrl) {
+		String urlFragments[] = threadUrl.toString().split("/");
+		return urlFragments[urlFragments.length-3];
+	}
 }

@@ -138,6 +138,18 @@ public class FourChanStrategyTest {
 	
 	}
 	
+	@Test
+	public void testGetThreadNumber() {
+		int threadNumber = strategy.getThreadNumber(threadUrl);
+		assertThat(threadNumber, is(57867301));
+	}
+	
+	@Test
+	public void testGetBoardLetters() {
+		String threadLetters = strategy.getBoardLetters(threadUrl);
+		assertThat(threadLetters, is("p"));
+	}
+	
 	static class TestHandler extends AbstractHandler{
 		@Override
 		public void handle(String arg0, Request baseRequest, HttpServletRequest request,

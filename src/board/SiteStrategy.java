@@ -29,4 +29,6 @@ public interface SiteStrategy {
 	
 	public List<URL> parsePage(URL pageUrl);
 	public List<Post> parseThread(URL pageThread);
+	public int getThreadNumber(URL threadUrl);
+	public String getBoardLetters(URL threadUrl);
 }
