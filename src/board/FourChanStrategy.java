@@ -101,8 +101,8 @@ public class FourChanStrategy implements SiteStrategy {
 	}
 
 	@Override
-	public List<PageThread> parsePage(URL pageUrl) {
-		LinkedList<PageThread> pageThreads = new LinkedList<>();
+	public List<URL> parsePage(URL pageUrl) {
+		LinkedList<URL> threadUrls = new LinkedList<>();
 		Document pageDocument;
 
 		try {
@@ -110,7 +110,7 @@ public class FourChanStrategy implements SiteStrategy {
 		} catch (Exception e) {
 			logger.warning("Failed to process page " + pageUrl.toString()
 					+ " Cause: " + e.getMessage());
-			return pageThreads;
+			return threadUrls;
 		}
 
 		Elements threadLinks = pageDocument.select("a.replylink");
@@ -120,21 +120,20 @@ public class FourChanStrategy implements SiteStrategy {
 
 			try {
 				URL threadUrl = new URL(absoluteThreadUrl);
-				PageThread pageThread = new PageThread(threadUrl);
-				pageThreads.add(pageThread);
+				threadUrls.add(threadUrl);
 			} catch (MalformedURLException e) {
 				logger.warning("Unable to process thread URL.\n "
 						+ absoluteThreadUrl + "\n" + e.getMessage());
 			}
 		}
-		return pageThreads;
+		return threadUrls;
 	}
 	
 	@Override
-	public List<Post> parseThread(PageThread pageThread) {
+	public List<Post> parseThread(URL pageThread) {
 		LinkedList<Post> postList = new LinkedList<>();
 		
-		String threadUrl = pageThread.getThreadUrl().toString();
+		String threadUrl = pageThread.toString();
 		
 		Document pageDocument;
 		try {

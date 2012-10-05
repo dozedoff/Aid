@@ -128,28 +128,28 @@ public class Board {
 		private void processBoard() {
 			int numOfPages = siteStartegy.getBoardPageCount(boardUrl);
 			ArrayList<URL> pageUrls = PageUrlFactory.makePages(boardUrl, numOfPages);
-			List<PageThread> pageThreads = parsePages(pageUrls);
+			List<URL> pageThreads = parsePages(pageUrls);
 			
 			filterPageThreads(pageThreads);
 			processPageThreads(pageThreads);
 		}
 		
-		private List<PageThread> parsePages(List<URL> pageUrls){
-			LinkedList<PageThread> pageThreads = new LinkedList<>();
+		private List<URL> parsePages(List<URL> pageUrls){
+			LinkedList<URL> pageThreads = new LinkedList<>();
 			
 			for(URL page : pageUrls){
-				List<PageThread> threads = siteStartegy.parsePage(page);
+				List<URL> threads = siteStartegy.parsePage(page);
 				pageThreads.addAll(threads);
 			}
 			
 			return pageThreads;
 		}
 		
-		private void filterPageThreads(List<PageThread> pageThreads) {
-			Iterator<PageThread> iterator = pageThreads.iterator();
+		private void filterPageThreads(List<URL> pageThreads) {
+			Iterator<URL> iterator = pageThreads.iterator();
 			
 			while(iterator.hasNext()){
-				PageThread currentPageThread = iterator.next();
+				URL currentPageThread = iterator.next();
 				
 				if(isBlockedByFilter(currentPageThread)){
 					iterator.remove();
@@ -157,8 +157,8 @@ public class Board {
 			}
 		}
 		
-		private boolean isBlockedByFilter(PageThread pageThread){
-			FilterState state = filter.getFilterState(pageThread.getThreadUrl());
+		private boolean isBlockedByFilter(URL currentPageThread){
+			FilterState state = filter.getFilterState(currentPageThread);
 			
 			if(state == FilterState.DENY || state == FilterState.PENDING) {
 				return true;
@@ -167,18 +167,18 @@ public class Board {
 			}
 		}
 		
-		private void processPageThreads(List<PageThread> pageThreads) {
-			for (PageThread thread : pageThreads) {
+		private void processPageThreads(List<URL> pageThreads) {
+			for (URL thread : pageThreads) {
 				List<Post> posts = siteStartegy.parseThread(thread);
 				String reason = filterPosts(posts);
 				
 				if (reason != null){
-					suspendThread(thread.getThreadUrl(), reason);
+					suspendThread(thread, reason);
 					continue;
 				}
 				
 				filterImages(posts);
-				queueForDownload(posts, thread.getThreadNumber());
+				queueForDownload(posts, getThreadNumber(thread));
 			}
 		}
 		
@@ -226,6 +226,12 @@ public class Board {
 
 				imageLoader.add(post.getImageUrl(), relativeImagePath);
 			}
+		}
+		
+		// example: /a/res/43587987
+		private int getThreadNumber(URL threadUrl){
+				String urlFragments[] = threadUrl.toString().split("/");
+				return Integer.parseInt(urlFragments[urlFragments.length-1]);
 		}
 	}
 }

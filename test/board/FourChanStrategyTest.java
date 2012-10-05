@@ -20,7 +20,6 @@ package board;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.hasItems;
 import io.TextFileReader;
 
@@ -102,8 +101,7 @@ public class FourChanStrategyTest {
 
 	@Test
 	public void testParsePage() throws Exception {
-		List<PageThread> pageThreads = strategy.parsePage(boardUrl);
-		LinkedList<URL> pageUrls = new LinkedList<>();
+		List<URL> pageUrls = strategy.parsePage(boardUrl);
 		LinkedList<URL> correctUrls = new LinkedList<>();
 		
 		int replyNr[] = {1418, 7897, 7910, 1461, 1454, 1456, 1450, 1449, 1448, 1447};
@@ -112,22 +110,15 @@ public class FourChanStrategyTest {
 			correctUrls.add(new URL("http://localhost/newhtml/res/" + String.valueOf(i)));
 		}
 		
-		for(PageThread pt : pageThreads){
-			pageUrls.add(pt.getThreadUrl());
-		}
-		
 		URL correctArray[] = new URL[0];
 		
 		correctUrls.toArray(correctArray);
 		assertThat(pageUrls, hasItems(correctArray));
-		
-		
 	}
 
 	@Test
 	public void testParseThread() {
-		PageThread pt = new PageThread(threadUrl);
-		List<Post> posts = strategy.parseThread(pt);
+		List<Post> posts = strategy.parseThread(threadUrl);
 		int images = 0, comments = 0;
 		
 		assertThat(posts.size(), is(13));

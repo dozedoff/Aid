@@ -27,6 +27,6 @@ public interface SiteStrategy {
 	public Map<String, URL> findBoards(URL siteUrl);
 	public int getBoardPageCount(URL boardUrl);
 	
-	public List<PageThread> parsePage(URL pageUrl);
-	public List<Post> parseThread(PageThread pageThread);
+	public List<URL> parsePage(URL pageUrl);
+	public List<Post> parseThread(URL pageThread);
 }
