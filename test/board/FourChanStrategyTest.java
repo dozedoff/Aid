@@ -138,11 +138,13 @@ public class FourChanStrategyTest {
 			response.setStatus(HttpServletResponse.SC_OK);
 			baseRequest.setHandled(true);
 			
-			if(request.getRequestURI().equals("/")){
+			String requestUri = request.getRequestURI();
+			
+			if(requestUri.equals("/")){
 				response.getWriter().println(mainPage);
-			}else if(request.getRequestURI().equals("/htmlnew")){
+			}else if(requestUri.equals("/htmlnew")){
 				response.getWriter().println(boardPage);
-			}else if(request.getRequestURI().equals("p/res/57867301")){
+			}else if(requestUri.equals("p/res/57867301")){
 				response.getWriter().println(thread);
 			}else{
 				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
