@@ -21,13 +21,16 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.*;
 import static org.junit.Assert.fail;
+import static org.junit.matchers.JUnitMatchers.hasItems;
 
 import io.TextFileReader;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -44,11 +47,13 @@ import org.junit.Test;
 
 public class FourChanStrategyTest {
 	SiteStrategy strategy;
-	static Server server = new Server();
+	static Server server;
 	static String mainPage, boardPage, thread;
+	static Map<String, URL> boardMap = new HashMap<>();
 	
 	@BeforeClass
 	static public void before() throws Exception{
+		server  = new Server(80);
 		server.setHandler(new TestHandler());
 		server.start();
 		
@@ -58,6 +63,11 @@ public class FourChanStrategyTest {
 		mainPage = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData\\mainPage.html"));
 		boardPage = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData\\pageTestData"));
 		thread = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData\\threadData.html"));
+		
+		boardMap.put("Photography", new URL("http://localhost/p/"));
+		boardMap.put("Music", new URL("http://localhost/mu/"));
+		boardMap.put("Fashion", new URL("http://localhost/fa/"));
+		boardMap.put("Sports", new URL("http://localhost/sp/"));
 	}
 
 	@Before
@@ -77,8 +87,14 @@ public class FourChanStrategyTest {
 	}
 
 	@Test
-	public void testFindBoards() {
-		fail("Not yet implemented");
+	public void testFindBoards() throws Exception {
+		Map<String, URL> foundBoards;
+		foundBoards = strategy.findBoards(new URL("http://localhost/"));
+		
+		assertThat(foundBoards.get("Photography"), is(new URL("http://boards.4chan.org/p/")));
+		assertThat(foundBoards.get("Music"), is(new URL("http://boards.4chan.org/mu/")));
+		assertThat(foundBoards.get("Fashion"), is(new URL("http://boards.4chan.org/fa/")));
+		assertThat(foundBoards.get("Sports"), is(new URL("http://boards.4chan.org/sp/")));
 	}
 
 	@Test
