@@ -140,7 +140,7 @@ public class FourChanStrategy implements SiteStrategy {
 		try {
 			pageDocument = Jsoup.connect(threadUrl).userAgent("Mozilla").get();
 		} catch (IOException e) {
-			logger.warning("Failed to parse " + threadUrl);
+			logger.warning("Failed to parse " + threadUrl + " because: " + e.getMessage());
 			return postList;
 		}
 		
