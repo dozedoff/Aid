@@ -39,11 +39,16 @@ public class FourChanStrategy implements SiteStrategy {
 	
 	@Override
 	public boolean validSiteStrategy(URL siteUrl) {
-		if (siteUrl.getHost().equals("http://www.4chan.org/")) {
-			return true;
-		} else {
+		URL correctUrl;
+		
+		try {
+			correctUrl = new URL("http://www.4chan.org/");
+		} catch (MalformedURLException e) {
+			logger.severe("Strategy check URL is incorrect. Please fix this!");
 			return false;
 		}
+		
+		return (siteUrl.getHost().equals(correctUrl.getHost()));
 	}
 
 	@Override

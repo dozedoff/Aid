@@ -19,7 +19,7 @@ package board;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.junit.Assert.fail;
 
 import io.TextFileReader;
@@ -71,8 +71,9 @@ public class FourChanStrategyTest {
 	}
 
 	@Test
-	public void testValidSiteStrategy() {
-		fail("Not yet implemented");
+	public void testValidSiteStrategy() throws MalformedURLException {
+		boolean isValid = strategy.validSiteStrategy(new URL("http://www.4chan.org"));
+		assertTrue(isValid);
 	}
 
 	@Test
