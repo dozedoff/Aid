@@ -84,8 +84,20 @@ public class FourChanStrategy implements SiteStrategy {
 
 	@Override
 	public int getBoardPageCount(URL boardUrl) {
-		// TODO look at Html source
-		return 0;
+		Document boardDocument;
+		
+		try {
+			boardDocument = Jsoup.connect(boardUrl.toString()).userAgent("Mozilla").get();
+		} catch (Exception e) {
+			logger.warning("Failed to process board " + boardUrl.toString()
+					+ " Cause: " + e.getMessage());
+			return 0;
+		}
+		
+		Elements pageLinks = boardDocument.select("div.pages > a");
+		int pageCount = pageLinks.size() + 1;
+
+		return pageCount;
 	}
 
 	@Override

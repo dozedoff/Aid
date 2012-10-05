@@ -94,7 +94,7 @@ public class FourChanStrategyTest {
 
 	@Test
 	public void testGetBoardPageCount() {
-		fail("Not yet implemented");
+		assertThat(strategy.getBoardPageCount(boardUrl), is(2));
 	}
 
 	@Test
