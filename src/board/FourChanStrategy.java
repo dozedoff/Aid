@@ -146,36 +146,40 @@ public class FourChanStrategy implements SiteStrategy {
 		Elements posts = thread.getElementsByClass("post");
 		
 		for(Element post : posts){
-			Post postObject = new Post();
-			
-			Elements fileElements = post.getElementsByClass("file");
-			
-			for(Element file : fileElements){
-				String imageUrl = "?";
-				try{
-					Element imageInfo = file.select("div.fileInfo > span.fileText").first();
-					if(imageInfo == null){
-						// the image was deleted
-						continue;
-					}
-					
-					postObject.setImageName(imageInfo.select("span").attr("title"));
-					imageUrl = imageInfo.select("a").attr("href");
-					
-					postObject.setImageUrl(new URL("https:" + imageUrl));
-				}catch(MalformedURLException mue){
-					logger.warning("Invalid image URL (" + imageUrl+ ") in thread " + threadUrl);
-					postObject.setImageName(null);
-					postObject.setImageUrl(null);
-				}
-			}
-			
-			postObject.setComment(post.getElementsByClass("postMessage").first().ownText());
-			
+			Post postObject = parsePost(threadUrl, post);
 			postList.add(postObject);
 		}
 		
 		return postList;
+	}
+
+	private Post parsePost(String threadUrl, Element post) {
+		Post postObject = new Post();
+		
+		Elements fileElements = post.getElementsByClass("file");
+		
+		for(Element file : fileElements){
+			String imageUrl = "?";
+			try{
+				Element imageInfo = file.select("div.fileInfo > span.fileText").first();
+				if(imageInfo == null){
+					// the image was deleted
+					continue;
+				}
+				
+				postObject.setImageName(imageInfo.select("span").attr("title"));
+				imageUrl = imageInfo.select("a").attr("href");
+				
+				postObject.setImageUrl(new URL("https:" + imageUrl));
+			}catch(MalformedURLException mue){
+				logger.warning("Invalid image URL (" + imageUrl+ ") in thread " + threadUrl);
+				postObject.setImageName(null);
+				postObject.setImageUrl(null);
+			}
+		}
+		
+		postObject.setComment(post.getElementsByClass("postMessage").first().ownText());
+		return postObject;
 	}
 
 	@Override
