@@ -60,8 +60,8 @@ public class FourChanStrategy implements SiteStrategy {
 		try {
 			mainDocument = Jsoup.connect(siteUrl.toString()).userAgent("Mozilla").get();
 		} catch (Exception e) {
-			logger.warning("Failed to process Mainpage " + siteUrl.toString()
-					+ " Cause: " + e.getMessage());
+			String url = siteUrl.toString();
+			parseError(url, "frontpage", e);
 			return boardMap;
 		}
 
@@ -89,8 +89,8 @@ public class FourChanStrategy implements SiteStrategy {
 		try {
 			boardDocument = Jsoup.connect(boardUrl.toString()).userAgent("Mozilla").get();
 		} catch (Exception e) {
-			logger.warning("Failed to process board " + boardUrl.toString()
-					+ " Cause: " + e.getMessage());
+			String url = boardUrl.toString();
+			parseError(url, "board", e);
 			return 0;
 		}
 		
@@ -108,8 +108,8 @@ public class FourChanStrategy implements SiteStrategy {
 		try {
 			pageDocument = Jsoup.connect(pageUrl.toString()).userAgent("Mozilla").get();
 		} catch (Exception e) {
-			logger.warning("Failed to process page " + pageUrl.toString()
-					+ " Cause: " + e.getMessage());
+			String url = pageUrl.toString();
+			parseError(url, "page", e);
 			return threadUrls;
 		}
 
@@ -122,8 +122,7 @@ public class FourChanStrategy implements SiteStrategy {
 				URL threadUrl = new URL(absoluteThreadUrl);
 				threadUrls.add(threadUrl);
 			} catch (MalformedURLException e) {
-				logger.warning("Unable to process thread URL.\n "
-						+ absoluteThreadUrl + "\n" + e.getMessage());
+				parseError(absoluteThreadUrl, "thread", e);
 			}
 		}
 		return threadUrls;
@@ -139,7 +138,7 @@ public class FourChanStrategy implements SiteStrategy {
 		try {
 			pageDocument = Jsoup.connect(threadUrl).userAgent("Mozilla").get();
 		} catch (IOException e) {
-			logger.warning("Failed to parse " + threadUrl + " because: " + e.getMessage());
+			parseError(threadUrl, "page thread", e);
 			return postList;
 		}
 		
@@ -190,5 +189,9 @@ public class FourChanStrategy implements SiteStrategy {
 	public String getBoardLetters(URL threadUrl) {
 		String urlFragments[] = threadUrl.toString().split("/");
 		return urlFragments[urlFragments.length-3];
+	}
+	
+	private void parseError(String failedUrl, String pageType, Exception exception) {
+		logger.warning("Failed to parse " + pageType + " " + failedUrl + " because: " + exception.getMessage());
 	}
 }
