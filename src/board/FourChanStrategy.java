@@ -199,6 +199,12 @@ public class FourChanStrategy implements SiteStrategy {
 	@Override
 	public String getBoardShortcut(URL threadUrl) {
 		String urlFragments[] = threadUrl.toString().split("/");
+		
+		// can the URL be considered valid?
+		if(urlFragments.length < 5) {
+			return "";
+		}
+		
 		return urlFragments[urlFragments.length-3];
 	}
 	
