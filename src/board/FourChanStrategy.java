@@ -184,9 +184,16 @@ public class FourChanStrategy implements SiteStrategy {
 
 	@Override
 	public int getThreadNumber(URL threadUrl) {
-		// example: /a/res/43587987
 		String urlFragments[] = threadUrl.toString().split("/");
-		return Integer.parseInt(urlFragments[urlFragments.length - 1]);
+		int threadNumber = 0;
+		
+		try{
+			threadNumber = Integer.parseInt(urlFragments[urlFragments.length - 1]); 
+		}catch(NumberFormatException nfe){
+			logger.warning("Got an invalid thread number for " + threadUrl.toString());
+		}
+		
+		return threadNumber;
 	}
 
 	@Override
