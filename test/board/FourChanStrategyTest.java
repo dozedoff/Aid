@@ -146,7 +146,7 @@ public class FourChanStrategyTest {
 	
 	@Test
 	public void testGetBoardLetters() {
-		String threadLetters = strategy.getBoardLetters(threadUrl);
+		String threadLetters = strategy.getBoardShortcut(threadUrl);
 		assertThat(threadLetters, is("p"));
 	}
 	

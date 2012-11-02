@@ -190,7 +190,7 @@ public class FourChanStrategy implements SiteStrategy {
 	}
 
 	@Override
-	public String getBoardLetters(URL threadUrl) {
+	public String getBoardShortcut(URL threadUrl) {
 		String urlFragments[] = threadUrl.toString().split("/");
 		return urlFragments[urlFragments.length-3];
 	}
