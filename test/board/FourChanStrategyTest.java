@@ -17,10 +17,10 @@
  */
 package board;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.matchers.JUnitMatchers.hasItems;
+import static org.junit.matchers.JUnitMatchers.*;
 import io.TextFileReader;
 
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class FourChanStrategyTest {
 	static Server server;
 	static String mainPage, boardPage, thread;
 	
-	static URL mainUrl, boardUrl, threadUrl;
+	static URL mainUrl, boardUrl, threadUrl, invalidUrl;
 	
 	@BeforeClass
 	static public void before() throws Exception{
@@ -65,6 +65,7 @@ public class FourChanStrategyTest {
 		mainUrl = new URL("http://localhost/");
 		boardUrl = new URL("http://localhost/htmlnew");
 		threadUrl = new URL("http://localhost/p/res/57867301");
+		invalidUrl = new URL("http://foobar/");
 	}
 
 	@Before
@@ -93,12 +94,24 @@ public class FourChanStrategyTest {
 		assertThat(foundBoards.get("Fashion"), is(new URL("http://boards.4chan.org/fa/")));
 		assertThat(foundBoards.get("Sports"), is(new URL("http://boards.4chan.org/sp/")));
 	}
+	
+	@Test
+	public void testFindBoardsInvalid() {
+		Map<String, URL> foundBoards;
+		foundBoards = strategy.findBoards(invalidUrl);
+		assertThat(foundBoards.size(),is(0));
+	}
 
 	@Test
 	public void testGetBoardPageCount() {
 		assertThat(strategy.getBoardPageCount(boardUrl), is(2));
 	}
-
+	
+	@Test
+	public void testGetBoardPageCountInvalid() {
+		assertThat(strategy.getBoardPageCount(invalidUrl), is(0));
+	}
+	
 	@Test
 	public void testParsePage() throws Exception {
 		List<URL> pageUrls = strategy.parsePage(boardUrl);
@@ -114,6 +127,12 @@ public class FourChanStrategyTest {
 		
 		correctUrls.toArray(correctArray);
 		assertThat(pageUrls, hasItems(correctArray));
+	}
+	
+	@Test
+	public void testParsePageInvalid() {
+		List<URL> pageUrls = strategy.parsePage(invalidUrl);
+		assertThat(pageUrls.size(), is(0));
 	}
 
 	@Test
@@ -139,15 +158,33 @@ public class FourChanStrategyTest {
 	}
 	
 	@Test
+	public void testParseThreadInvalid() {
+		List<Post> posts = strategy.parseThread(invalidUrl);
+		assertThat(posts.size(), is(0));
+	}
+	
+	@Test
 	public void testGetThreadNumber() {
 		int threadNumber = strategy.getThreadNumber(threadUrl);
 		assertThat(threadNumber, is(57867301));
 	}
 	
 	@Test
+	public void testGetThreadNumberInvalid() {
+		int threadNumber = strategy.getThreadNumber(invalidUrl);
+		assertThat(threadNumber, is(0));
+	}
+	
+	@Test
 	public void testGetBoardLetters() {
 		String threadLetters = strategy.getBoardShortcut(threadUrl);
 		assertThat(threadLetters, is("p"));
+	}
+	
+	@Test
+	public void testGetBoardLettersInvalid() {
+		String threadLetters = strategy.getBoardShortcut(invalidUrl);
+		assertThat(threadLetters, is(""));
 	}
 	
 	static class TestHandler extends AbstractHandler{
