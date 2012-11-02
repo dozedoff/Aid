@@ -225,67 +225,25 @@ public class SettingValidatorTest {
 	// sub pages tests
 	@Test
 	public void spCorrect(){
-		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;15,b;14");
+		when(appSettings.getProperty(preferredBoards.toString())).thenReturn("a,b");
 		assertThat(validateSubPages(appSettings), is(true));
 	}
 	
 	@Test
 	public void spDoubleComma(){
-		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;15,,b;14");
+		when(appSettings.getProperty(preferredBoards.toString())).thenReturn("a,,b");
 		assertThat(validateSubPages(appSettings), is(false));
 	}
 	
 	@Test
 	public void spSingleEntry(){
-		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;15");
+		when(appSettings.getProperty(preferredBoards.toString())).thenReturn("a");
 		assertThat(validateSubPages(appSettings), is(true));
 	}
 	
 	@Test
-	public void spSemicolonComma(){
-		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a,15,b;14");
-		assertThat(validateSubPages(appSettings), is(false));
-	}
-	
-	@Test
-	public void spDoubleSemicolon(){
-		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;;15,b;14");
-		assertThat(validateSubPages(appSettings), is(false));
-	}
-	
-	@Test
-	public void spCommaSemicolon(){
-		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;15;b;14");
-		assertThat(validateSubPages(appSettings), is(false));
-	}
-	
-	@Test
-	public void spColon(){
-		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;15,b:14");
-		assertThat(validateSubPages(appSettings), is(false));
-	}
-	
-	@Test
-	public void spMissingSemicolon(){
-		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a15,b;14");
-		assertThat(validateSubPages(appSettings), is(false));
-	}
-	
-	@Test
-	public void spNegativePageValue(){
-		when(appSettings.getProperty(sub_pages.toString())).thenReturn("a;-15,b;14");
-		assertThat(validateSubPages(appSettings), is(false));
-	}
-	
-	@Test
-	public void spInvalidSymbol(){
-		when(appSettings.getProperty(sub_pages.toString())).thenReturn("ab%;15,b;14");
-		assertThat(validateSubPages(appSettings), is(false));
-	}
-	
-	@Test
 	public void spMultiLetterName(){
-		when(appSettings.getProperty(sub_pages.toString())).thenReturn("foo;15,yeti;14");
+		when(appSettings.getProperty(preferredBoards.toString())).thenReturn("foo,yeti");
 		assertThat(validateSubPages(appSettings), is(true));
 	}
 	

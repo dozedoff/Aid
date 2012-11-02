@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 
 public class SettingValidator {
 	private static final Logger logger = Logger.getLogger(SettingValidator.class.getName());
-	private static final String SUBPAGE_REGEX = "([a-zA-Z]+;[0-9]+,)*+[a-zA-Z]+;[0-9]+$";
+	private static final String SUBPAGE_REGEX = "([a-zA-Z]+,)*+[a-zA-Z]+$";
 	private static final String BASEURL_REGEX = "(?m)(http:|https:)//([0-9a-zA-Z.-]+\\.)+([a-zA-Z])*/$";
 
 	public static boolean validateAppSettings(Properties appSettings){
@@ -64,7 +64,7 @@ public class SettingValidator {
 	 */
 	protected static boolean validateSubPages(Properties appSettings) {
 		// validate sub-pages
-		return testRegexMatch(appSettings, sub_pages.toString(), SUBPAGE_REGEX);
+		return testRegexMatch(appSettings, preferredBoards.toString(), SUBPAGE_REGEX);
 	}
 
 	/**
