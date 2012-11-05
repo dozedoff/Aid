@@ -93,6 +93,8 @@ public class FourChanStrategyTest {
 		assertThat(foundBoards.get("Music"), is(new URL("http://boards.4chan.org/mu/")));
 		assertThat(foundBoards.get("Fashion"), is(new URL("http://boards.4chan.org/fa/")));
 		assertThat(foundBoards.get("Sports"), is(new URL("http://boards.4chan.org/sp/")));
+		
+		assertThat(foundBoards.size(), is(59));
 	}
 	
 	@Test

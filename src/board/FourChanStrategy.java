@@ -65,7 +65,7 @@ public class FourChanStrategy implements SiteStrategy {
 			return boardMap;
 		}
 
-		Elements boards = mainDocument.select("a.boardlink");
+		Elements boards = mainDocument.select("div.column a.boardlink");
 
 		for (Element boardEntry : boards){
 			String url = boardEntry.attr("href");
