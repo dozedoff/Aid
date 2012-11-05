@@ -248,6 +248,12 @@ public class SettingValidatorTest {
 	}
 	
 	@Test
+	public void spWithSemiColon() {
+		when(appSettings.getProperty(preferredBoards.toString())).thenReturn("a;14");
+		assertThat(validateSubPages(appSettings), is(false));
+	}
+	
+	@Test
 	public void testEmptyPropertyFile(){
 		assertThat(SettingValidator.validateAppSettings(new Properties()), is(false));
 	}
