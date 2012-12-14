@@ -17,42 +17,50 @@
  */
 package board;
 
+import io.ImageLoader;
+
+import java.net.URL;
+import java.nio.file.Paths;
 import java.text.DateFormat;
-import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Logger;
 
-import java.util.logging.*;
-
-import thread.WorkQueue;
+import filter.Filter;
+import filter.FilterItem;
+import filter.FilterState;
 
 /**
  * Represents a whole board.
  */
 public class Board {
-	private AbstractList<Page> pages;
-	private WorkQueue pageQueue;
 	private Timer pageAdder;
 	private String boardId;
 	private String lastRun ="";
 	private boolean stoppped = true;
+	final private URL boardUrl;
+	final private SiteStrategy siteStartegy;
+	final private Filter filter;
+	final private ImageLoader imageLoader;
 	private final int WAIT_TIME = 60 * 1000 * 60; // 1 hour
 	
 	private static final Logger LOGGER = Logger.getLogger(Board.class.getName());
 	
-	public Board(AbstractList<Page> pages, WorkQueue pageQueue, String boardId){
-		this.pages = pages;
-		this.pageQueue = pageQueue;
+	public Board(URL boardUrl, String boardId, SiteStrategy siteStrategy, Filter filter, ImageLoader imageLoader){
+		this.boardUrl = boardUrl;
 		this.boardId = boardId;
+		this.siteStartegy = siteStrategy;
+		this.filter = filter;
+		this.imageLoader = imageLoader;
 	}
 
 	public void stop(){
-		for(Page p : pages){
-			p.setStop(true);
-		}
-
 		this.stoppped = true;
 		if(pageAdder != null)
 			pageAdder.cancel();
@@ -84,18 +92,14 @@ public class Board {
 	}
 
 	public void start(int delay){
-		pageAdder = new Timer("Board "+boardId+" job adder", true);
-
-		for(Page p : pages){
-			p.setStop(false);
-		}
+		pageAdder = new Timer("Board "+boardId+" worker", true);
 
 		this.stoppped = false;
-		pageAdder.schedule(new PageAdder(delay), delay*60*1000, WAIT_TIME);
+		pageAdder.schedule(new BoardWorker(delay), delay*60*1000, WAIT_TIME);
 	}
 
-	class PageAdder extends TimerTask{
-		public PageAdder(int delay){
+	class BoardWorker extends TimerTask{
+		public BoardWorker(int delay){
 			setTime(delay);
 		}
 
@@ -104,10 +108,7 @@ public class Board {
 			//TODO add muli-queueing protection
 
 			setTime(0);
-
-			for(Page p : pages){
-				pageQueue.execute(p);
-			}
+			processBoard();
 		}
 
 		/**
@@ -120,6 +121,109 @@ public class Board {
 			DateFormat df;
 			df = DateFormat.getTimeInstance(DateFormat.MEDIUM);
 			lastRun = df.format(cal.getTime());
+		}
+		
+		private void processBoard() {
+			int numOfPages = siteStartegy.getBoardPageCount(boardUrl);
+			ArrayList<URL> pageUrls = PageUrlFactory.makePages(boardUrl, numOfPages);
+			List<URL> pageThreads = parsePages(pageUrls);
+			
+			filterPageThreads(pageThreads);
+			processPageThreads(pageThreads);
+		}
+		
+		private List<URL> parsePages(List<URL> pageUrls){
+			LinkedList<URL> pageThreads = new LinkedList<>();
+			
+			for(URL page : pageUrls){
+				List<URL> threads = siteStartegy.parsePage(page);
+				pageThreads.addAll(threads);
+			}
+			
+			return pageThreads;
+		}
+		
+		private void filterPageThreads(List<URL> pageThreads) {
+			Iterator<URL> iterator = pageThreads.iterator();
+			
+			while(iterator.hasNext()){
+				URL currentPageThread = iterator.next();
+				
+				if(isBlockedByFilter(currentPageThread)){
+					iterator.remove();
+				}
+			}
+		}
+		
+		private boolean isBlockedByFilter(URL currentPageThread){
+			FilterState state = filter.getFilterState(currentPageThread);
+			
+			if(state == FilterState.DENY || state == FilterState.PENDING) {
+				return true;
+			}else{
+				return false;
+			}
+		}
+		
+		private void processPageThreads(List<URL> pageThreads) {
+			for (URL thread : pageThreads) {
+				List<Post> posts = siteStartegy.parseThread(thread);
+				String reason = filterPosts(posts);
+				
+				if (reason != null){
+					suspendThread(thread, reason);
+					continue;
+				}
+				
+				filterImages(posts);
+				queueForDownload(posts, siteStartegy.getThreadNumber(thread));
+			}
+		}
+		
+		private String filterPosts(List<Post> posts) {
+			String reason = null;
+			for (Post post : posts) {
+				reason = filter.checkPost(post);
+				
+				if (reason != null){
+					break;
+				}
+			}
+			
+			return reason;
+		}
+		
+		private void suspendThread(URL threadUrl, String reason) {
+			FilterItem filterItem = new FilterItem(threadUrl, boardId, reason, FilterState.PENDING);
+			filter.reviewThread(filterItem);
+		}
+		
+		private void filterImages(List<Post> posts) {
+			Iterator<Post> iterator = posts.iterator();
+			
+			while(iterator.hasNext()){
+				Post currentPost = iterator.next();
+				
+				if(currentPost.hasImage()){
+					URL imageUrl = currentPost.getImageUrl();
+					
+					if(filter.isCached(imageUrl)) {
+						iterator.remove();
+					}
+				}else{
+					iterator.remove();
+				}
+			}
+		}
+		
+		private void queueForDownload(List<Post> posts, int threadNumber) {
+			for(Post post : posts){
+				String threadId = String.valueOf(threadNumber);
+				String imageName = post.getImageName();
+				String relativeImagePath = Paths.get(boardId, threadId, imageName).toString();
+
+				imageLoader.add(post.getImageUrl(), relativeImagePath);
+			}
 		}
 	}
 }

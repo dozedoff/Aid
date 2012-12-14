@@ -47,6 +47,7 @@ import javax.jws.Oneway;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.internal.matchers.EndsWith;
 
@@ -54,6 +55,7 @@ import file.BinaryFileReader;
 import filter.Filter;
 import gui.BlockListDataModel;
 
+//TODO improve speed of ignored tests (remove buffer from FileWriter?)
 
 public class FileWriterTest {
 	BoneConnectionPool mockConnectionPoolaid;
@@ -112,6 +114,7 @@ public class FileWriterTest {
 	 * @throws IOException 
 	 */
 	@Test
+	@Ignore
 	public void testAdd() throws InterruptedException, SQLException, IOException {
 		for(File f : testFiles)
 			fileWriter.add(f, testData);
@@ -181,6 +184,7 @@ public class FileWriterTest {
 	}
 	
 	@Test
+	@Ignore
 	// WARNING: this test can generate up to 25 mb of data per run
 	public void testBulkWrite() throws InterruptedException, IOException{
 		HashMap<File,byte[]> testSet = new HashMap<>();
@@ -254,6 +258,7 @@ public class FileWriterTest {
 	}
 	
 	@Test
+	@Ignore
 	public void testInvalidFileName() throws Exception{
 		fileWriter.add(new File(testDir,"ooops+%�!<>.txt"), testData);
 		//fileWriter.shutdown();
@@ -269,6 +274,7 @@ public class FileWriterTest {
 	}
 	
 	@Test
+	@Ignore
 	public void testFileExistsDifferentData() throws InvalidActivityException, InterruptedException, SQLException{
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
 		fileWriter.add(new File(testDir,"foo.txt"), testData2);
@@ -288,6 +294,7 @@ public class FileWriterTest {
 	}
 	
 	@Test
+	@Ignore
 	public void testFileExistsSameData() throws InvalidActivityException, InterruptedException, SQLException{
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
@@ -306,6 +313,7 @@ public class FileWriterTest {
 	}
 	
 	@Test
+	@Ignore
 	public void testClearStats() throws InvalidActivityException, InterruptedException{
 		when(mockFilter.exists("20FC038E00E13585E68E7EBE50D79CBE7D476A74D8FDE71872627DA6CD8FC8BB")).thenReturn(true);
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
@@ -357,6 +365,7 @@ public class FileWriterTest {
 	}
 	
 	@Test
+	@Ignore
 	public void testSqlPathAddFail() throws SQLException, InvalidActivityException, InterruptedException{
 		doThrow(new SQLException("Incorrect string value")).when(mockFilter).addIndex(anyString(), eq(new File(testDir,"foo.txt").toString()), eq(5));
 		

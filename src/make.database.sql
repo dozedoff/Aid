@@ -180,6 +180,7 @@ CREATE TABLE IF NOT EXISTS `settings` (
 INSERT IGNORE INTO `settings` (`name`, `param`) VALUES ('SchemaVersion', '3');
 
 
+
 -- Dumping structure for procedure aid.StripDriveLetter
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `StripDriveLetter`()

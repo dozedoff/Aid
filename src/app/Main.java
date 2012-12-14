@@ -17,6 +17,7 @@
  */
 package app;
 
+import file.FileUtil;
 import gui.Aid;
 import gui.BlockList;
 import gui.BlockListDataModel;
@@ -46,6 +47,10 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -56,8 +61,10 @@ import javax.swing.UIManager;
 
 import thread.WorkQueue;
 import board.Board;
+import board.FourChanStrategy;
 import board.Page;
 import board.PageFactory;
+import board.SiteStrategy;
 import config.AppSetting;
 import config.DefaultAppSettings;
 import config.DefaultLoggerSettings;
@@ -93,6 +100,7 @@ public class Main implements ActionListener{
 	private ConnectionPool connPool;
 	private AidDAO mySQL;
 	private CachePrune cachePrune;
+	private SiteStrategy strategy;
 
 	private BoardListDataModel boards = new BoardListDataModel();
 	Properties appSettings = new DefaultAppSettings();
@@ -119,7 +127,7 @@ public class Main implements ActionListener{
 	 * This method constructs all Objects
 	 */
 	final private void build(){
-		String page, image, writeBlocked, baseUrl = "", subPages = "";
+		String page, image, writeBlocked, baseUrl = "", preferredBoards = "";
 		int pageThreads = 1, imageThreads = 1;
 		boolean writeBlock = false;
 	
@@ -134,12 +142,12 @@ public class Main implements ActionListener{
 			logger.severe(message);
 			dieWithError(message, 1);
 		}
-		
-		page = appSettings.getProperty("page_threads",DEFAULT_PAGE_THREADS);
-		image = appSettings.getProperty("image_threads",DEFAULT_IMAGE_THREADS);
-		writeBlocked = appSettings.getProperty("write_Blocked",DEFAULT_WRITE_BLOCKED);
-		baseUrl = appSettings.getProperty("base_url",DEFAULT_BASE_URL);
-		subPages = appSettings.getProperty("sub_pages",DEFAULT_SUB_PAGES);
+
+		page = appSettings.getProperty(AppSetting.page_threads.toString(),DEFAULT_PAGE_THREADS);
+		image = appSettings.getProperty(AppSetting.image_threads.toString(),DEFAULT_IMAGE_THREADS);
+		writeBlocked = appSettings.getProperty(AppSetting.write_blocked.toString(),DEFAULT_WRITE_BLOCKED);
+		baseUrl = appSettings.getProperty(AppSetting.base_url.toString(),DEFAULT_BASE_URL);
+		preferredBoards = appSettings.getProperty(AppSetting.preferredBoards.toString(),DEFAULT_SUB_PAGES);
 	 
 
 		if(page != null){pageThreads = Integer.parseInt(page);}
@@ -181,6 +189,30 @@ public class Main implements ActionListener{
 			dieWithError(message, 4);
 		}
 
+		URL checkAliveUrl = null;
+		try {
+			checkAliveUrl = new URL(baseUrl);
+		} catch (MalformedURLException e) {
+			String message = "URL is invalid: ";
+			logger.warning(message + e.getMessage());
+		}
+
+		if (checkAliveUrl == null) {
+			try {
+				checkAliveUrl = new URL(baseUrl);
+			} catch (MalformedURLException e) {
+				String message = "URL is invalid: ";
+				logger.warning(message + e.getMessage());
+			}
+		}
+		 
+		if(checkAliveUrl == null){
+			dieWithError("No valid baseUrl was specified: "+baseUrl
+							+", will now exit...", 8);
+		}
+		
+		strategy = findSiteStrategy(checkAliveUrl); //TODO change settings to contain list of site URLs
+		
 		//  -------------- Class instantiation starts here --------------  //
 		pageQueue = new WorkQueue(pageThreads, pageThreads, 100);
 		connPool = new BoneConnectionPool(sqlProps,10); // connection pool for database connections
@@ -204,31 +236,24 @@ public class Main implements ActionListener{
 		logger.info("Saving files to the basePath "+basePath.toString());
 		blockList = new BlockList(filter,blockListModel);
 		
-		URL checkAliveUrl = null;
-		String message = "URL is invalid: ";
-		try{checkAliveUrl = new URL(baseUrl);} catch (MalformedURLException e){logger.warning(message+e.getMessage());}
-
-		if(checkAliveUrl == null){
-			try{checkAliveUrl = new URL(baseUrl);} catch (MalformedURLException e){logger.warning(message+e.getMessage());}
-		}
-		 
-		if(checkAliveUrl == null){
-			dieWithError("No valid baseUrl was specified: "+baseUrl
-							+", will now exit...", 8);
-		}
-		
 		cachePrune = new CachePrune(mySQL, checkAliveUrl, 15, 120, 240);
 
 		// parse subpages
-		String[] subP = subPages.split(",");
+		String[] subP = preferredBoards.split(",");
+		
+		
+		//TODO put this into setting loader class?
 
-		for(String s : subP){
-			String[] param = s.split(";");
-			try{
-				ArrayList<Page> pList = PageFactory.makePages(baseUrl+param[0], Integer.parseInt(param[1]), filter, imageLoader);
-				Board b = new Board(pList, pageQueue,param[0]);
-				boards.addElement(b);
-			}catch(IndexOutOfBoundsException oob){
+		Map<String, URL> boardMap = strategy.findBoards(checkAliveUrl);
+		Map<String, URL> shortcutMap = createShortcutMap(boardMap);
+
+		for (String s : subP) {
+			try {
+				if (shortcutMap.containsKey(s)) {
+					Board b = new Board(shortcutMap.get(s), s, strategy, filter, imageLoader);
+					boards.addElement(b);
+				}
+			} catch (IndexOutOfBoundsException oob) {
 				logger.warning("Sub_pages is not configured correctly");
 			}
 		}
@@ -244,6 +269,25 @@ public class Main implements ActionListener{
 		
 		aid.setLocation(x,y);
 	}
+	
+	private Map<String, URL> createShortcutMap(Map<String, URL> boardMap) {
+		Map<String, URL> shortcutMap = new HashMap<>();
+		
+		Collection<URL> boardUrls = boardMap.values();
+		
+		for (URL boardUrl : boardUrls) {
+			String shortcut = strategy.getBoardShortcut(boardUrl);
+			shortcutMap.put(shortcut, boardUrl);
+		}
+		
+		return shortcutMap;
+	}
+	
+	private SiteStrategy findSiteStrategy(URL boardUrl) {
+		//TODO code me
+		// get strategy list, iterate and test
+		return new FourChanStrategy();
+	}
 
 	/**
 	 * This Method initializes the Program
@@ -252,9 +296,11 @@ public class Main implements ActionListener{
 		// load the logger settings
 		loggerSettings = loadLoggerConfig(LOGGER_CFG_FILENAME);
 		
-		String mysqljdbc = "mysql-connector-java-5.1.15-bin.jar";
-		if(! (new File(mysqljdbc)).canRead()) {
+		String mysqljdbc = "mysql-connector-java-5.1.18-bin.jar";
+		File mysqlConnector = new File(mysqljdbc);
+		if(! mysqlConnector.canRead()) {
 			String message = "Required library file " + mysqljdbc + " could not be found.";
+			logger.info("Expected location: " + FileUtil.WorkingDir().toString() + mysqlConnector.toString());
 			dieWithError(message, 5);
 		}
 
@@ -355,14 +401,13 @@ public class Main implements ActionListener{
 	 */
 	public Properties loadAppConfig(String filepath){
 		try {
-			// try to load from file
 			Properties appSetting = new DefaultAppSettings();
 			InputStream is = new FileInputStream(filepath);
-			if(is != null)
+			
+			if(is != null) {
 				appSetting.load(is);
-			
-			
-			
+			}
+
 			return appSetting;
 		} catch (IOException ioe) {
 			logger.warning("Error accessing file "+ ioe.getMessage());
