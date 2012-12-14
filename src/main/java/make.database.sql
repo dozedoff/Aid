@@ -7,8 +7,8 @@
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET NAMES utf8 */;
-/*!40014 SET FOREIGN_KEY_CHECKS=0 */;
+SET NAMES utf8;
+SET FOREIGN_KEY_CHECKS=0;
 
 -- Dumping database structure for aid
 CREATE DATABASE IF NOT EXISTS `aid` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
@@ -291,5 +291,5 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `dupeview` AS SELECT 
 -- Removing temporary table and create final VIEW structure
 DROP TABLE IF EXISTS `indexview`;
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` VIEW `indexview` AS SELECT a.id, CONCAT(dirlist.dirpath,filelist.filename) as fullpath, a.size, location_tags.location FROM `fileindex` as a JOIN filelist ON a.filename=filelist.id JOIN dirlist on a.dir=dirlist.id JOIN location_tags ON a.location = location_tags.tag_id ;
-/*!40014 SET FOREIGN_KEY_CHECKS=1 */;
+SET FOREIGN_KEY_CHECKS=1;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
