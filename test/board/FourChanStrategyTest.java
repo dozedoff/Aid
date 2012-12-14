@@ -48,10 +48,11 @@ public class FourChanStrategyTest {
 	static String mainPage, boardPage, thread;
 	
 	static URL mainUrl, boardUrl, threadUrl, invalidUrl;
+	private static final int SERVER_PORT = 5496;
 	
 	@BeforeClass
 	static public void before() throws Exception{
-		server  = new Server(80);
+		server  = new Server(SERVER_PORT);
 		server.setHandler(new TestHandler());
 		server.start();
 		
@@ -62,10 +63,10 @@ public class FourChanStrategyTest {
 		boardPage = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData\\pageTestData"));
 		thread = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData\\threadData.html"));
 
-		mainUrl = new URL("http://localhost/");
-		boardUrl = new URL("http://localhost/htmlnew");
-		threadUrl = new URL("http://localhost/p/res/57867301");
-		invalidUrl = new URL("http://foobar/");
+		mainUrl = new URL("http://localhost:"+ SERVER_PORT +"/");
+		boardUrl = new URL("http://localhost:"+ SERVER_PORT +"/htmlnew");
+		threadUrl = new URL("http://localhost:"+ SERVER_PORT +"/p/res/57867301");
+		invalidUrl = new URL("http://foobar:"+ SERVER_PORT +"/");
 	}
 
 	@Before
