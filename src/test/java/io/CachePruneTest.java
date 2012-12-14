@@ -45,10 +45,11 @@ public class CachePruneTest {
 	CachePrune cachePrune;
 	AidDAO sql;
 	static Server server;
+	private static int SERVER_PORT = 5980;
 	
 	@BeforeClass
 	public static void startServer() throws Exception{
-		server  = new Server(80);
+		server  = new Server(SERVER_PORT);
 		server.setHandler(new TestHandler());
 		server.start();
 	}
@@ -56,7 +57,7 @@ public class CachePruneTest {
 	@Before
 	public void setUp() throws Exception {
 		sql = mock(AidDAO.class);
-		cachePrune = new CachePrune(sql, new URL("http://localhost/"), 1, 0, 1);
+		cachePrune = new CachePrune(sql, new URL("http://localhost:" + SERVER_PORT + "/"), 2, 0, 1);
 	}
 
 	@After
@@ -70,10 +71,10 @@ public class CachePruneTest {
 	}
 
 	@Test
-	public void test() throws InterruptedException {
+	public void testCachePrune() throws InterruptedException {
 		when(sql.size(AidTables.Cache)).thenReturn(4);
 		assertThat(cachePrune.start(), is(true));
-		Thread.sleep(1000*3);
+		Thread.sleep(1100);
 		
 		verify(sql,times(1)).pruneCache(anyLong());
 	}

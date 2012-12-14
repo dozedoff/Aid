@@ -31,20 +31,20 @@ import com.github.dozedoff.commonj.net.GetHtml;
 public class CachePrune {
 	GetHtml getHtml = new GetHtml();
 	URL testAliveUrl;
-	int refreshInterMin = 1;
-	int startupDelayMin = 1;
-	int maximumAgeMin = 1;
+	int refreshInterSec = 1;
+	int startupDelaySec = 1;
+	int maximumAgeSec = 1;
 	Timer cachePruneTimer;
 	AidDAO sql;
 
 	static final Logger logger = Logger.getLogger(CachePrune.class.getName());
 
-	public CachePrune(AidDAO sql, URL testAliveUrl, int refreshInterMin, int startupDelayMin, int maximumAgeMin) {
+	public CachePrune(AidDAO sql, URL testAliveUrl, int refreshInterSec, int startupDelaySec, int maximumAgeSec) {
 		this.testAliveUrl = testAliveUrl;
 		this.sql = sql;
-		this.refreshInterMin = refreshInterMin * 60 * 1000;
-		this.startupDelayMin = startupDelayMin * 60 * 1000;
-		this.maximumAgeMin = maximumAgeMin;
+		this.refreshInterSec = refreshInterSec * 1000;
+		this.startupDelaySec = startupDelaySec * 1000;
+		this.maximumAgeSec = maximumAgeSec;
 	}
 
 	public boolean start(){
@@ -52,7 +52,7 @@ public class CachePrune {
 			return false;
 
 		cachePruneTimer = new Timer("CachePrune Timer");
-		cachePruneTimer.scheduleAtFixedRate(new CachePruneWorker() , startupDelayMin, refreshInterMin);
+		cachePruneTimer.scheduleAtFixedRate(new CachePruneWorker() , startupDelaySec, refreshInterSec);
 
 		return true;
 	}
@@ -85,16 +85,16 @@ public class CachePrune {
 					return;
 				}
 
-				sql.pruneCache(maxAge(maximumAgeMin)); // delete keys that are older than maximumAgeMin
+				sql.pruneCache(maxAge(maximumAgeSec)); // delete keys that are older than maximumAgeMin
 				Stats.setCacheSize(sql.size(AidTables.Cache)); // update GUI
 		}
 
 	}
 
-	private long maxAge(int timeInMin){
+	private long maxAge(int timeInSec){
 		//TODO replace this with SQL
 		Calendar exp = Calendar.getInstance();
-		exp.add(Calendar.MINUTE, (-timeInMin));
+		exp.add(Calendar.SECOND, (-timeInSec));
 
 		return exp.getTimeInMillis();
 	}

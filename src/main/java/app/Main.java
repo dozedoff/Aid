@@ -232,7 +232,7 @@ public class Main implements ActionListener{
 		logger.info("Saving files to the basePath "+basePath.toString());
 		blockList = new BlockList(filter,blockListModel);
 		
-		cachePrune = new CachePrune(mySQL, checkAliveUrl, 15, 120, 240);
+		cachePrune = new CachePrune(mySQL, checkAliveUrl, 15*60, 120*60, 240*60);
 
 		// parse subpages
 		String[] subP = preferredBoards.split(",");
