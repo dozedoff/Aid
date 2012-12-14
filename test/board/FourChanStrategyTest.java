@@ -88,7 +88,7 @@ public class FourChanStrategyTest {
 	@Test
 	public void testFindBoards() throws Exception {
 		Map<String, URL> foundBoards;
-		foundBoards = strategy.findBoards(mainUrl);
+		foundBoards = strategy.findBoards(new URL("http://boards.4chan.org/"));
 		
 		assertThat(foundBoards.get("Photography"), is(new URL("http://boards.4chan.org/p/")));
 		assertThat(foundBoards.get("Music"), is(new URL("http://boards.4chan.org/mu/")));
@@ -179,13 +179,19 @@ public class FourChanStrategyTest {
 	}
 	
 	@Test
-	public void testGetBoardLetters() {
-		String threadLetters = strategy.getBoardShortcut(threadUrl);
+	public void testGetBoardShortcutsP() throws MalformedURLException {
+		String threadLetters = strategy.getBoardShortcut(new URL("http://boards.4chan.org/p/"));
 		assertThat(threadLetters, is("p"));
 	}
 	
 	@Test
-	public void testGetBoardLettersInvalid() {
+	public void testGetBoardShortcutsWg() throws MalformedURLException {
+		String threadLetters = strategy.getBoardShortcut(new URL("http://boards.4chan.org/wg/"));
+		assertThat(threadLetters, is("wg"));
+	}
+	
+	@Test
+	public void testGetBoardShortcutsInvalid() {
 		String threadLetters = strategy.getBoardShortcut(invalidUrl);
 		assertThat(threadLetters, is(""));
 	}

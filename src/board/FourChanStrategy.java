@@ -201,11 +201,11 @@ public class FourChanStrategy implements SiteStrategy {
 		String urlFragments[] = threadUrl.toString().split("/");
 		
 		// can the URL be considered valid?
-		if(urlFragments.length < 5) {
+		if(urlFragments.length < 4) {
 			return "";
 		}
 		
-		return urlFragments[urlFragments.length-3];
+		return urlFragments[urlFragments.length-1];
 	}
 	
 	private void parseError(String failedUrl, String pageType, Exception exception) {
