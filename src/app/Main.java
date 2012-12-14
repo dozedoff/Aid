@@ -17,6 +17,7 @@
  */
 package app;
 
+import file.FileUtil;
 import gui.Aid;
 import gui.BlockList;
 import gui.BlockListDataModel;
@@ -296,8 +297,10 @@ public class Main implements ActionListener{
 		loggerSettings = loadLoggerConfig(LOGGER_CFG_FILENAME);
 		
 		String mysqljdbc = "mysql-connector-java-5.1.18-bin.jar";
-		if(! (new File(mysqljdbc)).canRead()) {
+		File mysqlConnector = new File(mysqljdbc);
+		if(! mysqlConnector.canRead()) {
 			String message = "Required library file " + mysqljdbc + " could not be found.";
+			logger.info("Expected location: " + FileUtil.WorkingDir().toString() + mysqlConnector.toString());
 			dieWithError(message, 5);
 		}
 
