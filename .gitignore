@@ -6,3 +6,4 @@ bin_test/
 bin/
 /.pmd
 /reports/
+/target
