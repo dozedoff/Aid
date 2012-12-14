@@ -376,7 +376,7 @@ public class AidDAOTest extends DatabaseTestCase{
 	}
 	
 	private String relativePath(String path) {
-		return path.substring(2);
+		return path.substring(3);
 	}
 	
 	@Test

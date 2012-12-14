@@ -52,9 +52,9 @@
 	<block id="4" />
 	
 	<!-- dirlist Table -->
-	<dirlist id="1" dirpath="\foo\bar\" />
-	<dirlist id="2" dirpath="\test\me\now\" />
-	<dirlist id="3" dirpath="\mutated\custard\is\dangerous\" />
+	<dirlist id="1" dirpath="foo\bar\" />
+	<dirlist id="2" dirpath="test\me\now\" />
+	<dirlist id="3" dirpath="mutated\custard\is\dangerous\" />
 
 	<!-- filelist Table -->
 	<filelist id="1" filename="foo.png" />
