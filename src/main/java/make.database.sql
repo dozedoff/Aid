@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `dnw` (
 CREATE TABLE IF NOT EXISTS `fileindex` (
   `id` varchar(64) CHARACTER SET ascii NOT NULL,
   `size` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `pathfragments` text CHARACTER SET ascii NOT NULL,
+  `pathfragments` VARCHAR(255) NOT NULL COLLATE 'utf8_unicode_ci',
   `location` smallint(5) unsigned NOT NULL,
   `isduplicate` bit(1) NOT NULL DEFAULT b'0',
   PRIMARY KEY (`id`),
@@ -96,7 +96,7 @@ INSERT INTO `location_tags` (`tag_id`, `location`) VALUES
 -- Dumping structure for table aid.pathfragment
 CREATE TABLE IF NOT EXISTS `pathfragment` (
   `id` mediumint(10) unsigned NOT NULL AUTO_INCREMENT,
-  `fragment` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `fragment` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `fragment_uniqe` (`fragment`),
   KEY `fragment_index` (`fragment`)
