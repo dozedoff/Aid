@@ -17,19 +17,17 @@
  */
 package io;
 
-import static io.PathFragmentConverter.*;
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.matchers.JUnitMatchers.*;
+import static io.PathFragmentConverter.toFragments;
+import static io.PathFragmentConverter.toPath;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
-import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class PathFragmentConverterTest {
@@ -57,8 +55,9 @@ public class PathFragmentConverterTest {
 		
 		assertThat(fragments.get(0), is("foo"));
 		assertThat(fragments.get(1), is("bar"));
-		assertThat(fragments.get(2), is("cat.jpg"));
-		assertThat(fragments.size(), is(3));
+		assertThat(fragments.get(2), is("cat"));
+		assertThat(fragments.get(3), is(".jpg"));
+		assertThat(fragments.size(), is(4));
 	}
 	
 	@Test
@@ -69,8 +68,9 @@ public class PathFragmentConverterTest {
 		
 		assertThat(fragments.get(0), is("foo"));
 		assertThat(fragments.get(1), is("bar"));
-		assertThat(fragments.get(2), is("cat.jpg"));
-		assertThat(fragments.size(), is(3));
+		assertThat(fragments.get(2), is("cat"));
+		assertThat(fragments.get(3), is(".jpg"));
+		assertThat(fragments.size(), is(4));
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
@@ -89,7 +89,7 @@ public class PathFragmentConverterTest {
 
 	@Test
 	public void testToPathStringArray() {
-		String[] fragments = {"foo", "bar", "cat.jpg"};
+		String[] fragments = {"foo", "bar", "cat", ".jpg"};
 		Path path = Paths.get("foo", "bar", "cat.jpg");
 		
 		Path fragmentPath = toPath(fragments);
@@ -126,7 +126,8 @@ public class PathFragmentConverterTest {
 		LinkedList<String> fragmentList = new LinkedList<>();
 		fragmentList.add("foo");
 		fragmentList.add("bar");
-		fragmentList.add("cat.jpg");
+		fragmentList.add("cat");
+		fragmentList.add(".jpg");
 		
 		Path path = Paths.get("foo", "bar", "cat.jpg");
 		
