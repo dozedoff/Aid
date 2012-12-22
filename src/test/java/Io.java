@@ -26,7 +26,8 @@ import org.junit.runners.Suite.SuiteClasses;
 				FileWriterTest.class,
 				ImageItemTest.class,
 				AidDAOTest.class,
-				ThumbnailLoaderTest.class
+				ThumbnailLoaderTest.class,
+				PathFragmentConverterTest.class
 })
 public class Io {
 
