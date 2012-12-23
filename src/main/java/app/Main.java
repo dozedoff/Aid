@@ -291,14 +291,6 @@ public class Main implements ActionListener{
 	private void init(){
 		// load the logger settings
 		loggerSettings = loadLoggerConfig(LOGGER_CFG_FILENAME);
-		
-		String mysqljdbc = "mysql-connector-java-5.1.18-bin.jar";
-		File mysqlConnector = new File(mysqljdbc);
-		if(! mysqlConnector.canRead()) {
-			String message = "Required library file " + mysqljdbc + " could not be found.";
-			logger.info("Expected location: " + FileUtil.WorkingDir().toString() + mysqlConnector.toString());
-			dieWithError(message, 5);
-		}
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
