@@ -34,8 +34,13 @@ public class DirectoryPathRecord {
 	public String getDirpath() {
 		return dirpath;
 	}
+	
+	private String convertToLinuxPath(String path) {
+		String linuxPath = path.replaceAll("\\\\", "/");
+		return linuxPath;
+	}
 
 	public void setDirpath(String dirpath) {
-		this.dirpath = dirpath;
+		this.dirpath = convertToLinuxPath(dirpath);
 	}
 }

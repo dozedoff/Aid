@@ -73,7 +73,7 @@ public abstract class FileRecord {
 	}
 
 	public void setRelativePath(Path relativePath) {
-		String directory = relativePath.getParent().toString() + "\\";
+		String directory = relativePath.getParent().toString() + "/";
 		String filename = relativePath.getFileName().toString();
 		
 		this.directory = new DirectoryPathRecord();
