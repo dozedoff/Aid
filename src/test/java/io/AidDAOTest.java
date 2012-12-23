@@ -69,7 +69,7 @@ public class AidDAOTest extends DatabaseTestCase{
 	final String[] IGNORE_PATH_COL = {"id"};
 	final String[] IGNORE_ADD_HASH_COL = {"dir","filename"};
 	
-	static String[] dirs = {"foo\\bar\\", "test\\me\\now\\", "mutated\\custard\\is\\dangerous\\"};
+	static String[] dirs = {"foo/bar/", "test/me/now/", "mutated/custard/is/dangerous/"};
 	static String[] TEST_DIR;
 	final String[] TEST_FILE = {"", "foo.png", "squirrel.jpg", "meerkat.gif"};
 	final String[] TEST_LOCATION = {"", "UNKNOWN", "LOCATION A", "LOCATION B", "ARCHIVE"};
@@ -123,13 +123,22 @@ public class AidDAOTest extends DatabaseTestCase{
 	}
 	
 	private static String buildAbsolutePath(String... elements) {
-		Path path = root;
-		
+		StringBuilder sb = new StringBuilder();
+		sb.append(root.toString());
+
 		for(String element : elements){
-			path = path.resolve(element);
+			sb.append(element);
+			sb.append("/");
 		}
 		
-		return path.toString();
+		sb.deleteCharAt(sb.length() - 1);
+		int backslashPos = sb.indexOf("\\");
+		
+		if(backslashPos != -1){
+			sb.replace(backslashPos, backslashPos + 1, "/");
+		}
+		
+		return sb.toString();
 	}
 
 	@After
@@ -403,33 +412,41 @@ public class AidDAOTest extends DatabaseTestCase{
 	@Test
 	public void testGetLocationFilelist(){
 		assertThat(sql.getLocationFilelist(TEST_LOCATION[1]).size(),is(1));
-		assertThat(sql.getLocationFilelist(TEST_LOCATION[1]), hasItem(relativePath(TEST_DIR[1] + TEST_FILE[1])));
+		assertThat(sql.getLocationFilelist(TEST_LOCATION[1]), hasItem(relativePath(TEST_DIR[1], TEST_FILE[1])));
 		
 		assertThat(sql.getLocationFilelist(TEST_LOCATION[2]).size(),is(1));
-		assertThat(sql.getLocationFilelist(TEST_LOCATION[2]), hasItem(relativePath(TEST_DIR[2] + TEST_FILE[2])));
+		assertThat(sql.getLocationFilelist(TEST_LOCATION[2]), hasItem(relativePath(TEST_DIR[2], TEST_FILE[2])));
 		
 		assertThat(sql.getLocationFilelist(TEST_LOCATION[3]).size(),is(2));
-		assertThat(sql.getLocationFilelist(TEST_LOCATION[3]), hasItem(relativePath(TEST_DIR[3] + TEST_FILE[3])));
-		assertThat(sql.getLocationFilelist(TEST_LOCATION[3]), hasItem(relativePath(TEST_DIR[3] + TEST_FILE[2])));
+		assertThat(sql.getLocationFilelist(TEST_LOCATION[3]), hasItem(relativePath(TEST_DIR[3], TEST_FILE[3])));
+		assertThat(sql.getLocationFilelist(TEST_LOCATION[3]), hasItem(relativePath(TEST_DIR[3], TEST_FILE[2])));
 	}
 	
-	private String relativePath(String path) {
-		return FileUtil.removeDriveLetter(path);
+	private String relativePath(String... pathElements) {
+		StringBuilder sb = new StringBuilder();
+		
+		for(String path : pathElements){
+			sb.append(path);
+			sb.append("/");
+		}
+		
+		String fullpath = sb.toString();
+		return FileUtil.removeDriveLetter(fullpath);
 	}
 	
 	@Test
 	public void testIsIndexedPath(){
-		assertTrue(sql.isIndexedPath(Paths.get(TEST_DIR[1]+TEST_FILE[1]), TEST_LOCATION[1]));
-		assertFalse(sql.isIndexedPath(Paths.get(TEST_DIR[1]+TEST_FILE[1]), TEST_LOCATION[2]));
+		assertTrue(sql.isIndexedPath(Paths.get(TEST_DIR[1], TEST_FILE[1]), TEST_LOCATION[1]));
+		assertFalse(sql.isIndexedPath(Paths.get(TEST_DIR[1], TEST_FILE[1]), TEST_LOCATION[2]));
 		
-		assertTrue(sql.isIndexedPath(Paths.get(TEST_DIR[3]+TEST_FILE[2]), TEST_LOCATION[3]));
-		assertFalse(sql.isIndexedPath(Paths.get(TEST_DIR[3]+TEST_FILE[2]), TEST_LOCATION[2]));
+		assertTrue(sql.isIndexedPath(Paths.get(TEST_DIR[3], TEST_FILE[2]), TEST_LOCATION[3]));
+		assertFalse(sql.isIndexedPath(Paths.get(TEST_DIR[3], TEST_FILE[2]), TEST_LOCATION[2]));
 	}
 	
 	@Test
 	public void testDeleteIndexViaPath() throws Exception{
-		assertThat(sql.deleteIndexByPath(TEST_DIR[2] + TEST_FILE[2]),is(1));
-		assertThat(sql.deleteIndexByPath(TEST_DIR[3] + TEST_FILE[3]),is(1));
+		assertThat(sql.deleteIndexByPath(TEST_DIR[2] + "/" + TEST_FILE[2]),is(1));
+		assertThat(sql.deleteIndexByPath(TEST_DIR[3] + "/" + TEST_FILE[3]),is(1));
 
 		Assertion.assertEquals(getFileTable(enumToString(Fileindex), deleteExpected_PATH), getDatabaseTable(enumToString(Fileindex)));
 	}
@@ -443,7 +460,7 @@ public class AidDAOTest extends DatabaseTestCase{
 	
 	@Test
 	public void testDeleteByPath() throws Exception {
-		Path path = Paths.get(TEST_DIR[3] + TEST_FILE[2]);
+		Path path = Paths.get(TEST_DIR[3], TEST_FILE[2]);
 		sql.deleteDuplicateByPath(path);
 		
 		Assertion.assertEquals(getFileTable(enumToString(Fileduplicate), deleteExpected_PATH), getDatabaseTable(enumToString(Fileduplicate)));
@@ -519,12 +536,12 @@ public class AidDAOTest extends DatabaseTestCase{
 	
 	@Test
 	public void testGetPath() {
-		assertThat(sql.getPath("1"), is(relativePath(TEST_DIR[1] + TEST_FILE[1])));
+		assertThat(sql.getPath("1"), is(relativePath(TEST_DIR[1], TEST_FILE[1])));
 	}
 	
 	@Test
 	public void testGetSettingVersion() {
-		assertThat(sql.getSetting(DBsettings.SchemaVersion), is("2"));
+		assertThat(sql.getSetting(DBsettings.SchemaVersion), is("3"));
 	}
 	
 	@SuppressWarnings("deprecation")
