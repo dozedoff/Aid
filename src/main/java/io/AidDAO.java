@@ -828,9 +828,17 @@ public class AidDAO{
 	}
 
 	public FilterState getFilterState(String id) {
+		//TODO move this into the filter DAO
 		try {
 			FilterItem filter = filterDAO.queryForId(id);
-			return filter.getState();
+			if(filter != null){
+				return filter.getState();
+			}else{
+				FilterItem unknownState = new FilterItem();
+				unknownState.setState(FilterState.UNKNOWN);
+			}
+			
+			
 		} catch (SQLException e) {
 			logSQLerror(e);
 		}
