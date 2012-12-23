@@ -32,7 +32,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.dbunit.Assertion;
@@ -562,6 +561,20 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertFalse(sql.isBlacklisted(HASH));
 		sql.update(HASH, AidTables.Block);
 		assertTrue(sql.isBlacklisted(HASH));
+	}
+	
+	@Test
+	public void testOldestFilterWithEmptyTable() throws Exception {
+		getConnection().getConnection().prepareStatement("DELETE FROM filter").execute();
+		
+		String oldestUrl = sql.getOldestFilter();
+		assertNull(oldestUrl);
+	}
+	
+	@Test
+	public void testStateOfNonExistantFilter() {
+		FilterState state = sql.getFilterState("42");
+		assertThat(state, is(FilterState.UNKNOWN));
 	}
 	
 	private String enumToString(AidTables table) {
