@@ -21,6 +21,8 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.LinkedList;
@@ -223,8 +225,8 @@ public class FileWriter extends Thread{
 	 */
 	private void flushBuffer(){
 		byte[] data;
-		String path, hash, dir;
-
+		String path, hash;
+		Path dir;
 		LinkedList<FileItem> flushBuffer = new LinkedList<>();
 		fileBuffer.drainTo(flushBuffer);
 
@@ -241,17 +243,18 @@ public class FileWriter extends Thread{
 
 			hash = hashMaker.hash(data);
 			if (filter.isBlacklisted(hash)){ // files will be renamed to WARNING-{hash value}-{filename}{file extension}
-				dir = path.substring(0, path.lastIndexOf("\\"));
-				String name = path.substring(path.lastIndexOf("\\")+1, path.length());
+				Path realPath = Paths.get(path);
+				dir = realPath.getParent();
+				String name = realPath.getFileName().toString();
 				
 				// should blocked files be written to disk, or only create a placeholder?
 				if(writeBlocked){ 
-					path = dir+"\\WARNING-"+hash+"-"+name; //add tag to unwanted file
+					path = dir.resolve("WARNING-"+hash+"-"+name).toString(); //add tag to unwanted file
 
 					writeToDisk(data, path, hash);
 				}else{
-					path=dir+"\\WARNING-"+hash+"-"+name+".txt"; 
-					(new File(dir)).mkdirs();
+					path=dir.resolve("WARNING-"+hash+"-"+name+".txt").toString(); 
+					dir.toFile().mkdirs();
 					File file = new File(path);
 
 					try {
