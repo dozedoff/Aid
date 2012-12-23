@@ -862,8 +862,13 @@ public class AidDAO{
 
 	public String getOldestFilter() {
 		try {
-			URL oldestUrl = filterDAO.getOldestFilter().getUrl();
-			return oldestUrl.toString();
+			FilterItem oldestFilter = filterDAO.getOldestFilter();
+			if(oldestFilter != null){
+				URL oldestUrl = oldestFilter.getUrl();
+				return oldestUrl.toString();
+			} else {
+				return null;
+			}
 		} catch (SQLException e) {
 			logSQLerror(e);
 		}
