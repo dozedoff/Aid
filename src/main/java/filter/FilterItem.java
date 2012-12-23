@@ -58,7 +58,6 @@ public class FilterItem implements Serializable{
 	/**
 	 * This constructor is only intended for the DAO.
 	 */
-	@Deprecated
 	public FilterItem() {}
 	
 	public FilterItem( URL url,String board, String reason, FilterState state){
