@@ -171,13 +171,13 @@ COMMENT ON TABLE "settings" IS 'Global settings for all clients';
 INSERT INTO "settings" ("name", "param") VALUES ('SchemaVersion', '3');
 
 -- Dumping structure for table aid.thumbs
-CREATE TABLE IF NOT EXISTS "thumbs" (
+CREATE TABLE IF NOT EXISTS thumbs (
   "id" serial PRIMARY KEY NOT NULL,
   "url" varchar(50)  NOT NULL,
   "filename" varchar(25)  NOT NULL,
   "thumb" bytea NOT NULL
 );
-COMMENT ON TABLE "thumbs" IS 'Thumbnails for items in the Filter list';
+COMMENT ON TABLE thumbs IS 'Thumbnails for items in the Filter list';
 
 -- Data exporting was unselected.
 
@@ -185,7 +185,8 @@ COMMENT ON TABLE "thumbs" IS 'Thumbnails for items in the Filter list';
 CREATE OR REPLACE FUNCTION prune_thumbs_del()
 RETURNS TRIGGER AS $$
 BEGIN
-   DELETE FROM thumbs WHERE url = OLD.id;
+   DELETE FROM aid.thumbs WHERE url = OLD.id;
+   RETURN NEW;
 END;
 $$ language PLPGSQL;
 
@@ -200,8 +201,9 @@ CREATE OR REPLACE FUNCTION prune_thumbs_up()
 RETURNS TRIGGER AS $$
 BEGIN
 	IF NEW.status != 1 THEN
-		DELETE FROM thumbs WHERE url = OLD.id;
+		DELETE FROM aid.thumbs WHERE url = OLD.id;
 	END IF;
+	RETURN NEW;
 END;
 $$ language PLPGSQL;
 

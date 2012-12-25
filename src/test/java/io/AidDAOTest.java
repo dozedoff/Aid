@@ -33,6 +33,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.LinkedList;
+import java.util.Properties;
 
 import org.dbunit.Assertion;
 import org.dbunit.DatabaseTestCase;
@@ -43,6 +44,7 @@ import org.dbunit.dataset.DataSetException;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.ext.mysql.MySqlDataTypeFactory;
+import org.dbunit.ext.postgresql.PostgresqlDataTypeFactory;
 import org.dbunit.util.fileloader.FlatXmlDataFileLoader;
 import org.junit.After;
 import org.junit.Test;
@@ -53,6 +55,7 @@ import com.github.dozedoff.commonj.io.BoneConnectionPool;
 import com.github.dozedoff.commonj.io.DBsettings;
 
 import config.DefaultMySQLconnection;
+import config.DefaultPostgreSQLconnection;
 import filter.FilterItem;
 import filter.FilterState;
 import static io.AidTables.*;
@@ -94,7 +97,11 @@ public class AidDAOTest extends DatabaseTestCase{
 	
 	private static void setupPool() throws Exception {
 		if(! done){
-			bcp = new BoneConnectionPool(new DefaultMySQLconnection("127.0.0.1", 3306, "test", "test", "test"), 10);
+//			Properties props = new Properties();
+//			props.put("url", "jdbc:postgresql://127.0.0.1:5432/test?searchpath=myschema");
+//			props.put("user", "test");
+//			props.put("password", "test");
+			bcp = new BoneConnectionPool(new DefaultPostgreSQLconnection("127.0.0.1", 5432, "test", "test", "test"), 10);
 			bcp.startPool();
 			System.out.println("Pool created");
 			sql = new AidDAO(bcp);
@@ -584,12 +591,9 @@ public class AidDAOTest extends DatabaseTestCase{
 	
 	@Override
 	protected IDatabaseConnection getConnection() throws Exception {
-		Class.forName("com.mysql.jdbc.Driver"); 
-		Connection jdbcConnection = DriverManager.getConnection( "jdbc:mysql://localhost/test","test", "test"); 
-		
-		DatabaseConnection dbConn = new DatabaseConnection(jdbcConnection);
-		dbConn.getConfig().setProperty("http://www.dbunit.org/properties/datatypeFactory", new MySqlDataTypeFactory());
-		
+		Connection jdbcConnection = DriverManager.getConnection( "jdbc:postgresql://localhost/test","test", "test"); 
+		DatabaseConnection dbConn = new DatabaseConnection(jdbcConnection,"aid");
+		dbConn.getConfig().setProperty("http://www.dbunit.org/properties/datatypeFactory", new PostgresqlDataTypeFactory());
 		return dbConn;
 	}
 

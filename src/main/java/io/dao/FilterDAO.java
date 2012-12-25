@@ -29,7 +29,7 @@ import filter.FilterItem;
 import filter.FilterState;
 
 public class FilterDAO extends BaseDaoImpl<FilterItem, String>{
-	final String SQL_UPDATE_TIME = "UPDATE `filter` SET `timestamp` = NOW() WHERE `id` = ?";
+	final String SQL_UPDATE_TIME = "UPDATE aid.filter SET timestamp = NOW() WHERE id = ?";
 	PreparedQuery<FilterItem> oldestFilterQuery, pendingFilterCountQuery;
 
 	public FilterDAO(ConnectionSource cSource) throws SQLException {

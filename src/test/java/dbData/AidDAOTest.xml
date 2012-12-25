@@ -73,7 +73,7 @@
 	<fileduplicate id="2" size="790332" 	dir="2" filename="1" location="2"/>
 	<fileduplicate id="3" size="5789699" 	dir="3" filename="2" location="3"/>
 	<fileduplicate id="4" size="542322" 	dir="2" filename="3" location="3"/>
-	
+ 	
 	<!-- thumbs Table -->
 	<thumbs id="1"	url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
 	<thumbs id="2"	url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
@@ -87,4 +87,5 @@
 	<thumbs id="10"	url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
 	<thumbs id="11"	url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
 	<thumbs id="12"	url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
+
 </dataset>
