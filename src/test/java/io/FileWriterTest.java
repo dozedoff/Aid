@@ -18,6 +18,7 @@
 package io;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.matchers.JUnitMatchers.both;
@@ -142,6 +143,33 @@ public class FileWriterTest {
 		fileWriter.shutdown();
 		
 		assertThat(bfr.get(randomFile), is(randomData));
+	}
+	
+	@Test
+	public void testClearStatsSaved() throws IOException{
+		File randomFile = new File(testDir,"randomData.dat");
+		byte[] randomData = generateRandomData(5);
+		
+		fileWriter.add(randomFile,randomData);
+		fileWriter.shutdown();
+		
+		assertThat(fileWriter.getBytesSaved(), is(not(0L)));
+		fileWriter.clearStats();
+		assertThat(fileWriter.getBytesSaved(), is(0L));
+	}
+	
+	@Test
+	public void testClearStatsDiscarded() throws IOException{
+		File randomFile = new File(testDir,"randomData.dat");
+		byte[] randomData = generateRandomData(5);
+		
+		fileWriter.add(randomFile,randomData);
+		fileWriter.add(randomFile,randomData);
+		fileWriter.shutdown();
+		
+		assertThat(fileWriter.getBytesDiscarded(), is(not(0L)));
+		fileWriter.clearStats();
+		assertThat(fileWriter.getBytesDiscarded(), is(0L));
 	}
 	
 	@Test
@@ -339,7 +367,7 @@ public class FileWriterTest {
 		for(File file : testDir.listFiles()){
 			filenames.add(file.getName());
 		}
-		
+		assertThat(fileWriter.isWriteBlocked(), is(false));
 		assertThat(filenames, hasItem("WARNING-95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815-foo.bar.txt"));
 	}
 	
@@ -358,6 +386,7 @@ public class FileWriterTest {
 			filenames.add(file.getName());
 		}
 		
+		assertThat(fileWriter.isWriteBlocked(), is(true));
 		assertThat(filenames, hasItem("WARNING-95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815-foo.bar"));
 	}
 	
