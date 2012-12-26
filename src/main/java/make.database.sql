@@ -129,7 +129,10 @@ COMMENT ON TABLE "filter" IS 'filtered threads';
 CREATE TRIGGER update_filter_changetimestamp BEFORE UPDATE
     ON "filter" FOR EACH ROW EXECUTE PROCEDURE 
     update_changetimestamp_column();
--- Data exporting was unselected.
+
+CREATE TRIGGER insert_filter_changetimestamp BEFORE INSERT
+   ON aid.filter FOR EACH ROW
+   EXECUTE PROCEDURE aid.update_changetimestamp_column();
 
 
 -- Dumping structure for view aid.indexview
