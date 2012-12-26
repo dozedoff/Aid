@@ -75,17 +75,17 @@
 	<fileduplicate id="4" size="542322" 	dir="2" filename="3" location="3"/>
  	
 	<!-- thumbs Table -->
-	<thumbs id="1"	url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="2"	url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="3"	url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="4"	url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="5"	url="http://foo.bar/2"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="6"	url="http://foo.bar/2"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="7"	url="http://foo.bar/2"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="8"	url="http://foo.bar/2"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="9"	url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="10"	url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="11"	url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
-	<thumbs id="12"	url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs url="http://foo.bar/1"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs url="http://foo.bar/2"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs url="http://foo.bar/2"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs url="http://foo.bar/2"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs url="http://foo.bar/2"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
+	<thumbs url="http://foo.bar/3"		filename="pebble.jpg" 	thumb="2341234232314"/>
 
 </dataset>
