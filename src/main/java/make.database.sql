@@ -1,14 +1,6 @@
-﻿-- --------------------------------------------------------
--- Host:                         localhost
--- Server version:               5.5.24 - MySQL Community Server (GPL)
--- Server OS:                    Win64
--- HeidiSQL version:             7.0.0.4053
--- Date/time:                    2012-08-08 17:48:51
--- --------------------------------------------------------
+﻿CREATE SCHEMA "aid" AUTHORIZATION aid;	
 
--- Dumping database structure for aid
---CREATE DATABASE "aid" WITH OWNER = aid ENCODING = 'UTF8';
-CREATE SCHEMA "aid" AUTHORIZATION aid;			
+--ALTER ROLE aid IN DATABASE aid SET search_path = aid;		
 
 SET "search_path" TO "aid";
 
