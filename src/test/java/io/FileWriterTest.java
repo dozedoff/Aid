@@ -281,7 +281,6 @@ public class FileWriterTest {
 	}
 	
 	@Test
-	@Ignore("This test is OS specific")
 	public void testInvalidFileName() throws Exception{
 		fileWriter.add(new File(testDir,"ooops+%!<>.txt"), testData);
 		//fileWriter.shutdown();

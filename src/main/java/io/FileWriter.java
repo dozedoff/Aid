@@ -63,7 +63,8 @@ public class FileWriter extends Thread{
 	long bytesDiscarded = 0;  // bytes discarded (Hash found in mySQL Database)
 	
 	private final int FLUSH_INTERVAL = 1000; // time between buffer flushes, in ms.
-
+	private final String[] ILLEGAL_FILENAME_CHARS = {"/", "\\", ":", "?", "\"", "<", ">", "|"};	
+	
 	public FileWriter(Filter filter){
 		super("FileWriter");
 		this.filter = filter;
@@ -180,6 +181,10 @@ public class FileWriter extends Thread{
 		}
 
 		try{
+			if(!hasValidFilename(fullPath)){
+				fullPath = newFileName(fullPath, false);
+			}
+			
 			BufferedOutputStream buffOut = new BufferedOutputStream(new FileOutputStream(fullPath),1024);
 
 			buffOut.write(data);
@@ -201,12 +206,6 @@ public class FileWriter extends Thread{
 			}else{
 				logger.severe("add hash failed: "+se.getMessage());
 			}
-		}catch(IOException ioe){
-			try {
-				add(newFileName(fullPath, false),data);
-			} catch (InvalidActivityException e) {
-				logger.warning("Unable to add data, Filewriter is shutting down");
-			}
 		}catch(Exception e){
 			logger.severe("File Buffer write failed: "+e.getLocalizedMessage());
 			if(e != null && e.getLocalizedMessage().contains("space")){
@@ -214,6 +213,22 @@ public class FileWriter extends Thread{
 				System.exit(1);
 			}
 		}
+	}
+	
+	private boolean hasValidFilename(File fullpath) {
+		String filename = fullpath.getName();
+
+		if (filename.isEmpty()) {
+			return false;
+		}
+
+		for (String illegalChar : ILLEGAL_FILENAME_CHARS) {
+			if (filename.contains(illegalChar)) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 	
 	/**
