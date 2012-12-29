@@ -22,7 +22,8 @@ import gui.Stats;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * This Class handles Job Queue and Worker thread pool.
  *
@@ -41,7 +42,7 @@ public class WorkQueue{
 	//Working queue for jobs (Runnable)
 	private ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<Runnable>(10);
 
-	private static final Logger LOGGER = Logger.getLogger(WorkQueue.class.toString());
+	private static final Logger LOGGER = LoggerFactory.getLogger(WorkQueue.class.toString());
 	
 	/**
 	 * Create an new WorkQueue with default settings

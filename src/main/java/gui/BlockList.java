@@ -22,7 +22,8 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -47,7 +48,7 @@ public class BlockList extends JFrame implements ListSelectionListener,ActionLis
 	private JPanel panThumbs = new JPanel();
 	private JList<FilterItem> lstFilter;
 	private filter.Filter filter;
-	private static Logger logger = Logger.getLogger(BlockList.class.getName());
+	private static Logger logger = LoggerFactory.getLogger(BlockList.class.getName());
 	private BlockListDataModel blockListModel;
 
 	public BlockList(filter.Filter filter, BlockListDataModel blockListModel){
@@ -163,7 +164,7 @@ public class BlockList extends JFrame implements ListSelectionListener,ActionLis
 		try{
 			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(blockListModel.getUrl(selection).toString()),null);
 		}catch(IllegalStateException ise){
-			logger.warning(ise.getMessage());
+			logger.warn(ise.getMessage());
 		}
 
 		ArrayList<Image> images = filter.getThumbs(blockListModel.getUrl(selection).toString());

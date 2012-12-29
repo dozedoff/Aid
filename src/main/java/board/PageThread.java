@@ -26,7 +26,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.sun.istack.internal.logging.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * Class that represents a thread on the page.
@@ -34,7 +35,7 @@ import com.sun.istack.internal.logging.Logger;
 public class PageThread {
 	private ArrayList<Post> postList = new ArrayList<Post>();
 	private URL threadUrl;
-	private static final Logger logger = Logger.getLogger(PageThread.class);
+	private static final Logger logger = LoggerFactory.getLogger(PageThread.class);
 	
 	public PageThread(URL threadUrl){
 		this.threadUrl = threadUrl;
@@ -72,7 +73,7 @@ public class PageThread {
 					
 					postObject.setImageUrl(new URL("https:" + imageUrl));
 				}catch(MalformedURLException mue){
-					logger.warning("Invalid image URL (" + imageUrl+ ") in thread " + threadUrl);
+					logger.warn("Invalid image URL (" + imageUrl+ ") in thread " + threadUrl);
 					postObject.setImageName(null);
 					postObject.setImageUrl(null);
 				}

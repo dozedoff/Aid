@@ -53,7 +53,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 
@@ -71,7 +72,7 @@ import com.j256.ormlite.support.ConnectionSource;
  */
 public class AidDAO{
 	private static final HashMap<String, String> prepStmts = new HashMap<String, String>();
-	protected static Logger logger = Logger.getLogger(AidDAO.class.getName());
+	protected static Logger logger = LoggerFactory.getLogger(AidDAO.class.getName());
 	protected final String RS_CLOSE_ERR = "Could not close ResultSet: ";
 	protected final String SQL_OP_ERR = "MySQL operation failed: ";
 	private final String DEFAULT_LOCATION = "UNKNOWN";
@@ -117,7 +118,7 @@ public class AidDAO{
 			DaoManager.registerDao(cSource, filterDAO);
 			settingDao = DaoManager.createDao(cSource, Settings.class);
 		}catch(SQLException e){
-			logger.severe("Unable to create DAO: " + e.getMessage());
+			logger.error("Unable to create DAO: " + e.getMessage());
 		}
 	}
 
@@ -125,7 +126,7 @@ public class AidDAO{
 		try {
 			return connPool.getConnection();
 		} catch (SQLException e) {
-			logger.warning("Failed to get database connection");
+			logger.warn("Failed to get database connection");
 		}
 		
 		return null;
@@ -137,9 +138,9 @@ public class AidDAO{
 				throw new IllegalArgumentException("Key "+"'"+id+"'"+" is already present");
 			prepStmts.put(id, stmt);
 		} catch (NullPointerException npe){
-			logger.severe("Prepared Statement could not be created, invalid connection");
+			logger.error("Prepared Statement could not be created, invalid connection");
 		} catch (IllegalArgumentException iae){
-			logger.severe("Prepared Statement could not be created, "+iae.getMessage());
+			logger.error("Prepared Statement could not be created, "+iae.getMessage());
 		}
 	}
 
@@ -158,7 +159,7 @@ public class AidDAO{
 				req.close();
 			}
 		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR+e.getMessage());
+			logger.warn(SQL_OP_ERR+e.getMessage());
 			return false;
 		} finally {
 			silentClose(cn, null, null);
@@ -209,11 +210,11 @@ public class AidDAO{
 			try {
 				prepStmt = cn.prepareStatement(prepStmts.get(command));
 			} catch (SQLException e) {
-				logger.warning("Failed to create prepared statement for command \""+command+"\"");
+				logger.warn("Failed to create prepared statement for command \""+command+"\"");
 			}
 			return prepStmt;
 		}else{
-			logger.warning("Prepared statment command \""+command+"\" not found.\nHas this object been initialized?");
+			logger.warn("Prepared statment command \""+command+"\" not found.\nHas this object been initialized?");
 			return null;
 		}
 	}
@@ -266,7 +267,7 @@ public class AidDAO{
 				return true;
 			}
 		} catch (SQLException e) {
-			logger.warning(SQL_OP_ERR + e.getMessage());
+			logger.warn(SQL_OP_ERR + e.getMessage());
 		}
 
 		return false;
@@ -392,7 +393,7 @@ public class AidDAO{
 		} catch (SQLException e) {
 			logSQLerror(e);
 		} catch (IOException e) {
-			logger.severe(e.getMessage());
+			logger.error(e.getMessage());
 		}
 		
 		return images;
@@ -459,7 +460,7 @@ public class AidDAO{
 	}
 	
 	private void logSQLerror(SQLException e, String command) {
-		logger.warning(SQL_OP_ERR+command+": "+e.getMessage());
+		logger.warn(SQL_OP_ERR+command+": "+e.getMessage());
 	}
 
 	public boolean isDnw(String hash){
@@ -537,7 +538,7 @@ public class AidDAO{
 				break;
 
 			default:
-				logger.severe("Unhandled enum Table: " + table.toString());
+				logger.error("Unhandled enum Table: " + table.toString());
 				break;
 			}
 		} catch (SQLException e) {
@@ -643,7 +644,7 @@ public class AidDAO{
 				break;
 
 			default:
-				logger.severe("Unable to perform delete for table "
+				logger.error("Unable to perform delete for table "
 						+ table.toString());
 				break;
 			}
@@ -662,7 +663,7 @@ public class AidDAO{
 			req.execute(sqlStatment);
 			req.close();
 		} catch (SQLException e) {
-			logger.warning("Failed to execute statement id: "+sqlStatment+"\n"+e.getMessage());
+			logger.warn("Failed to execute statement id: "+sqlStatment+"\n"+e.getMessage());
 		} finally {
 			if(req != null)
 				try{req.close();} catch (SQLException e){}

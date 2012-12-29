@@ -22,7 +22,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -42,7 +43,7 @@ import filter.FilterState;
  */
 public class Page implements Runnable, Parsable{
 	private LinkedList<PageThread> pageThreads = new LinkedList<PageThread>();
-	private static Logger logger = Logger.getLogger(Page.class.getName());
+	private static Logger logger = LoggerFactory.getLogger(Page.class.getName());
 	private URL pageUrl, boardUrl;
 	private Filter filter;
 	private FileLoader imageLoader;
@@ -74,7 +75,7 @@ public class Page implements Runnable, Parsable{
 				this.pageUrl = new URL(boardurl+pageNumber);
 			}
 		} catch (MalformedURLException e) {
-			logger.severe("Could not generate page URL for\n"+boardUrl+pageNumber);
+			logger.error("Could not generate page URL for\n"+boardUrl+pageNumber);
 		}
 	}
 
@@ -91,7 +92,7 @@ public class Page implements Runnable, Parsable{
 		threadUrls.clear();
 		
 		if(html == null || html.equals("")){
-			logger.warning("No html data for " + pageUrl);
+			logger.warn("No html data for " + pageUrl);
 			return;
 		}
 		
@@ -106,7 +107,7 @@ public class Page implements Runnable, Parsable{
 			try {
 				threadUrls.add(new URL(boardUrl.toString() + relativeThreadUrl));
 			} catch (MalformedURLException e) {
-				logger.warning("unable to process thread URL.\n " + relativeThreadUrl + "\n" + e.getMessage());
+				logger.warn("unable to process thread URL.\n " + relativeThreadUrl + "\n" + e.getMessage());
 			}
 		}
 	}
@@ -177,11 +178,11 @@ public class Page implements Runnable, Parsable{
 		
 		} catch (PageLoadException ple) {
 			if(ple.getResponseCode() == 404 || ple.getResponseCode() == 500)
-				logger.warning("unable to load "+pageUrl.toString()+" , ResponseCode: "+ple.getResponseCode());//TODO do something else?
+				logger.warn("unable to load "+pageUrl.toString()+" , ResponseCode: "+ple.getResponseCode());//TODO do something else?
 			else
-				logger.warning("unable to load "+pageUrl.toString()+" , ResponseCode: "+ple.getResponseCode());
+				logger.warn("unable to load "+pageUrl.toString()+" , ResponseCode: "+ple.getResponseCode());
 		} catch (IOException io) {
-			logger.warning("unable to load "+pageUrl.toString()+" , ResponseCode: "+io.getMessage());
+			logger.warn("unable to load "+pageUrl.toString()+" , ResponseCode: "+io.getMessage());
 		}
 		return html;
 	}

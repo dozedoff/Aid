@@ -40,7 +40,8 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.DefaultListModel;
 
@@ -54,7 +55,7 @@ import com.github.dozedoff.commonj.net.GetHtml;
  * the threads status.
  */
 public class Filter implements FilterModifiable{
-	private static Logger logger = Logger.getLogger(Filter.class.getName());
+	private static Logger logger = LoggerFactory.getLogger(Filter.class.getName());
 	private static int FILTER_UPDATER_INTERVAL = 60*1000; // one minute
 	private final String LOCATION_TAG = "DL_CLIENT";
 	private int filterNr = 0;	// filter item counter
@@ -89,7 +90,7 @@ public class Filter implements FilterModifiable{
 			fis = new FileInputStream(file);
 			return loadFilter(fis);
 		} catch (FileNotFoundException e) {
-			logger.severe("Unable to load "+file.toString());
+			logger.error("Unable to load "+file.toString());
 		}
 		return false;
 		
@@ -116,9 +117,10 @@ public class Filter implements FilterModifiable{
 				postContentModel.addElement((String)obj);
 			}
 		}catch (IOException io) { 
-			logger.warning("Error when loading file: "+io.getMessage());
-			return false;		} catch (ClassNotFoundException e) {
-			logger.warning("Could not locate class: "+e.getMessage());
+			logger.warn("Error when loading file: "+io.getMessage());
+			return false;
+		} catch (ClassNotFoundException e) {
+			logger.warn("Could not locate class: "+e.getMessage());
 			return false;
 		}
 		return true;
@@ -141,7 +143,7 @@ public class Filter implements FilterModifiable{
 			logger.info("Saved filter to "+path);
 			return true;
 		}catch ( IOException e ) { 
-			logger.severe("Error when saving file: "+e.getMessage()); 
+			logger.error("Error when saving file: "+e.getMessage()); 
 			return false;}
 	}
 
@@ -361,9 +363,9 @@ public class Filter implements FilterModifiable{
 				return true;
 			}
 		} catch (MalformedURLException e2) {
-			logger.warning("Refresh invalid URL: "+currString);
+			logger.warn("Refresh invalid URL: "+currString);
 		} catch (Exception e) {
-			logger.warning("Refresh failed,  Reason: "+e.getMessage());
+			logger.warn("Refresh failed,  Reason: "+e.getMessage());
 		}
 		return false;
 	}
@@ -400,7 +402,7 @@ public class Filter implements FilterModifiable{
 			try {
 				refreshFilterItem(new URL(currString));
 			} catch (MalformedURLException e) {
-				logger.warning("Filter refresh failed due to "+e.getMessage());
+				logger.warn("Filter refresh failed due to "+e.getMessage());
 			}
 		}
 	}

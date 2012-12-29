@@ -31,11 +31,12 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.github.dozedoff.commonj.net.GetHtml;
-import com.sun.istack.internal.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FourChanStrategy implements SiteStrategy {
 	GetHtml getHtml = new GetHtml();
-	static final Logger logger = Logger.getLogger(FourChanStrategy.class);
+	static final Logger logger = LoggerFactory.getLogger(FourChanStrategy.class);
 	
 	@Override
 	public boolean validSiteStrategy(URL siteUrl) {
@@ -44,7 +45,7 @@ public class FourChanStrategy implements SiteStrategy {
 		try {
 			correctUrl = new URL("http://www.4chan.org/");
 		} catch (MalformedURLException e) {
-			logger.severe("Strategy check URL is incorrect. Please fix this!");
+			logger.error("Strategy check URL is incorrect. Please fix this!");
 			return false;
 		}
 		
@@ -74,7 +75,7 @@ public class FourChanStrategy implements SiteStrategy {
 				String fullUrl = "http:" + url;
 				boardMap.put(name, new URL(fullUrl));
 			} catch (Exception e) {
-				logger.warning("Could not add Board " + name + " due to: " + e.getMessage());
+				logger.warn("Could not add Board " + name + " due to: " + e.getMessage());
 			}
 		}
 		
@@ -171,7 +172,7 @@ public class FourChanStrategy implements SiteStrategy {
 				
 				postObject.setImageUrl(new URL("https:" + imageUrl));
 			}catch(MalformedURLException mue){
-				logger.warning("Invalid image URL (" + imageUrl+ ") in thread " + threadUrl);
+				logger.warn("Invalid image URL (" + imageUrl+ ") in thread " + threadUrl);
 				postObject.setImageName(null);
 				postObject.setImageUrl(null);
 			}
@@ -189,7 +190,7 @@ public class FourChanStrategy implements SiteStrategy {
 		try{
 			threadNumber = Integer.parseInt(urlFragments[urlFragments.length - 1]); 
 		}catch(NumberFormatException nfe){
-			logger.warning("Got an invalid thread number for " + threadUrl.toString());
+			logger.warn("Got an invalid thread number for " + threadUrl.toString());
 		}
 		
 		return threadNumber;
@@ -208,6 +209,6 @@ public class FourChanStrategy implements SiteStrategy {
 	}
 	
 	private void parseError(String failedUrl, String pageType, Exception exception) {
-		logger.warning("Failed to parse " + pageType + " " + failedUrl + " because: " + exception.getMessage());
+		logger.warn("Failed to parse " + pageType + " " + failedUrl + " because: " + exception.getMessage());
 	}
 }

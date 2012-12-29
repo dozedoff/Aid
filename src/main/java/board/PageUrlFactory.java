@@ -21,13 +21,14 @@ package board;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class for generating the pages for a board.
  */
 public class PageUrlFactory {
-	private static Logger logger = Logger.getLogger(PageUrlFactory.class.getName());
+	private static Logger logger = LoggerFactory.getLogger(PageUrlFactory.class.getName());
 	private PageUrlFactory(){}
 
 	public static ArrayList<URL> makePages(URL boardUrl, int numOfPages){
@@ -41,7 +42,7 @@ public class PageUrlFactory {
 				pages.add(makePageUrl(boardUrl, i));
 			}
 		} catch (MalformedURLException e) {
-			logger.warning("invalid URL, page creation aborted.\n"+e.getMessage());
+			logger.warn("invalid URL, page creation aborted.\n"+e.getMessage());
 		}
 		return pages;
 	}

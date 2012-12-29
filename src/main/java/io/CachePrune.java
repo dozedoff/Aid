@@ -23,7 +23,8 @@ import java.net.URL;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.dozedoff.commonj.gui.Log;
 import com.github.dozedoff.commonj.net.GetHtml;
@@ -37,7 +38,7 @@ public class CachePrune {
 	Timer cachePruneTimer;
 	AidDAO sql;
 
-	static final Logger logger = Logger.getLogger(CachePrune.class.getName());
+	static final Logger logger = LoggerFactory.getLogger(CachePrune.class.getName());
 
 	public CachePrune(AidDAO sql, URL testAliveUrl, int refreshInterSec, int startupDelaySec, int maximumAgeSec) {
 		this.testAliveUrl = testAliveUrl;
@@ -74,13 +75,13 @@ public class CachePrune {
 			}catch (Exception e){
 				String message = "Failed to contact URL: "+e.getMessage()+"\n"
 								+"Response code was: "+response;
-				logger.warning(message);
+				logger.warn(message);
 				Log.add(message);
 			}
 				
 				if(response != 200){
 					String message = "Could not verify that client is online, skipping cache prune.";
-					logger.warning(message);
+					logger.warn(message);
 					Log.add(message);
 					return;
 				}

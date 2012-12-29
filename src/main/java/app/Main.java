@@ -45,7 +45,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
@@ -80,7 +84,7 @@ public class Main implements ActionListener{
 
 	boolean SkipLogEnabled = false;
 
-	private static Logger logger = Logger.getLogger(Main.class.getName());
+	private static Logger logger = LoggerFactory.getLogger(Main.class.getName());
 	private PropertyChangeSupport change = new PropertyChangeSupport(this);
 
 	private io.FileWriter fileWriter;
@@ -135,7 +139,7 @@ public class Main implements ActionListener{
 		if(! SettingValidator.validateAppSettings(appSettings)){
 			String message = "One or more program settings are invalid. Please correct them and restart the program.\n"
 					+ " to reset to the default values, delete "+APP_CFG_FILENAME+" and restart the program.";
-			logger.severe(message);
+			logger.error(message);
 			dieWithError(message, 1);
 		}
 
@@ -190,7 +194,7 @@ public class Main implements ActionListener{
 			checkAliveUrl = new URL(baseUrl);
 		} catch (MalformedURLException e) {
 			String message = "URL is invalid: ";
-			logger.warning(message + e.getMessage());
+			logger.warn(message + e.getMessage());
 		}
 
 		if (checkAliveUrl == null) {
@@ -198,7 +202,7 @@ public class Main implements ActionListener{
 				checkAliveUrl = new URL(baseUrl);
 			} catch (MalformedURLException e) {
 				String message = "URL is invalid: ";
-				logger.warning(message + e.getMessage());
+				logger.warn(message + e.getMessage());
 			}
 		}
 		 
@@ -250,7 +254,7 @@ public class Main implements ActionListener{
 					boards.addElement(b);
 				}
 			} catch (IndexOutOfBoundsException oob) {
-				logger.warning("Sub_pages is not configured correctly");
+				logger.warn("Sub_pages is not configured correctly");
 			}
 		}
 
@@ -295,7 +299,7 @@ public class Main implements ActionListener{
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e){
-			logger.warning("Unable to load look and feel: "+e.getMessage());
+			logger.warn("Unable to load look and feel: "+e.getMessage());
 		}
 
 		// shutdown Thread will be called on exit
@@ -324,7 +328,7 @@ public class Main implements ActionListener{
 				is.close();
 			}
 		}catch(IOException ioe){
-			logger.warning("Error accessing file " + ioe.getMessage());
+			logger.warn("Error accessing file " + ioe.getMessage());
 		}
 
 		filter.startUpdater();
@@ -336,7 +340,7 @@ public class Main implements ActionListener{
 	}
 	
 	private void dieWithError(String message, int errorCode){
-		logger.severe(message);
+		logger.error(message);
 		JOptionPane.showMessageDialog(null, message, "Fatal Error", JOptionPane.ERROR_MESSAGE);
 		System.exit(errorCode);
 	}
@@ -376,7 +380,7 @@ public class Main implements ActionListener{
 				sqlProps.load(is);
 			return sqlProps;
 		} catch (IOException ioe) {
-			logger.warning("Error accessing file "+ ioe.getMessage());
+			logger.warn("Error accessing file "+ ioe.getMessage());
 			return new DefaultMySQLconnection();
 		}
 	}
@@ -398,7 +402,7 @@ public class Main implements ActionListener{
 
 			return appSetting;
 		} catch (IOException ioe) {
-			logger.warning("Error accessing file "+ ioe.getMessage());
+			logger.warn("Error accessing file "+ ioe.getMessage());
 			return new DefaultAppSettings();
 		}
 	}
@@ -486,21 +490,21 @@ public class Main implements ActionListener{
 			try {
 				appSettings.store(new FileOutputStream(APP_CFG_FILENAME), "General application settings");
 			} catch (IOException e) {
-				logger.warning("Unable to save configuration "+e.getMessage());
+				logger.warn("Unable to save configuration "+e.getMessage());
 			}
 
 			// save logger settings
 			try {
 				loggerSettings.store(new FileOutputStream(LOGGER_CFG_FILENAME), "Java logger settings");
 			} catch (IOException e) {
-				logger.warning("Unable to save configuration "+e.getMessage());
+				logger.warn("Unable to save configuration "+e.getMessage());
 			}
 
 			// save mysql settings
 			try {
 				sqlProps.store(new FileOutputStream(MYSQL_CFG_FILENAME), "MySQL connection settings");
 			} catch (IOException e) {
-				logger.warning("Unable to save configuration "+e.getMessage());
+				logger.warn("Unable to save configuration "+e.getMessage());
 			}
 
 			logger.info("Shutdown complete.");

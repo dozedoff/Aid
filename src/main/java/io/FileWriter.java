@@ -28,7 +28,8 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.activity.InvalidActivityException;
 
@@ -57,7 +58,7 @@ public class FileWriter extends Thread{
 	volatile boolean stop = false; // stop the FileWrite and do a clean Shutdown
 	//TODO will FileWriter shut down correctly without volatile?
 	private Filter filter;
-	private static Logger logger = Logger.getLogger(FileWriter.class.getName());
+	private static Logger logger = LoggerFactory.getLogger(FileWriter.class.getName());
 
 	long bytesSaved = 0;		// bytes written to disk
 	long bytesDiscarded = 0;  // bytes discarded (Hash found in mySQL Database)
@@ -164,7 +165,7 @@ public class FileWriter extends Thread{
 						try {
 							filter.addIndex(existingFileHash, fullPath.toString(), data.length);
 						} catch (SQLException e) {
-							logger.warning("Could not add Hash to database: "+e.getMessage());
+							logger.warn("Could not add Hash to database: "+e.getMessage());
 						}
 						return;
 					}else{
@@ -177,7 +178,7 @@ public class FileWriter extends Thread{
 			}
 
 		}catch(IOException e){
-			logger.warning("Unable to create File: "+e.getMessage());
+			logger.warn("Unable to create File: "+e.getMessage());
 		}
 
 		try{
@@ -195,21 +196,21 @@ public class FileWriter extends Thread{
 			Stats.saveBytes(data.length);
 		}catch(SQLException se){
 			if(se.getLocalizedMessage().contains("Incorrect string value")){ //TODO instead of writing the file here, add the data back to the buffer
-				logger.warning("Unable to add hash to database due to :"+se.getMessage());
+				logger.warn("Unable to add hash to database due to :"+se.getMessage());
 				fullPath.delete();
 				fullPath = newFileName(fullPath, false);
 				try {
 					add(fullPath,data);
 				} catch (InvalidActivityException e) {
-					logger.warning("failed to write file: "+e.getMessage());
+					logger.warn("failed to write file: "+e.getMessage());
 				}
 			}else{
-				logger.severe("add hash failed: "+se.getMessage());
+				logger.error("add hash failed: "+se.getMessage());
 			}
 		}catch(Exception e){
-			logger.severe("File Buffer write failed: "+e.getLocalizedMessage());
+			logger.error("File Buffer write failed: "+e.getLocalizedMessage());
 			if(e != null && e.getLocalizedMessage().contains("space")){
-				logger.severe("Not enough free disk space, will now exit...");
+				logger.error("Not enough free disk space, will now exit...");
 				System.exit(1);
 			}
 		}
@@ -275,11 +276,11 @@ public class FileWriter extends Thread{
 					try {
 						file.createNewFile();
 					} catch (IOException e) {
-						logger.warning("failed to create warning Tag for "+dir);
+						logger.warn("failed to create warning Tag for "+dir);
 					}
 				}
 
-				logger.warning("WARNING! "+ path + " is blacklisted");
+				logger.warn("WARNING! "+ path + " is blacklisted");
 				Log.add("WARNING! "+ path + " is blacklisted");
 				continue;
 			}

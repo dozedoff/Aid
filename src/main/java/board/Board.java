@@ -30,7 +30,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import filter.Filter;
 import filter.FilterItem;
@@ -50,7 +51,7 @@ public class Board {
 	final private ImageLoader imageLoader;
 	private final int WAIT_TIME = 60 * 1000 * 60; // 1 hour
 	
-	private static final Logger LOGGER = Logger.getLogger(Board.class.getName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(Board.class.getName());
 	
 	public Board(URL boardUrl, String boardId, SiteStrategy siteStrategy, Filter filter, ImageLoader imageLoader){
 		this.boardUrl = boardUrl;

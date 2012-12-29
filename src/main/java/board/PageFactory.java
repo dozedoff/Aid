@@ -21,7 +21,8 @@ package board;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.dozedoff.commonj.net.FileLoader;
 
@@ -31,7 +32,7 @@ import filter.Filter;
  * Class for generating the pages for a board.
  */
 public class PageFactory {
-	private static Logger logger = Logger.getLogger(PageFactory.class.getName());
+	private static Logger logger = LoggerFactory.getLogger(PageFactory.class.getName());
 	private PageFactory(){}
 
 	public static ArrayList<Page> makePages(String boardUrl, int numOfPages, Filter filter, FileLoader imageLoader){
@@ -44,7 +45,7 @@ public class PageFactory {
 			for(int i=2; i<numOfPages+1; i++)
 				pages.add(new Page(new URL(boardUrl),i, filter, imageLoader));
 		} catch (MalformedURLException e) {
-			logger.warning("invalid URL, page creation aborted.\n"+e.getMessage());
+			logger.warn("invalid URL, page creation aborted.\n"+e.getMessage());
 		}
 		return pages;
 	}

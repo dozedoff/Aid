@@ -19,10 +19,11 @@ package app;
 
 import static config.AppSetting.*;
 import java.util.Properties;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SettingValidator {
-	private static final Logger logger = Logger.getLogger(SettingValidator.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(SettingValidator.class.getName());
 	private static final String SUBPAGE_REGEX = "([a-zA-Z]+,)*+[a-zA-Z]+$";
 	private static final String BASEURL_REGEX = "(?m)(http:|https:)//([0-9a-zA-Z.-]+\\.)+([a-zA-Z])*/$";
 
@@ -84,7 +85,7 @@ public class SettingValidator {
 		String writeBlocked = appSettings.getProperty(write_blocked.toString());
 		if(writeBlocked == null || !(writeBlocked.toLowerCase().equals("false") || writeBlocked.toLowerCase().equals("true"))){
 			String errorMsg = invalidPropertyMessage(write_blocked.toString(),appSettings);
-			logger.warning(errorMsg);
+			logger.warn(errorMsg);
 			return false;
 		}
 		return true;
@@ -114,7 +115,7 @@ public class SettingValidator {
 		String toTest = appSettings.getProperty(property);
 		String errorMsg = invalidPropertyMessage(property,appSettings);
 		if(toTest == null || (! toTest.matches(regex))){
-			logger.warning(errorMsg);
+			logger.warn(errorMsg);
 			return false;
 		}
 		return true;
@@ -132,11 +133,11 @@ public class SettingValidator {
 		String errorMsg = invalidPropertyMessage(property,appSettings);
 		try{
 			if(toTest == null || Integer.parseInt(toTest) < lessThan){
-				logger.warning(errorMsg);
+				logger.warn(errorMsg);
 				return false;
 			}
 		}catch(NumberFormatException nfe){
-			logger.warning(errorMsg);
+			logger.warn(errorMsg);
 			return false;
 		}
 		return true;
