@@ -62,7 +62,6 @@ public class FileWriter extends Thread{
 	long bytesSaved = 0;		// bytes written to disk
 	long bytesDiscarded = 0;  // bytes discarded (Hash found in mySQL Database)
 	
-	private final int FLUSH_INTERVAL = 1000; // time between buffer flushes, in ms.
 	private final String[] ILLEGAL_FILENAME_CHARS = {"/", "\\", ":", "?", "\"", "<", ">", "|"};	
 	
 	public FileWriter(Filter filter){
@@ -125,11 +124,16 @@ public class FileWriter extends Thread{
 	 * @param data Binary data of the file.
 	 * @throws InvalidActivityException Thrown if files are added during shutdown.
 	 */
-	public void add(File path, byte[] data) throws InvalidActivityException{
-		if(stop)
+	public void add(File path, byte[] data) throws InvalidActivityException {
+		if (stop) {
 			throw new InvalidActivityException("FileWriter is shutting down");
+		}
+
 		fileBuffer.add(new FileItem(path, data));
 		bufferSize.addAndGet(data.length);
+		synchronized (fileBuffer) {
+			fileBuffer.notify();
+		}
 	}
 	
 	/**
@@ -319,29 +323,33 @@ public class FileWriter extends Thread{
 	 * Filewriter will no longer accept new files, and will
 	 * begin to flush the buffer to disk.
 	 */
-	public void shutdown(){
+	public void shutdown() {
 		logger.info("Shutting down FileWriter...");
-		
+
 		this.stop = true;
-		//	interrupt();
+
 		try {
 			this.interrupt();
 			this.join();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-		
+
 		logger.info("FileWriter shutdown complete");
 	}
 
-	// run until stopped
 	@Override
-	public void run(){
+	public void run() {
 		setPriority(7);
 
-		while(!stop){
-			try{Thread.sleep(FLUSH_INTERVAL);}catch(InterruptedException ignore){interrupt();}
+		while (!stop) {
+			while (!stop && fileBuffer.isEmpty()) {
+				synchronized (fileBuffer) {
+					try {
+						fileBuffer.wait();
+					} catch (InterruptedException e) {
+					}
+				}
+			}
 			flushBuffer();
 		}
 		flushBuffer(); // write buffer to Disk when the Thread is stopped
