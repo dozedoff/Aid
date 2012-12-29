@@ -145,11 +145,7 @@ public class FileWriter extends Thread{
 		File directory = new File(path).getParentFile();
 		File fullPath = new File(path);
 
-		try{
-			directory.mkdirs();
-		}catch(Exception e){
-			logger.warning(e.getMessage() + " ("+directory+")");
-		}
+		directory.mkdirs();
 
 		try{
 			if(!fullPath.createNewFile()){
