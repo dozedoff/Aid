@@ -44,6 +44,7 @@ import javax.activity.InvalidActivityException;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.github.dozedoff.commonj.file.BinaryFileReader;
@@ -52,7 +53,6 @@ import com.github.dozedoff.commonj.io.BoneConnectionPool;
 import filter.Filter;
 import gui.BlockListDataModel;
 
-//TODO improve speed of ignored tests (remove buffer from FileWriter?)
 
 public class FileWriterTest {
 	BoneConnectionPool mockConnectionPoolaid;
@@ -67,6 +67,7 @@ public class FileWriterTest {
 	ArrayList<File> testFiles;
 	BlockListDataModel bldm;
 
+	private final int BUFFER_CLEAR_TIME = 100;
 	/**
 	 * Create a new Filewriter for the test.
 	 * @throws Exception
@@ -94,16 +95,8 @@ public class FileWriterTest {
 	@After
 	public void tearDown() throws Exception {
 		fileWriter.shutdown();
-
-//		for(File f : testFiles)
-//			f.delete();
-//
-//		new File(testDir,"\\a").delete();
-//		new File(testDir,"\\b").delete();
-//		new File(testDir,"\\c").delete();
-//
-//		testDir.delete();
 	}
+	
 	/**
 	 * Check that files are written to disk, and also check that buffer flushing works.
 	 * @throws InterruptedException
@@ -111,22 +104,28 @@ public class FileWriterTest {
 	 * @throws IOException 
 	 */
 	@Test
-	public void testAdd() throws InterruptedException, SQLException, IOException {
-		for(File f : testFiles)
+	public void testAdd() throws InterruptedException, SQLException,
+			IOException {
+		for (File f : testFiles) {
 			fileWriter.add(f, testData);
+		}
 
-		Thread.sleep(6000);// wait for buffer to clear
+		Thread.sleep(BUFFER_CLEAR_TIME);// wait for buffer to clear
 
-		for(File f : testFiles)
-			assertTrue("File "+f.toString()+" not found",f.exists());
-		
-		verify(mockFilter,times(5)).addIndex(eq("95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815"), anyString(), eq(5));
-		
-		for(File f : testFiles)
-			assertThat("Test failed for "+f.getPath(),f.length(), is(5L));
-		
+		for (File f : testFiles) {
+			assertTrue("File " + f.toString() + " not found", f.exists());
+		}
+
+		verify(mockFilter, times(5))
+				.addIndex(
+						eq("95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815"),
+						anyString(), eq(5));
+
+		for (File f : testFiles)
+			assertThat("Test failed for " + f.getPath(), f.length(), is(5L));
+
 		BinaryFileReader bfr = new BinaryFileReader();
-		for(File f : testFiles){
+		for (File f : testFiles) {
 			assertThat(bfr.get(f), is(testData));
 		}
 	}
@@ -207,6 +206,7 @@ public class FileWriterTest {
 	}
 	
 	@Test
+	@Ignore("This test generates up to 25 mb of data.")
 	// WARNING: this test can generate up to 25 mb of data per run
 	public void testBulkWrite() throws InterruptedException, IOException{
 		HashMap<File,byte[]> testSet = new HashMap<>();
@@ -221,7 +221,7 @@ public class FileWriterTest {
 			fileWriter.add(filepath, data);
 		}
 		
-		Thread.sleep(7000);
+		Thread.sleep(BUFFER_CLEAR_TIME); // wait for buffer to clear
 		
 		Iterator<File> ite = testSet.keySet().iterator();
 		
@@ -237,29 +237,22 @@ public class FileWriterTest {
 	 */
 	@Test
 	public void testShutdown() throws InvalidActivityException{
-		for(File f : testFiles)
+		for(File f : testFiles){
 			fileWriter.add(f, testData);
-
-		fileWriter.shutdown();
-
-		for(File f : testFiles)
-			assertTrue("File "+f.toString()+" not found",f.exists());
-	}
-
-	@Test
-	public void testGetPendingWrites() throws InvalidActivityException {
-		for(File f : testFiles)
-			fileWriter.add(f, testData);
+		}
 		
-		assertThat(fileWriter.getPendingWrites(), is(not(0)));
 		fileWriter.shutdown();
-		assertThat(fileWriter.getPendingWrites(), is(0));
+
+		for(File f : testFiles){
+			assertTrue("File "+f.toString()+" not found",f.exists());
+		}
 	}
 
 	@Test
 	public void testGetBytesSaved() throws InvalidActivityException {
-		for(File f : testFiles)
+		for(File f : testFiles){
 			fileWriter.add(f, testData);
+		}
 		
 		fileWriter.shutdown();
 		
@@ -271,8 +264,9 @@ public class FileWriterTest {
 		fileWriter = new FileWriter(mockFilter);
 		when(mockFilter.exists(anyString())).thenReturn(true);
 		
-		for(File f : testFiles)
+		for(File f : testFiles){
 			fileWriter.add(f, testData);
+		}
 		
 		fileWriter.shutdown();
 		
@@ -282,8 +276,7 @@ public class FileWriterTest {
 	@Test
 	public void testInvalidFileName() throws Exception{
 		fileWriter.add(new File(testDir,"ooops+%!<>.txt"), testData);
-		//fileWriter.shutdown();
-		Thread.sleep(15000);
+		Thread.sleep(BUFFER_CLEAR_TIME);
 		
 		ArrayList<String> filenames = new ArrayList<>();
 		
@@ -299,7 +292,7 @@ public class FileWriterTest {
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
 		fileWriter.add(new File(testDir,"foo.txt"), testData2);
 
-		Thread.sleep(6000);
+		Thread.sleep(BUFFER_CLEAR_TIME);
 		fileWriter.shutdown();
 		ArrayList<String> filenames = new ArrayList<>();
 		
@@ -318,7 +311,7 @@ public class FileWriterTest {
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
 
-		Thread.sleep(6000);
+		Thread.sleep(BUFFER_CLEAR_TIME);
 		fileWriter.shutdown();
 		ArrayList<String> filenames = new ArrayList<>();
 		
@@ -336,7 +329,7 @@ public class FileWriterTest {
 		when(mockFilter.exists("20FC038E00E13585E68E7EBE50D79CBE7D476A74D8FDE71872627DA6CD8FC8BB")).thenReturn(true);
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
 		fileWriter.add(new File(testDir,"bar.txt"),testData2);
-		Thread.sleep(6000);
+		Thread.sleep(BUFFER_CLEAR_TIME);
 		assertThat(fileWriter.getBytesSaved(), is(5L));
 		assertThat(fileWriter.getBytesDiscarded(), is(5L));
 		
@@ -353,7 +346,7 @@ public class FileWriterTest {
 		fileWriter.add(new File(testDir,"foo.bar"), testData);
 		fileWriter.shutdown();
 		
-		Thread.sleep(1000);
+		Thread.sleep(BUFFER_CLEAR_TIME);
 		
 		ArrayList<String> filenames = new ArrayList<>();
 		
@@ -371,7 +364,7 @@ public class FileWriterTest {
 		fileWriter.add(new File(testDir,"foo.bar"), testData);
 		fileWriter.shutdown();
 		
-		Thread.sleep(1000);
+		Thread.sleep(BUFFER_CLEAR_TIME);
 		
 		ArrayList<String> filenames = new ArrayList<>();
 		
@@ -388,9 +381,8 @@ public class FileWriterTest {
 		doThrow(new SQLException("Incorrect string value")).when(mockFilter).addIndex(anyString(), eq(new File(testDir,"foo.txt").toString()), eq(5));
 		
 		fileWriter.add(new File(testDir,"foo.txt"), testData);
-//		fileWriter.shutdown();
 		
-		Thread.sleep(11000);
+		Thread.sleep(BUFFER_CLEAR_TIME);
 		
 		ArrayList<String> filenames = new ArrayList<>();
 		
