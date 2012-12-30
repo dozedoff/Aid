@@ -20,6 +20,7 @@ package board;
 import io.ImageLoader;
 
 import java.net.URL;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -218,12 +219,16 @@ public class Board {
 		}
 		
 		private void queueForDownload(List<Post> posts, int threadNumber) {
-			for(Post post : posts){
+			for (Post post : posts) {
 				String threadId = String.valueOf(threadNumber);
 				String imageName = post.getImageName();
-				String relativeImagePath = Paths.get(boardId, threadId, imageName).toString();
-
-				imageLoader.add(post.getImageUrl(), relativeImagePath);
+				try {
+					String relativeImagePath = Paths.get(boardId, threadId,	imageName).toString();
+					imageLoader.add(post.getImageUrl(), relativeImagePath);
+				} catch (InvalidPathException ipe) {
+					Object[] data = {post.getImageUrl(), post.getImageName(), ipe.getReason()};
+					logger.warn("Failed to add image ({}) for download to {} - reason: {}", data);
+				}
 			}
 		}
 	}
