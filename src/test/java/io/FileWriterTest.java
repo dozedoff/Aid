@@ -63,7 +63,7 @@ public class FileWriterTest {
 	File testDir;
 	byte[] testData = {12,45,6,12,99};	// SHA-256: 95F6A79D2199FC2CFA8F73C315AA16B33BF3544C407B4F9B29889333CA0DB815
 	byte[] testData2 = {99,21,6,45,12}; // SHA-256: 20FC038E00E13585E68E7EBE50D79CBE7D476A74D8FDE71872627DA6CD8FC8BB
-	File[] testFilesRelative = {new File("a\\test1.txt"),new File("a\\test2.txt"),new File("b\\test1.txt"),new File("c\\test1.txt"),new File("c\\test2.txt")};
+	File[] testFilesRelative = {new File("a/test1.txt"),new File("a/test2.txt"),new File("b/test1.txt"),new File("c/test1.txt"),new File("c/test2.txt")};
 	ArrayList<File> testFiles;
 	BlockListDataModel bldm;
 
