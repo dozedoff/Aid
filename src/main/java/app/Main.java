@@ -44,10 +44,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.LogManager;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,14 +57,12 @@ import board.Board;
 import board.FourChanStrategy;
 import board.SiteStrategy;
 
-import com.github.dozedoff.commonj.file.FileUtil;
 import com.github.dozedoff.commonj.gui.Log;
 import com.github.dozedoff.commonj.io.BoneConnectionPool;
 import com.github.dozedoff.commonj.io.ConnectionPool;
 
 import config.AppSetting;
 import config.DefaultAppSettings;
-import config.DefaultLoggerSettings;
 import config.DefaultMySQLconnection;
 
 /**
@@ -104,11 +99,9 @@ public class Main implements ActionListener{
 
 	private BoardListDataModel boards = new BoardListDataModel();
 	Properties appSettings = new DefaultAppSettings();
-	Properties loggerSettings = new DefaultLoggerSettings();
 	Properties sqlProps = new DefaultMySQLconnection();
 
 	private final String PWD = System.getProperty("user.dir");
-	private final String LOGGER_CFG_FILENAME = "logging.ini";
 	private final String MYSQL_CFG_FILENAME = "mysql.ini";
 	private final String APP_CFG_FILENAME = "config.ini";
 	private final String FILTER_DATA_FILENAME = "filter.dat";
@@ -293,9 +286,6 @@ public class Main implements ActionListener{
 	 * This Method initializes the Program
 	 */
 	private void init(){
-		// load the logger settings
-		loggerSettings = loadLoggerConfig(LOGGER_CFG_FILENAME);
-
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e){
@@ -343,30 +333,6 @@ public class Main implements ActionListener{
 		logger.error(message);
 		JOptionPane.showMessageDialog(null, message, "Fatal Error", JOptionPane.ERROR_MESSAGE);
 		System.exit(errorCode);
-	}
-
-
-	/**
-	 * Load the logger settings from the file
-	 */
-	public Properties loadLoggerConfig(String filepath){
-		// Load logger Configuration
-		try{
-			InputStream is = new FileInputStream(filepath);
-			Properties loggerSettings = new Properties();
-			loggerSettings.load(is);
-			is.close();
-
-			is = new FileInputStream(filepath);
-			LogManager.getLogManager().readConfiguration(is);
-			logger.info("Logger config Loaded");
-			is.close();
-
-			return loggerSettings;
-		}catch(IOException ioe){
-			logger.info("Error accessing file "+ioe.getMessage());
-			return new DefaultLoggerSettings();
-		}
 	}
 
 	/**
@@ -489,13 +455,6 @@ public class Main implements ActionListener{
 			// save program settings
 			try {
 				appSettings.store(new FileOutputStream(APP_CFG_FILENAME), "General application settings");
-			} catch (IOException e) {
-				logger.warn("Unable to save configuration "+e.getMessage());
-			}
-
-			// save logger settings
-			try {
-				loggerSettings.store(new FileOutputStream(LOGGER_CFG_FILENAME), "Java logger settings");
 			} catch (IOException e) {
 				logger.warn("Unable to save configuration "+e.getMessage());
 			}
