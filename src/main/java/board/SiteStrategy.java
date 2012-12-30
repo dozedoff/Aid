@@ -21,45 +21,47 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+import org.jsoup.nodes.Document;
+
 public interface SiteStrategy {
 	/**
 	 * Check that the given strategy can be used for the given URL. Returns false in case of an error.
-	 * @param siteUrl URL the strategy should be used for.
-	 * @return true if the strategy can be used.
+	 * @param siteUrl URL the strategy should be used for
+	 * @return true if the strategy can be used
 	 */
 	public boolean validSiteStrategy(URL siteUrl);
 	
 	/**
 	 * Returns a map containing the full name of boards and the 
 	 * matching URL. A empty map is returned on error.
-	 * @param siteUrl the URL for the site containing the boards.
-	 * @return a map containing Names and URL's.
+	 * @param mainPage document containing the main page
+	 * @return a map containing Names and URL's
 	 */
-	public Map<String, URL> findBoards(URL siteUrl);
+	public Map<String, URL> findBoards(Document mainPage);
 	
 	/**
 	 * Returns the number of pages from the board that are available.
 	 * Returns 0 on error.
-	 * @param boardUrl the URL of the board to check.
-	 * @return number of accessible pages.
+	 * @param boardPage document containing a board page
+	 * @return number of accessible pages
 	 */
-	public int getBoardPageCount(URL boardUrl);
+	public int getBoardPageCount(Document boardPage);
 	
 	/**
 	 * Parses the given page and return a list URLs for the contained threads.
 	 * Returns a empty list on error.
-	 * @param pageUrl the URL of the page.
-	 * @return a list of thread URLs.
+	 * @param boardPage document containing a board page
+	 * @return a list of thread URLs
 	 */
-	public List<URL> parsePage(URL pageUrl);
+	public List<URL> parsePage(Document boardPage);
 	
 	/**
 	 * Parse the given thread and return all posts found.
 	 * Returns a empty list on error. 
-	 * @param pageThread the thread to parse.
-	 * @return a list of found posts.
+	 * @param boardThread document containing an imageboard thread
+	 * @return a list of found posts
 	 */
-	public List<Post> parseThread(URL pageThread);
+	public List<Post> parseThread(Document boardThread);
 	
 	/**
 	 * Returns the thread number of the given thread. Returns 0 on error.

@@ -19,6 +19,7 @@ package board;
 
 import io.ImageLoader;
 
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
@@ -31,6 +32,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,7 +132,8 @@ public class Board {
 		}
 		
 		private void processBoard() {
-			int numOfPages = siteStartegy.getBoardPageCount(boardUrl);
+			Document boardPage = loadPage(boardUrl);
+			int numOfPages = siteStartegy.getBoardPageCount(boardPage);
 			logger.info("Board {} has {} pages", boardId, numOfPages);
 			ArrayList<URL> pageUrls = PageUrlFactory.makePages(boardUrl, numOfPages);
 			List<URL> pageThreads = parsePages(pageUrls);
@@ -141,7 +146,8 @@ public class Board {
 			LinkedList<URL> pageThreads = new LinkedList<>();
 			
 			for(URL page : pageUrls){
-				List<URL> threads = siteStartegy.parsePage(page);
+				Document pageDoc = loadPage(page);
+				List<URL> threads = siteStartegy.parsePage(pageDoc);
 				pageThreads.addAll(threads);
 			}
 			
@@ -172,7 +178,8 @@ public class Board {
 		
 		private void processPageThreads(List<URL> pageThreads) {
 			for (URL thread : pageThreads) {
-				List<Post> posts = siteStartegy.parseThread(thread);
+				Document threadPage = loadPage(thread);
+				List<Post> posts = siteStartegy.parseThread(threadPage);
 				String reason = filterPosts(posts);
 				
 				if (reason != null){
@@ -237,6 +244,15 @@ public class Board {
 					Object[] data = { post.getImageUrl(), post.getImageName(), ipe.getReason() };
 					logger.warn("Failed to add image ({}) for download to {} - reason: {}",	data);
 				}
+			}
+		}
+		
+		private Document loadPage(URL url) {
+			try {
+				return Jsoup.connect(url.toString()).userAgent("Mozilla").get();
+			} catch (IOException e) {
+				logger.warn("Failed to load page {} with error {}", url, e);
+				return Jsoup.parse("");
 			}
 		}
 	}

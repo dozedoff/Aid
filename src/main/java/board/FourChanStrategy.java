@@ -53,19 +53,10 @@ public class FourChanStrategy implements SiteStrategy {
 	}
 
 	@Override
-	public Map<String, URL> findBoards(URL siteUrl) {
+	public Map<String, URL> findBoards(Document mainPage) {
 		HashMap<String, URL> boardMap = new HashMap<>();
-		Document mainDocument;
 
-		try {
-			mainDocument = Jsoup.connect(siteUrl.toString()).userAgent("Mozilla").get();
-		} catch (Exception e) {
-			String url = siteUrl.toString();
-			parseError(url, "frontpage", e);
-			return boardMap;
-		}
-
-		Elements boards = mainDocument.select("div.column a.boardlink");
+		Elements boards = mainPage.select("div.column a.boardlink");
 
 		for (Element boardEntry : boards){
 			String url = boardEntry.attr("href");
@@ -83,37 +74,18 @@ public class FourChanStrategy implements SiteStrategy {
 	}
 
 	@Override
-	public int getBoardPageCount(URL boardUrl) {
-		Document boardDocument;
-		
-		try {
-			boardDocument = Jsoup.connect(boardUrl.toString()).userAgent("Mozilla").get();
-		} catch (Exception e) {
-			String url = boardUrl.toString();
-			parseError(url, "board", e);
-			return 0;
-		}
-		
-		Elements pageLinks = boardDocument.select("div.pages span a");
+	public int getBoardPageCount(Document boardPage) {
+		Elements pageLinks = boardPage.select("div.pages span a");
 		int pageCount = pageLinks.size();
 
 		return pageCount;
 	}
 
 	@Override
-	public List<URL> parsePage(URL pageUrl) {
+	public List<URL> parsePage(Document boardPage) {
 		LinkedList<URL> threadUrls = new LinkedList<>();
-		Document pageDocument;
-
-		try {
-			pageDocument = Jsoup.connect(pageUrl.toString()).userAgent("Mozilla").get();
-		} catch (Exception e) {
-			String url = pageUrl.toString();
-			parseError(url, "page", e);
-			return threadUrls;
-		}
-
-		Elements threadLinks = pageDocument.select("a.replylink");
+	
+		Elements threadLinks = boardPage.select("a.replylink");
 
 		for (Element thread : threadLinks) {
 			String absoluteThreadUrl = thread.attr("abs:href");
@@ -129,20 +101,17 @@ public class FourChanStrategy implements SiteStrategy {
 	}
 	
 	@Override
-	public List<Post> parseThread(URL pageThread) {
+	public List<Post> parseThread(Document boardThread) {
 		LinkedList<Post> postList = new LinkedList<>();
 		
-		String threadUrl = pageThread.toString();
+		String threadUrl = boardThread.baseUri().toString();
 		
-		Document pageDocument;
-		try {
-			pageDocument = Jsoup.connect(threadUrl).userAgent("Mozilla").get();
-		} catch (IOException e) {
-			parseError(threadUrl, "page thread", e);
+		Element thread = boardThread.select("#delform > div.board > div.thread").first();
+		
+		if(thread == null){
 			return postList;
 		}
 		
-		Element thread = pageDocument.select("#delform > div.board > div.thread").first();
 		Elements posts = thread.getElementsByClass("post");
 		
 		for(Element post : posts){

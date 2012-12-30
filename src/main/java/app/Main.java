@@ -45,6 +45,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -236,8 +238,8 @@ public class Main implements ActionListener{
 		
 		
 		//TODO put this into setting loader class?
-
-		Map<String, URL> boardMap = strategy.findBoards(checkAliveUrl);
+		Document mainpage = loadPage(checkAliveUrl);
+		Map<String, URL> boardMap = strategy.findBoards(mainpage);
 		Map<String, URL> shortcutMap = createShortcutMap(boardMap);
 
 		for (String s : subP) {
@@ -333,6 +335,15 @@ public class Main implements ActionListener{
 		logger.error(message);
 		JOptionPane.showMessageDialog(null, message, "Fatal Error", JOptionPane.ERROR_MESSAGE);
 		System.exit(errorCode);
+	}
+	
+	private Document loadPage(URL url) {
+		try {
+			return Jsoup.connect(url.toString()).userAgent("Mozilla").get();
+		} catch (IOException e) {
+			logger.warn("Failed to load page {} with error {}", url, e);
+			return Jsoup.parse("");
+		}
 	}
 
 	/**

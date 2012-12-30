@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.matchers.JUnitMatchers.hasItems;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
@@ -36,6 +37,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -46,28 +49,25 @@ import com.github.dozedoff.commonj.io.TextFileReader;
 public class FourChanStrategyTest {
 	SiteStrategy strategy;
 	static Server server;
-	static String mainPage, boardPage, thread;
+	static Document mainBoard, boardPage, threadPage, invalidPage;
+	static URL threadUrl, invalidUrl;
 	
-	static URL mainUrl, boardUrl, threadUrl, invalidUrl;
 	private static final int SERVER_PORT = 39867;
 	
 	@BeforeClass
 	static public void before() throws Exception{
-		server  = new Server(SERVER_PORT);
-		server.setHandler(new TestHandler());
-		server.start();
+		InputStream is = ClassLoader.getSystemResourceAsStream("HtmlData/mainPage.html");
+		mainBoard = Jsoup.parse(is, null, "http://boards.4chan.org/");
 		
-		TextFileReader tfr = new TextFileReader();
+		is = ClassLoader.getSystemResourceAsStream("HtmlData/pageTestData");
+		boardPage = Jsoup.parse(is, null, "http://boards.4chan.org/htmlnew");
 		
+		is = ClassLoader.getSystemResourceAsStream("HtmlData/threadData.html");
+		threadPage = Jsoup.parse(is, null, "http://boards.4chan.org/p/res/57867301");
+		threadUrl = new URL("http://boards.4chan.org/p/res/57867301");
 		
-		mainPage = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData/mainPage.html"));
-		boardPage = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData/pageTestData"));
-		thread = tfr.read(ClassLoader.getSystemResourceAsStream("HtmlData/threadData.html"));
-
-		mainUrl = new URL("http://localhost:"+ SERVER_PORT +"/");
-		boardUrl = new URL("http://localhost:"+ SERVER_PORT +"/htmlnew");
-		threadUrl = new URL("http://localhost:"+ SERVER_PORT +"/p/res/57867301");
-		invalidUrl = new URL("http://foobar:"+ SERVER_PORT +"/");
+		invalidPage = Jsoup.parse("");
+		invalidUrl = new URL("http://foobar");
 	}
 
 	@Before
@@ -89,7 +89,8 @@ public class FourChanStrategyTest {
 	@Test
 	public void testFindBoards() throws Exception {
 		Map<String, URL> foundBoards;
-		foundBoards = strategy.findBoards(mainUrl);
+
+		foundBoards = strategy.findBoards(mainBoard);
 		
 		assertThat(foundBoards.get("Photography"), is(new URL("http://boards.4chan.org/p/")));
 		assertThat(foundBoards.get("Music"), is(new URL("http://boards.4chan.org/mu/")));
@@ -102,23 +103,23 @@ public class FourChanStrategyTest {
 	@Test
 	public void testFindBoardsInvalid() {
 		Map<String, URL> foundBoards;
-		foundBoards = strategy.findBoards(invalidUrl);
+		foundBoards = strategy.findBoards(invalidPage);
 		assertThat(foundBoards.size(),is(0));
 	}
 
 	@Test
 	public void testGetBoardPageCount() {
-		assertThat(strategy.getBoardPageCount(boardUrl), is(2));
+		assertThat(strategy.getBoardPageCount(boardPage), is(2));
 	}
 	
 	@Test
 	public void testGetBoardPageCountInvalid() {
-		assertThat(strategy.getBoardPageCount(invalidUrl), is(0));
+		assertThat(strategy.getBoardPageCount(invalidPage), is(0));
 	}
 	
 	@Test
 	public void testParsePage() throws Exception {
-		List<URL> pageUrls = strategy.parsePage(boardUrl);
+		List<URL> pageUrls = strategy.parsePage(boardPage);
 		LinkedList<URL> correctUrls = new LinkedList<>();
 		
 		int replyNr[] = {1418, 7897, 7910, 1461, 1454, 1456, 1450, 1449, 1448, 1447};
@@ -135,13 +136,13 @@ public class FourChanStrategyTest {
 	
 	@Test
 	public void testParsePageInvalid() {
-		List<URL> pageUrls = strategy.parsePage(invalidUrl);
+		List<URL> pageUrls = strategy.parsePage(invalidPage);
 		assertThat(pageUrls.size(), is(0));
 	}
 
 	@Test
 	public void testParseThread() {
-		List<Post> posts = strategy.parseThread(threadUrl);
+		List<Post> posts = strategy.parseThread(threadPage);
 		int images = 0, comments = 0;
 		
 		assertThat(posts.size(), is(13));
@@ -163,7 +164,7 @@ public class FourChanStrategyTest {
 	
 	@Test
 	public void testParseThreadInvalid() {
-		List<Post> posts = strategy.parseThread(invalidUrl);
+		List<Post> posts = strategy.parseThread(invalidPage);
 		assertThat(posts.size(), is(0));
 	}
 	
@@ -196,28 +197,4 @@ public class FourChanStrategyTest {
 		String threadLetters = strategy.getBoardShortcut(invalidUrl);
 		assertThat(threadLetters, is(""));
 	}
-	
-	static class TestHandler extends AbstractHandler{
-		@Override
-		public void handle(String arg0, Request baseRequest, HttpServletRequest request,
-				HttpServletResponse response) throws IOException, ServletException {
-
-			response.setContentType("text/html;charset=utf-8");
-			response.setStatus(HttpServletResponse.SC_OK);
-			baseRequest.setHandled(true);
-			
-			String requestUri = request.getRequestURI();
-			
-			if(requestUri.equals("/")){
-				response.getWriter().println(mainPage);
-			}else if(requestUri.equals("/htmlnew")){
-				response.getWriter().println(boardPage);
-			}else if(requestUri.equals("/p/res/57867301")){
-				response.getWriter().println(thread);
-			}else{
-				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			}
-		}
-	}
-
 }
