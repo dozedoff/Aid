@@ -22,7 +22,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.matchers.JUnitMatchers.hasItems;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,13 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.AfterClass;
@@ -44,15 +37,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.github.dozedoff.commonj.file.BinaryFileReader;
 import com.github.dozedoff.commonj.io.TextFileReader;
 
 public class FourChanStrategyTest {
 	SiteStrategy strategy;
 	static Server server;
-	static Document mainBoard, boardPage, threadPage, invalidPage;
+	static Document mainBoard, boardPage, threadPage, invalidPage, pagesFragment;
 	static URL threadUrl, invalidUrl;
-	
-	private static final int SERVER_PORT = 39867;
 	
 	@BeforeClass
 	static public void before() throws Exception{
@@ -68,16 +60,16 @@ public class FourChanStrategyTest {
 		
 		invalidPage = Jsoup.parse("");
 		invalidUrl = new URL("http://foobar");
+		
+		is = ClassLoader.getSystemResourceAsStream("HtmlData/numberOfPagesFragmentData");
+		TextFileReader tfr = new TextFileReader();
+		String htmlFragment = tfr.read(is);
+		pagesFragment = Jsoup.parseBodyFragment(htmlFragment);
 	}
 
 	@Before
 	public void setUp() throws Exception {
 		strategy = new FourChanStrategy();
-	}
-	
-	@AfterClass
-	static public void after() throws Exception{
-		server.stop();
 	}
 
 	@Test
@@ -109,7 +101,7 @@ public class FourChanStrategyTest {
 
 	@Test
 	public void testGetBoardPageCount() {
-		assertThat(strategy.getBoardPageCount(boardPage), is(2));
+		assertThat(strategy.getBoardPageCount(pagesFragment), is(10));
 	}
 	
 	@Test

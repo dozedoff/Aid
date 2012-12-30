@@ -17,7 +17,6 @@
  */
 package board;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -25,14 +24,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
-import com.github.dozedoff.commonj.net.GetHtml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.dozedoff.commonj.net.GetHtml;
 
 public class FourChanStrategy implements SiteStrategy {
 	GetHtml getHtml = new GetHtml();
@@ -75,7 +73,7 @@ public class FourChanStrategy implements SiteStrategy {
 
 	@Override
 	public int getBoardPageCount(Document boardPage) {
-		Elements pageLinks = boardPage.select("div.pages span a");
+		Elements pageLinks = boardPage.select("div.prev + div.pages a");
 		int pageCount = pageLinks.size();
 
 		return pageCount;
