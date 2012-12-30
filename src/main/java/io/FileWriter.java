@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import javax.activity.InvalidActivityException;
 
 import com.github.dozedoff.commonj.file.BinaryFileReader;
+import com.github.dozedoff.commonj.file.FileUtil;
 import com.github.dozedoff.commonj.gui.Log;
 import com.github.dozedoff.commonj.hash.HashMaker;
 
@@ -62,8 +63,6 @@ public class FileWriter extends Thread{
 
 	long bytesSaved = 0;		// bytes written to disk
 	long bytesDiscarded = 0;  // bytes discarded (Hash found in mySQL Database)
-	
-	private final String[] ILLEGAL_FILENAME_CHARS = {"/", "\\", ":", "?", "\"", "<", ">", "|"};	
 	
 	public FileWriter(Filter filter){
 		super("FileWriter");
@@ -182,7 +181,7 @@ public class FileWriter extends Thread{
 		}
 
 		try{
-			if(!hasValidFilename(fullPath)){
+			if(! FileUtil.hasValidWindowsFilename(fullPath)){
 				fullPath = newFileName(fullPath, false);
 			}
 			
@@ -214,22 +213,6 @@ public class FileWriter extends Thread{
 				System.exit(1);
 			}
 		}
-	}
-	
-	private boolean hasValidFilename(File fullpath) {
-		String filename = fullpath.getName();
-
-		if (filename.isEmpty()) {
-			return false;
-		}
-
-		for (String illegalChar : ILLEGAL_FILENAME_CHARS) {
-			if (filename.contains(illegalChar)) {
-				return false;
-			}
-		}
-
-		return true;
 	}
 	
 	/**
