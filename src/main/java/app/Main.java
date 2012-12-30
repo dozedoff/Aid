@@ -84,7 +84,7 @@ public class Main implements ActionListener{
 
 	boolean SkipLogEnabled = false;
 
-	private static Logger logger = LoggerFactory.getLogger(Main.class.getName());
+	private static Logger logger = LoggerFactory.getLogger(Main.class);
 	private PropertyChangeSupport change = new PropertyChangeSupport(this);
 
 	private io.FileWriter fileWriter;

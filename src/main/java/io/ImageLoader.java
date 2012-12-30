@@ -32,7 +32,7 @@ import filter.Filter;
 import gui.Stats;
 
 public class ImageLoader extends FileLoader {
-private static final Logger LOGGER = LoggerFactory.getLogger(ImageLoader.class.getName());
+private static final Logger logger = LoggerFactory.getLogger(ImageLoader.class);
 
 private FileWriter fileWriter;
 private Filter filter;
@@ -95,14 +95,14 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 
 		// the file was unavailable
 		if(responseCode == 404 || responseCode == 500){
-			LOGGER.warn("got a 404 or 500 response for " + ple.getUrl()); // to prevent future attempts to load the file
+			logger.warn("got a 404 or 500 response for " + ple.getUrl()); // to prevent future attempts to load the file
 		}
 
 		if(responseCode == 503){
 //			LOGGER.error("IP was banned for too many connections"); // :_(  thats what you get if you use too short intervals
 //			System.exit(3);
 		}else{
-			LOGGER.info("GetBinary(size) http code "+ple.getMessage());
+			logger.info("GetBinary(size) http code "+ple.getMessage());
 		}
 	}
 }

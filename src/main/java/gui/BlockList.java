@@ -48,7 +48,7 @@ public class BlockList extends JFrame implements ListSelectionListener,ActionLis
 	private JPanel panThumbs = new JPanel();
 	private JList<FilterItem> lstFilter;
 	private filter.Filter filter;
-	private static Logger logger = LoggerFactory.getLogger(BlockList.class.getName());
+	private static Logger logger = LoggerFactory.getLogger(BlockList.class);
 	private BlockListDataModel blockListModel;
 
 	public BlockList(filter.Filter filter, BlockListDataModel blockListModel){

@@ -31,7 +31,7 @@ import com.github.dozedoff.commonj.net.GetBinary;
  * Class for downloading and storing thumbnails.
  */
 public class ThumbnailLoader {
-	private static Logger logger = LoggerFactory.getLogger(ThumbnailLoader.class.getName());
+	private static Logger logger = LoggerFactory.getLogger(ThumbnailLoader.class);
 	private final int NUM_OF_THUMBS = 17;
 	private final int SQL_MAX_WAITTIME = 5000;
 	private AidDAO sql;

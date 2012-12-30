@@ -51,7 +51,7 @@ public class Board {
 	final private ImageLoader imageLoader;
 	private final int WAIT_TIME = 60 * 1000 * 60; // 1 hour
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(Board.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(Board.class);
 	
 	public Board(URL boardUrl, String boardId, SiteStrategy siteStrategy, Filter filter, ImageLoader imageLoader){
 		this.boardUrl = boardUrl;
@@ -68,7 +68,7 @@ public class Board {
 		
 		lastRun = ""; // looks a bit odd otherwise
 		
-		LOGGER.info("Board "+boardId+" is stopping...");
+		logger.info("Board "+boardId+" is stopping...");
 	}
 
 	@Override

@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * Class for generating the pages for a board.
  */
 public class PageUrlFactory {
-	private static Logger logger = LoggerFactory.getLogger(PageUrlFactory.class.getName());
+	private static Logger logger = LoggerFactory.getLogger(PageUrlFactory.class);
 	private PageUrlFactory(){}
 
 	public static ArrayList<URL> makePages(URL boardUrl, int numOfPages){

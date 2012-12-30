@@ -32,7 +32,7 @@ import filter.Filter;
  * Class for generating the pages for a board.
  */
 public class PageFactory {
-	private static Logger logger = LoggerFactory.getLogger(PageFactory.class.getName());
+	private static Logger logger = LoggerFactory.getLogger(PageFactory.class);
 	private PageFactory(){}
 
 	public static ArrayList<Page> makePages(String boardUrl, int numOfPages, Filter filter, FileLoader imageLoader){

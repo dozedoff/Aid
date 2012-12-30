@@ -43,7 +43,7 @@ import filter.FilterState;
  */
 public class Page implements Runnable, Parsable{
 	private LinkedList<PageThread> pageThreads = new LinkedList<PageThread>();
-	private static Logger logger = LoggerFactory.getLogger(Page.class.getName());
+	private static Logger logger = LoggerFactory.getLogger(Page.class);
 	private URL pageUrl, boardUrl;
 	private Filter filter;
 	private FileLoader imageLoader;

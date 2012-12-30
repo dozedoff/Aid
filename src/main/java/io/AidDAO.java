@@ -72,7 +72,7 @@ import com.j256.ormlite.support.ConnectionSource;
  */
 public class AidDAO{
 	private static final HashMap<String, String> prepStmts = new HashMap<String, String>();
-	protected static Logger logger = LoggerFactory.getLogger(AidDAO.class.getName());
+	protected static Logger logger = LoggerFactory.getLogger(AidDAO.class);
 	protected final String RS_CLOSE_ERR = "Could not close ResultSet: ";
 	protected final String SQL_OP_ERR = "MySQL operation failed: ";
 	private final String DEFAULT_LOCATION = "UNKNOWN";

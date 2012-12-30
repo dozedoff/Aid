@@ -38,7 +38,7 @@ public class CachePrune {
 	Timer cachePruneTimer;
 	AidDAO sql;
 
-	static final Logger logger = LoggerFactory.getLogger(CachePrune.class.getName());
+	static final Logger logger = LoggerFactory.getLogger(CachePrune.class);
 
 	public CachePrune(AidDAO sql, URL testAliveUrl, int refreshInterSec, int startupDelaySec, int maximumAgeSec) {
 		this.testAliveUrl = testAliveUrl;

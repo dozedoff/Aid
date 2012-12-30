@@ -55,7 +55,7 @@ import com.github.dozedoff.commonj.net.GetHtml;
  * the threads status.
  */
 public class Filter implements FilterModifiable{
-	private static Logger logger = LoggerFactory.getLogger(Filter.class.getName());
+	private static Logger logger = LoggerFactory.getLogger(Filter.class);
 	private static int FILTER_UPDATER_INTERVAL = 60*1000; // one minute
 	private final String LOCATION_TAG = "DL_CLIENT";
 	private int filterNr = 0;	// filter item counter

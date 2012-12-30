@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SettingValidator {
-	private static final Logger logger = LoggerFactory.getLogger(SettingValidator.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(SettingValidator.class);
 	private static final String SUBPAGE_REGEX = "([a-zA-Z]+,)*+[a-zA-Z]+$";
 	private static final String BASEURL_REGEX = "(?m)(http:|https:)//([0-9a-zA-Z.-]+\\.)+([a-zA-Z])*/$";
 

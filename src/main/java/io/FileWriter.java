@@ -58,7 +58,7 @@ public class FileWriter extends Thread{
 	volatile boolean stop = false; // stop the FileWrite and do a clean Shutdown
 	//TODO will FileWriter shut down correctly without volatile?
 	private Filter filter;
-	private static Logger logger = LoggerFactory.getLogger(FileWriter.class.getName());
+	private static Logger logger = LoggerFactory.getLogger(FileWriter.class);
 
 	long bytesSaved = 0;		// bytes written to disk
 	long bytesDiscarded = 0;  // bytes discarded (Hash found in mySQL Database)
