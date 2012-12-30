@@ -34,6 +34,8 @@ import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.dozedoff.commonj.file.FileUtil;
+
 import filter.Filter;
 import filter.FilterItem;
 import filter.FilterState;
@@ -222,12 +224,17 @@ public class Board {
 			for (Post post : posts) {
 				String threadId = String.valueOf(threadNumber);
 				String imageName = post.getImageName();
+				
 				try {
+					if (!FileUtil.hasValidWindowsFilename(imageName)) {
+						imageName = FileUtil.sanitizeFilenameForWindows(imageName);
+					}
+
 					String relativeImagePath = Paths.get(boardId, threadId,	imageName).toString();
 					imageLoader.add(post.getImageUrl(), relativeImagePath);
 				} catch (InvalidPathException ipe) {
-					Object[] data = {post.getImageUrl(), post.getImageName(), ipe.getReason()};
-					logger.warn("Failed to add image ({}) for download to {} - reason: {}", data);
+					Object[] data = { post.getImageUrl(), post.getImageName(), ipe.getReason() };
+					logger.warn("Failed to add image ({}) for download to {} - reason: {}",	data);
 				}
 			}
 		}
