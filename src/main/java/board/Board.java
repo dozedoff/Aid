@@ -129,6 +129,7 @@ public class Board {
 		
 		private void processBoard() {
 			int numOfPages = siteStartegy.getBoardPageCount(boardUrl);
+			logger.info("Board {} has {} pages", boardId, numOfPages);
 			ArrayList<URL> pageUrls = PageUrlFactory.makePages(boardUrl, numOfPages);
 			List<URL> pageThreads = parsePages(pageUrls);
 			

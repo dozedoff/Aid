@@ -94,8 +94,8 @@ public class FourChanStrategy implements SiteStrategy {
 			return 0;
 		}
 		
-		Elements pageLinks = boardDocument.select("div.pages > a");
-		int pageCount = pageLinks.size() + 1;
+		Elements pageLinks = boardDocument.select("div.pages span a");
+		int pageCount = pageLinks.size();
 
 		return pageCount;
 	}
