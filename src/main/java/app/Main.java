@@ -327,8 +327,9 @@ public class Main implements ActionListener{
 		cachePrune.start();
 		aid.setVisible(true);
 
-		logger.info("Initialization complete");
-		Log.add("Initialization complete");
+		String startupMessage = "Startup complete";
+		logger.info(startupMessage);
+		Log.add(startupMessage);
 	}
 	
 	private void dieWithError(String message, int errorCode){

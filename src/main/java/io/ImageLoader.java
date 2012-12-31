@@ -43,6 +43,8 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 		super(workingDir, imageQueueWorkers);
 		this.fileWriter = fileWriter;
 		this.filter = filter;
+		
+		logger.info("ImageLoader started");
 	}
 
 	@Override
@@ -56,7 +58,6 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 	
 	@Override
 	protected void afterFileAdd(URL url, String fileName) {
-		logger.debug("Performing afterFileAdd operations...");
 		updateFileQueueState();
 	}
 	
@@ -67,29 +68,29 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 	
 	@Override
 	protected void afterClearQueue() {
-		logger.debug("Performing afterClearQueue operations...");
 		updateFileQueueState();
 	}
 	
 	@Override
 	protected void afterProcessItem(DownloadItem ii) {
-		logger.debug("Performing afterProcessItem operations...");
 		updateFileQueueState();
 	}
 	
 	@Override
 	protected void afterFileDownload(byte[] data, File fullpath, URL url) {
-		logger.debug("Performing afterFileDownload operations...");
 		if(data != null){
 			try {
+				logger.debug("Adding file {} to FileWriter, caching URL {}", fullpath, url);
 				fileWriter.add(fullpath, data.clone());
 				filter.cache(url);	//add URL to cache
 				Stats.addTimeGraphValue((int)((data.length/1024)*TIME_GRAPH_FACTOR)); // add data to the download graph
 			} catch (InvalidActivityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("Failed adding file {} to FileWriter ({})", fullpath, url);
+				logger.warn("Failed with {}", e);
 			}
 			
+		}else{
+			logger.warn("Downloaded data for {} ({}) was null", url, fullpath);
 		}
 	}
 	
@@ -97,14 +98,12 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 	protected void onPageLoadException(PageLoadException ple) {
 		int responseCode = Integer.parseInt(ple.getMessage());
 
-		// the file was unavailable
 		if(responseCode == 404 || responseCode == 500){
-			logger.warn("got a 404 or 500 response for " + ple.getUrl()); // to prevent future attempts to load the file
+			logger.warn("Could not load file, invalid response ({}) for {}", responseCode, ple.getUrl());
 		}
 
 		if(responseCode == 503){
-//			LOGGER.error("IP was banned for too many connections"); // :_(  thats what you get if you use too short intervals
-//			System.exit(3);
+			logger.warn("Got a 503 response for {} This cloud indicate server porblems or a possible IP ban.", ple.getUrl());
 		}else{
 			logger.info("GetBinary(size) http code "+ple.getMessage());
 		}
