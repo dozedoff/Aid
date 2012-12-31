@@ -70,8 +70,9 @@ public class Board {
 
 	public void stop(){
 		this.stoppped = true;
-		if(pageAdder != null)
+		if(pageAdder != null){
 			pageAdder.cancel();
+		}
 		
 		lastRun = ""; // looks a bit odd otherwise
 		
@@ -146,6 +147,9 @@ public class Board {
 			LinkedList<URL> pageThreads = new LinkedList<>();
 			
 			for(URL page : pageUrls){
+				if(stoppped){
+					break;
+				}
 				Document pageDoc = loadPage(page);
 				List<URL> threads = siteStartegy.parsePage(pageDoc);
 				pageThreads.addAll(threads);
@@ -178,6 +182,9 @@ public class Board {
 		
 		private void processPageThreads(List<URL> pageThreads) {
 			for (URL thread : pageThreads) {
+				if(stoppped){
+					break;
+				}
 				Document threadPage = loadPage(thread);
 				List<Post> posts = siteStartegy.parseThread(threadPage);
 				String reason = filterPosts(posts);
