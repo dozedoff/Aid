@@ -59,8 +59,12 @@ public class CachePrune {
 	}
 
 	public void stop(){
-		if(cachePruneTimer == null)
+		logger.info("Shutting down CachePrune...");
+		
+		if(cachePruneTimer == null){
 			return;
+		}
+		
 		cachePruneTimer.cancel();
 		cachePruneTimer = null;
 	}

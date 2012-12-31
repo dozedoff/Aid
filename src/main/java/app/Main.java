@@ -81,7 +81,7 @@ public class Main implements ActionListener{
 
 	boolean SkipLogEnabled = false;
 
-	private static Logger logger = LoggerFactory.getLogger(Main.class);
+	private static final Logger logger = LoggerFactory.getLogger(Main.class);
 	private PropertyChangeSupport change = new PropertyChangeSupport(this);
 
 	private io.FileWriter fileWriter;
@@ -422,22 +422,24 @@ public class Main implements ActionListener{
 	class Shutdown extends Thread{
 		@Override
 		public void run(){
-			//FIXME Logger shutdown hook seems to be executed too, closing the LogHandlers. 
 			logger.info("Shutting down...");
 
 			// stop boards
+			logger.info("Stopping all boards...");
 			for(Object o : boards.toArray()){
 				((Board)o).stop();
 			}
-
-			logger.info("Clearing queue...");
+			
 			// clear queue
-			if(pageQueue != null)
+			if(pageQueue != null){
+				logger.info("Clearing page queue...");
 				pageQueue.clearQueue();
+			}
 
 			// shutdown file downloading
-			if(imageLoader != null)
+			if(imageLoader != null){
 				imageLoader.shutdown();
+			}
 
 			// shutdown writing to disk
 			try {
@@ -445,19 +447,25 @@ public class Main implements ActionListener{
 					fileWriter.shutdown();
 					fileWriter.join();
 				}
-			} catch (InterruptedException e) {}
+			} catch (InterruptedException e) {
+				logger.debug("FileWriter was interrupted");
+			}
 			
 			// stop cache pruning
-			if(cachePrune != null)
+			if(cachePrune != null){
 				cachePrune.stop();
+			}
 
 			// close all DB connections
-			if(connPool != null)
+			if(connPool != null){
 				connPool.stopPool();
+			}
 
 			// save the thread filter
-			if(filter != null)
+			if(filter != null){
+				logger.info("Saving Filter...");
 				filter.saveFilter(new File(PWD,FILTER_DATA_FILENAME));
+			}
 
 			// update window position
 			appSettings.put("xpos", String.valueOf(aid.getX()));
@@ -465,16 +473,18 @@ public class Main implements ActionListener{
 			
 			// save program settings
 			try {
+				logger.info("Saving application settings to {}", APP_CFG_FILENAME);
 				appSettings.store(new FileOutputStream(APP_CFG_FILENAME), "General application settings");
 			} catch (IOException e) {
-				logger.warn("Unable to save configuration "+e.getMessage());
+				logger.warn("Unable to save application settings: {}", e.getMessage());
 			}
 
 			// save mysql settings
 			try {
+				logger.info("Saving database settings to {}", MYSQL_CFG_FILENAME);
 				sqlProps.store(new FileOutputStream(MYSQL_CFG_FILENAME), "MySQL connection settings");
 			} catch (IOException e) {
-				logger.warn("Unable to save configuration "+e.getMessage());
+				logger.warn("Unable to save Database settings: {}", e.getMessage());
 			}
 
 			logger.info("Shutdown complete.");

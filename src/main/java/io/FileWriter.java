@@ -299,7 +299,7 @@ public class FileWriter extends Thread{
 		}else{
 			newPath = new File(directory,"renamed_" + Calendar.getInstance().getTimeInMillis() + extension);
 		}
-		logger.info("Renamed "+filepath.toString()+" to "+newPath.toString());
+		logger.info("Renamed {} to {}", filepath, newPath);
 		return newPath;
 	}
 
@@ -314,11 +314,13 @@ public class FileWriter extends Thread{
 
 		try {
 			this.interrupt();
+			logger.debug("Waiting for FileWriter to finish...");
 			this.join();
 		} catch (InterruptedException e) {
+			logger.debug("FileWriter shutdown was interrupted {}", e.getMessage());
 		}
 
-		logger.info("FileWriter shutdown complete");
+		logger.debug("FileWriter shutdown complete");
 	}
 
 	@Override

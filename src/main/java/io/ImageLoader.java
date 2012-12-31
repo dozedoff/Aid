@@ -56,6 +56,7 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 	
 	@Override
 	protected void afterFileAdd(URL url, String fileName) {
+		logger.debug("Performing afterFileAdd operations...");
 		updateFileQueueState();
 	}
 	
@@ -66,16 +67,19 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 	
 	@Override
 	protected void afterClearQueue() {
+		logger.debug("Performing afterClearQueue operations...");
 		updateFileQueueState();
 	}
 	
 	@Override
 	protected void afterProcessItem(DownloadItem ii) {
+		logger.debug("Performing afterProcessItem operations...");
 		updateFileQueueState();
 	}
 	
 	@Override
 	protected void afterFileDownload(byte[] data, File fullpath, URL url) {
+		logger.debug("Performing afterFileDownload operations...");
 		if(data != null){
 			try {
 				fileWriter.add(fullpath, data.clone());
