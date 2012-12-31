@@ -30,14 +30,12 @@ import java.util.LinkedList;
 import org.junit.Before;
 import org.junit.Test;
 
-import thread.WorkQueue;
 import filter.Filter;
 
 public class BoardTest {
 	Board board;
 	
 	LinkedList<Page> pages;
-	WorkQueue pageQueue;
 	Page page;
 	SiteStrategy strategy;
 	Filter filter;
@@ -46,7 +44,6 @@ public class BoardTest {
 	@Before
 	public void setup() throws Exception {
 		pages = new LinkedList<>();
-		pageQueue = mock(WorkQueue.class);
 		page = mock(Page.class);
 		strategy = mock(SiteStrategy.class);
 		filter = mock(Filter.class);

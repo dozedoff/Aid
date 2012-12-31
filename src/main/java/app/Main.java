@@ -54,7 +54,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
-import thread.WorkQueue;
 import board.Board;
 import board.FourChanStrategy;
 import board.SiteStrategy;
@@ -91,7 +90,6 @@ public class Main implements ActionListener{
 	private Aid aid;
 	private Filterlist filterlist;
 	private BlockList blockList;
-	private WorkQueue pageQueue;
 	private BlockListDataModel blockListModel;
 	private ThumbnailLoader thumbLoader;
 	private ConnectionPool connPool;
@@ -209,7 +207,6 @@ public class Main implements ActionListener{
 		strategy = findSiteStrategy(checkAliveUrl); //TODO change settings to contain list of site URLs
 		
 		//  -------------- Class instantiation starts here --------------  //
-		pageQueue = new WorkQueue(pageThreads, pageThreads, 100);
 		connPool = new BoneConnectionPool(sqlProps,10); // connection pool for database connections
 		try {
 			connPool.startPool();
@@ -390,10 +387,6 @@ public class Main implements ActionListener{
 			imageLoader.clearQueue();
 		}
 
-		if("Clear PageQueue".equals(e.getActionCommand())){
-			pageQueue.clearQueue();
-		}
-
 		if("Prune cache".equals(e.getActionCommand())){
 			filter.pruneCache();
 		}
@@ -429,12 +422,6 @@ public class Main implements ActionListener{
 			logger.info("Stopping all boards...");
 			for(Object o : boards.toArray()){
 				((Board)o).stop();
-			}
-			
-			// clear queue
-			if(pageQueue != null){
-				logger.info("Clearing page queue...");
-				pageQueue.clearQueue();
 			}
 
 			// shutdown file downloading
