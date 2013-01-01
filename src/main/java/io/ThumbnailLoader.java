@@ -35,7 +35,6 @@ import com.github.dozedoff.commonj.net.GetBinary;
 public class ThumbnailLoader {
 	private static Logger logger = LoggerFactory.getLogger(ThumbnailLoader.class);
 	private final int NUM_OF_THUMBS = 17;
-	private final int SQL_MAX_WAITTIME = 5000;
 	private AidDAO sql;
 	public ThumbnailLoader(AidDAO sql){
 		this.sql = sql;
@@ -49,7 +48,7 @@ public class ThumbnailLoader {
 		//TODO add code to re-fetch thumbs?
 		GetBinary gb = new GetBinary(2097152);  // 2 mb
 		int counter = 0;
-		logger.info("fetching thumbs for " + url);
+		logger.info("Fetching thumbs for {}", url);
 		for(Post p : postList){
 
 			if (! p.hasImage())
@@ -66,18 +65,21 @@ public class ThumbnailLoader {
 
 				int split = thumbUrl.lastIndexOf("/")+1;
 				String filename = thumbUrl.substring(split); // get the filename (used for sorting)
-
-				logger.info("adding thumbnail  " + thumbUrl +", "+filename+ "  datasize: "+data.length);
+				
+				Object[] logData = {counter, thumbUrl, filename, url, data.length};
+				logger.debug("Adding thumbnail({})  URL: {}, Filename: {}, Thread: {}, Size: {} to database", logData);
 				sql.addThumb(url,filename, data); // add data to DB
-			} catch (IOException e) {
-				logger.info("could not load thumbnail: "+e.getMessage());		
-			}finally{
 				counter++;
+			} catch (IOException e) {
+				logger.warn("Could not load thumbnail {} -> {}", thumbUrl, e);		
 			}
 			// only the first few thumbs are needed for a preview
-			if (counter > (NUM_OF_THUMBS-1))
+			if (counter > (NUM_OF_THUMBS-1)){
 				break;
+			}
 		}
+		
+		logger.info("Loaded {} thumbnails for {}", counter, url);
 	}
 
 	/**
@@ -87,6 +89,7 @@ public class ThumbnailLoader {
 	 */
 	public ArrayList<Image> getThumbs(String id){
 		ArrayList<Image> images = new ArrayList<>(sql.getThumb(id));
+		logger.info("Fetched {} thumbnails from the database for thread {}", images.size(), id);
 		return images;
 	}
 }
