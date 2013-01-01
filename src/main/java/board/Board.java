@@ -198,6 +198,7 @@ public class Board {
 				if (reason != null){
 					logger.info("Suspending thread {} for {}", thread, reason);
 					suspendThread(thread, reason);
+					filter.downloadThumbs(thread.toString(), posts);
 					continue;
 				}
 				

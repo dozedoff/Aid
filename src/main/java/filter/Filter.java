@@ -38,6 +38,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import org.slf4j.Logger;
@@ -200,7 +201,7 @@ public class Filter implements FilterModifiable{
 	}
 
 	/**
-	 * Adds a new item to the filter list.
+	 * Adds a new item to the filter list. 
 	 * @param filteritem FilterItem to add.
 	 */
 	public void reviewThread(FilterItem filterItem){
@@ -338,7 +339,7 @@ public class Filter implements FilterModifiable{
 		return thumbLoader.getThumbs(url);
 	}
 	
-	public void downloadThumbs(String url, ArrayList<Post> postList){
+	public void downloadThumbs(String url, List<Post> postList){
 		thumbLoader.downloadThumbs(url, postList);
 	}
 

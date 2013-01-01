@@ -23,16 +23,17 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import gui.BlockListDataModel;
 import io.AidDAO;
 import io.ThumbnailLoader;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.ArrayList;
 
 import javax.swing.DefaultListModel;
 
@@ -117,22 +118,43 @@ public class FilterTest {
 		assertThat(fileNameModel.contains("oof"), is(false));
 		assertThat(fileNameModel.contains("rab"), is(false));
 	}
+	
+	private Post createMockPost() {
+		Post mockPost = null;
+
+		try {
+			mockPost = mock(Post.class);
+			when(mockPost.getImageName()).thenReturn("test.png");
+			when(mockPost.getImageUrl()).thenReturn(new URL("http://foo.bar/yeti/1234"));
+			when(mockPost.getComment()).thenReturn("just testing, foo bar");
+			when(mockPost.hasComment()).thenReturn(true);
+			when(mockPost.hasImage()).thenReturn(true);
+		} catch (MalformedURLException mue) {
+			mue.printStackTrace();
+		}
+
+		return mockPost;
+	}
 
 	@Test
-	public void testCheckPost() throws IOException {
-		Post mockPost = mock(Post.class);
-		when(mockPost.getImageName()).thenReturn("test.png");
-		when(mockPost.getImageUrl()).thenReturn(new URL("http://foo.bar/yeti/1234"));
-		when(mockPost.getComment()).thenReturn("just testing, foo bar");
-		when(mockPost.hasComment()).thenReturn(true);
-		when(mockPost.hasImage()).thenReturn(true);
+	public void testCheckPostOk() {
+		Post mockPost = createMockPost();
 		
 		assertNull(filter.checkPost(mockPost));
+	}
+	
+	@Test
+	public void testCheckPostTripFileName(){
+		Post mockPost = createMockPost();
 		
 		filter.addFileNameFilterItem("test");
 		assertNotNull(filter.checkPost(mockPost));
 		assertThat(filter.checkPost(mockPost), is("file name, test"));
-		filter.removeFileNameFilterItem("test");
+	}
+	
+	@Test
+	public void testCheckPostTripPostContent(){
+		Post mockPost = createMockPost();
 		
 		filter.addPostContentFilterItem("foo");
 		assertNotNull(filter.checkPost(mockPost));

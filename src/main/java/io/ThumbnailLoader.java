@@ -20,6 +20,8 @@ package io;
 import java.awt.Image;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +45,7 @@ public class ThumbnailLoader {
 	 * @param url URL of the thread from which the thumbnails are loaded
 	 * @param postList Posts from which thumbnails should be loaded.
 	 */
-	public void downloadThumbs(String url,ArrayList<Post> postList){
+	public void downloadThumbs(String url,List<Post> postList){
 		//TODO add code to re-fetch thumbs?
 		GetBinary gb = new GetBinary(2097152);  // 2 mb
 		int counter = 0;
