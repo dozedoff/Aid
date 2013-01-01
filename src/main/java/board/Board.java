@@ -76,7 +76,7 @@ public class Board {
 		
 		lastRun = ""; // looks a bit odd otherwise
 		
-		logger.info("Board "+boardId+" is stopping...");
+		logger.info("Board {} is stopping...", boardId);
 	}
 
 	@Override
@@ -101,6 +101,7 @@ public class Board {
 	}
 
 	public void start(int delay){
+		logger.info("Starting board {} with a delay of {}", boardId, delay);
 		pageAdder = new Timer("Board "+boardId+" worker", true);
 
 		this.stoppped = false;
@@ -135,15 +136,18 @@ public class Board {
 		private void processBoard() {
 			Document boardPage = loadPage(boardUrl);
 			int numOfPages = siteStartegy.getBoardPageCount(boardPage);
-			logger.info("Board {} has {} pages", boardId, numOfPages);
+			logger.info("Found {} pages on Board {}", numOfPages, boardId);
 			ArrayList<URL> pageUrls = PageUrlFactory.makePages(boardUrl, numOfPages);
 			List<URL> pageThreads = parsePages(pageUrls);
+			logger.info("Parsing board {} pages resulted in {} thread links", boardId, pageThreads.size());
 			
 			filterPageThreads(pageThreads);
+			logger.info("{} {} threads left after filtering", pageThreads.size(), boardId);
 			processPageThreads(pageThreads);
 		}
 		
 		private List<URL> parsePages(List<URL> pageUrls){
+			logger.debug("Parsing pages for {}", boardId);
 			LinkedList<URL> pageThreads = new LinkedList<>();
 			
 			for(URL page : pageUrls){
@@ -159,6 +163,7 @@ public class Board {
 		}
 		
 		private void filterPageThreads(List<URL> pageThreads) {
+			logger.debug("Filtering pages for {}", boardId);
 			Iterator<URL> iterator = pageThreads.iterator();
 			
 			while(iterator.hasNext()){
@@ -174,6 +179,7 @@ public class Board {
 			FilterState state = filter.getFilterState(currentPageThread);
 			
 			if(state == FilterState.DENY || state == FilterState.PENDING) {
+				logger.info("{} is blocked by the filter", currentPageThread);
 				return true;
 			}else{
 				return false;
@@ -190,11 +196,13 @@ public class Board {
 				String reason = filterPosts(posts);
 				
 				if (reason != null){
+					logger.info("Suspending thread {} for {}", thread, reason);
 					suspendThread(thread, reason);
 					continue;
 				}
 				
 				filterImages(posts);
+				logger.info("Queuing {} posts for download from thread {}", posts.size(), thread);
 				queueForDownload(posts, siteStartegy.getThreadNumber(thread));
 			}
 		}
