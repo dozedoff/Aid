@@ -17,12 +17,14 @@
  */
 package io.tables;
 
+import io.dao.CacheDAO;
+
 import java.util.Date;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable
+@DatabaseTable(daoClass=CacheDAO.class)
 public class Cache {
 	@DatabaseField(id=true, canBeNull=false)
 	private String id;

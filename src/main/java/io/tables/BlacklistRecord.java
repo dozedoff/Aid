@@ -17,10 +17,12 @@
  */
 package io.tables;
 
+import io.dao.BlacklistDAO;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName = "block")
+@DatabaseTable(tableName = "block", daoClass=BlacklistDAO.class)
 public class BlacklistRecord {
 	@DatabaseField(id=true, canBeNull = false)
 	String id;

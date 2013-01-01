@@ -17,10 +17,12 @@
  */
 package io.tables;
 
+import io.dao.LocationDAO;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName = "location_tags")
+@DatabaseTable(tableName = "location_tags", daoClass=LocationDAO.class)
 public class LocationRecord {
 	@DatabaseField(generatedId=true)
 	private int tag_id;

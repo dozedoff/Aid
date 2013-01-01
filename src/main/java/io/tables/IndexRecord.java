@@ -17,10 +17,12 @@
  */
 package io.tables;
 
+import io.dao.IndexDAO;
+
 import com.github.dozedoff.commonj.file.FileInfo;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName="fileindex")
+@DatabaseTable(tableName="fileindex", daoClass=IndexDAO.class)
 public class IndexRecord extends FileRecord {
 public IndexRecord() {}
 

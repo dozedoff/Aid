@@ -17,6 +17,8 @@
  */
 package filter;
 
+import io.dao.FilterDAO;
+
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,7 +32,7 @@ import com.j256.ormlite.table.DatabaseTable;
  * This class stores the information about a item in the filter.
  * Information include: location, state and reason.
  */
-@DatabaseTable(tableName="filter")
+@DatabaseTable(tableName="filter", daoClass=FilterDAO.class)
 public class FilterItem implements Serializable{
 	
 	private static final long serialVersionUID = -9148296011482486975L;

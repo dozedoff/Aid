@@ -17,10 +17,12 @@
  */
 package io.tables;
 
+import io.dao.DuplicateDAO;
+
 import com.github.dozedoff.commonj.file.FileInfo;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName="fileduplicate")
+@DatabaseTable(tableName="fileduplicate", daoClass=DuplicateDAO.class)
 public class DuplicateRecord extends FileRecord {
 	
 public DuplicateRecord() {}
