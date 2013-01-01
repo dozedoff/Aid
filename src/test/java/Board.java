@@ -24,8 +24,6 @@ import board.*;
 @RunWith(Suite.class)
 @SuiteClasses({ 	BoardTest.class,
 					PageFactoryTest.class,
-					PageTest.class,
-					PageThreadTest.class,
 					FourChanStrategyTest.class
 })
 public class Board {

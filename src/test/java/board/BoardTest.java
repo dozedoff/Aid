@@ -35,22 +35,15 @@ import filter.Filter;
 public class BoardTest {
 	Board board;
 	
-	LinkedList<Page> pages;
-	Page page;
 	SiteStrategy strategy;
 	Filter filter;
 	ImageLoader imageLoader;
 	
 	@Before
 	public void setup() throws Exception {
-		pages = new LinkedList<>();
-		page = mock(Page.class);
 		strategy = mock(SiteStrategy.class);
 		filter = mock(Filter.class);
 		imageLoader = mock(ImageLoader.class);
-		
-		pages.add(page);
-
 		board = new Board(new URL("http://foo.bar/"), "t", strategy, filter, imageLoader);
 	}
 	
