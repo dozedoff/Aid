@@ -35,7 +35,7 @@ public class LastModCheck {
 	final static Logger logger = LoggerFactory.getLogger(LastModCheck.class);
 	
 	public LastModCheck(ConnectionSource source) throws SQLException {
-		DaoManager.createDao(source, LastModified.class);
+		lastModifiedDao = DaoManager.createDao(source, LastModified.class);
 	}
 	
 	public boolean contains(String threadUrl) {
@@ -49,18 +49,22 @@ public class LastModCheck {
 	
 	public boolean isVisitNeeded(String threadUrl, long modTimestamp) {
 		boolean visit = true;
-		logger.info("Looking up modified state for {} with mod time {}", threadUrl, modTimestamp);
 		
 		if(!contains(threadUrl)){
+			logger.info("Looking up modified state for {} with mod time {} - Not present in db", threadUrl, modTimestamp);
 			return visit;
 		}
 		
 		try {
 			LastModified lastModiefied = lastModifiedDao.queryForId(threadUrl);
 			long dbTimestamp = lastModiefied.getLastmod().getTime();
+			Object[] logData = {threadUrl, modTimestamp, dbTimestamp};
 			
 			if(modTimestamp <= dbTimestamp) {
+				logger.info("Looking up modified state for {} with mod time {} - found timestamp {} - no change", logData);
 				visit = false;
+			}else{
+				logger.info("Looking up modified state for {} with mod time {} - found timestamp {} - CHANGE", logData);
 			}
 			
 			lastModiefied.setLastvisit(now());

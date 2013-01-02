@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import filter.Filter;
+import filter.LastModCheck;
 
 public class BoardTest {
 	Board board;
@@ -38,13 +39,15 @@ public class BoardTest {
 	SiteStrategy strategy;
 	Filter filter;
 	ImageLoader imageLoader;
+	LastModCheck lmc;
 	
 	@Before
 	public void setup() throws Exception {
 		strategy = mock(SiteStrategy.class);
 		filter = mock(Filter.class);
 		imageLoader = mock(ImageLoader.class);
-		board = new Board(new URL("http://foo.bar/"), "t", strategy, filter, imageLoader);
+		lmc = mock(LastModCheck.class);
+		board = new Board(new URL("http://foo.bar/"), "t", strategy, filter, imageLoader, lmc);
 	}
 	
 	@Test

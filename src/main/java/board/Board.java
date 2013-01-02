@@ -39,10 +39,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.dozedoff.commonj.file.FileUtil;
+import com.github.dozedoff.commonj.net.GetHtml;
 
 import filter.Filter;
 import filter.FilterItem;
 import filter.FilterState;
+import filter.LastModCheck;
 
 /**
  * Represents a whole board.
@@ -56,16 +58,17 @@ public class Board {
 	final private SiteStrategy siteStartegy;
 	final private Filter filter;
 	final private ImageLoader imageLoader;
+	final private LastModCheck lastModCheck;
 	private final int WAIT_TIME = 60 * 1000 * 60; // 1 hour
-	
 	private static final Logger logger = LoggerFactory.getLogger(Board.class);
 	
-	public Board(URL boardUrl, String boardId, SiteStrategy siteStrategy, Filter filter, ImageLoader imageLoader){
+	public Board(URL boardUrl, String boardId, SiteStrategy siteStrategy, Filter filter, ImageLoader imageLoader, LastModCheck lastModCheck){
 		this.boardUrl = boardUrl;
 		this.boardId = boardId;
 		this.siteStartegy = siteStrategy;
 		this.filter = filter;
 		this.imageLoader = imageLoader;
+		this.lastModCheck = lastModCheck;
 	}
 
 	public void stop(){
@@ -116,7 +119,6 @@ public class Board {
 		@Override
 		public void run() {
 			//TODO add muli-queueing protection
-
 			setTime(0);
 			processBoard();
 		}
@@ -140,7 +142,6 @@ public class Board {
 			ArrayList<URL> pageUrls = PageUrlFactory.makePages(boardUrl, numOfPages);
 			List<URL> pageThreads = parsePages(pageUrls);
 			logger.info("Parsing board {} pages resulted in {} thread links", boardId, pageThreads.size());
-			
 			filterPageThreads(pageThreads);
 			logger.info("{} {} threads left after filtering", pageThreads.size(), boardId);
 			processPageThreads(pageThreads);
@@ -172,9 +173,13 @@ public class Board {
 				if(isBlockedByFilter(currentPageThread)){
 					iterator.remove();
 				}
+				
+				if(!hasBeenModified(currentPageThread)){
+					iterator.remove();
+				}
 			}
 		}
-		
+
 		private boolean isBlockedByFilter(URL currentPageThread){
 			FilterState state = filter.getFilterState(currentPageThread);
 			
@@ -184,6 +189,13 @@ public class Board {
 			}else{
 				return false;
 			}
+		}
+
+		private boolean hasBeenModified(URL currentPageThread) {
+			GetHtml gh = new GetHtml();
+			long lastMod = gh.getLastModified(currentPageThread);
+			boolean visit = lastModCheck.isVisitNeeded(currentPageThread.toString(), lastMod);
+			return visit;
 		}
 		
 		private void processPageThreads(List<URL> pageThreads) {
@@ -203,9 +215,28 @@ public class Board {
 				}
 				
 				filterImages(posts);
+				if(areAllCached(posts)){
+					GetHtml gh = new GetHtml();
+					long lastMod = gh.getLastModified(thread);
+					lastModCheck.addLastModified(thread.toString(), lastMod);
+				}
+				
 				logger.info("Queuing {} posts for download from thread {}", posts.size(), thread);
 				queueForDownload(posts, siteStartegy.getThreadNumber(thread));
 			}
+		}
+		
+		private boolean areAllCached(List<Post> posts){
+			boolean allCached = true;
+			
+			for(Post p : posts){
+				if(!filter.isCached(p.getImageUrl())){
+					allCached = false;
+					break;
+				}
+			}
+			
+			return allCached;
 		}
 		
 		private String filterPosts(List<Post> posts) {

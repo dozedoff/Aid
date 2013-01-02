@@ -17,6 +17,7 @@
  */
 package app;
 
+import filter.LastModCheck;
 import gui.Aid;
 import gui.BlockList;
 import gui.BlockListDataModel;
@@ -40,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -96,6 +98,7 @@ public class Main implements ActionListener{
 	private AidDAO mySQL;
 	private CachePrune cachePrune;
 	private SiteStrategy strategy;
+	private LastModCheck lastModCheck;
 
 	private BoardListDataModel boards = new BoardListDataModel();
 	Properties appSettings = new DefaultAppSettings();
@@ -106,22 +109,22 @@ public class Main implements ActionListener{
 	private final String APP_CFG_FILENAME = "config.ini";
 	private final String FILTER_DATA_FILENAME = "filter.dat";
 	
-	private final String DEFAULT_PAGE_THREADS = "1";
 	private final String DEFAULT_IMAGE_THREADS = "1";
 	private final String DEFAULT_WRITE_BLOCKED = "false";
 	private final String DEFAULT_BASE_URL = "http://boards.4chan.org/";
 	private final String DEFAULT_SUB_PAGES = "a;15,w;15,wg;15";
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		new Main().init();
 	}
 
 	/**
 	 * This method constructs all Objects
+	 * @throws SQLException 
 	 */
-	final private void build(){
-		String page, image, writeBlocked, baseUrl = "", preferredBoards = "";
-		int pageThreads = 1, imageThreads = 1;
+	final private void build() throws SQLException{
+		String image, writeBlocked, baseUrl = "", preferredBoards = "";
+		int imageThreads = 1;
 		boolean writeBlock = false;
 	
 		
@@ -136,14 +139,12 @@ public class Main implements ActionListener{
 			dieWithError(message, 1);
 		}
 
-		page = appSettings.getProperty(AppSetting.page_threads.toString(),DEFAULT_PAGE_THREADS);
 		image = appSettings.getProperty(AppSetting.image_threads.toString(),DEFAULT_IMAGE_THREADS);
 		writeBlocked = appSettings.getProperty(AppSetting.write_blocked.toString(),DEFAULT_WRITE_BLOCKED);
 		baseUrl = appSettings.getProperty(AppSetting.base_url.toString(),DEFAULT_BASE_URL);
 		preferredBoards = appSettings.getProperty(AppSetting.preferredBoards.toString(),DEFAULT_SUB_PAGES);
 	 
 
-		if(page != null){pageThreads = Integer.parseInt(page);}
 		if(image != null){imageThreads = Integer.parseInt(image);}
 		if(writeBlocked != null){writeBlock = Boolean.parseBoolean(writeBlocked);}
 		
@@ -217,6 +218,7 @@ public class Main implements ActionListener{
 		}
 		blockListModel = new BlockListDataModel();
 		mySQL = new AidDAO(connPool);
+		lastModCheck = new LastModCheck(connPool.getConnectionSource());
 		thumbLoader = new ThumbnailLoader(mySQL);
 		DefaultListModel<String> fileNameModel = new DefaultListModel<>();
 		DefaultListModel<String> postContentModel = new DefaultListModel<>();
@@ -242,7 +244,7 @@ public class Main implements ActionListener{
 		for (String s : subP) {
 			try {
 				if (shortcutMap.containsKey(s)) {
-					Board b = new Board(shortcutMap.get(s), s, strategy, filter, imageLoader);
+					Board b = new Board(shortcutMap.get(s), s, strategy, filter, imageLoader, lastModCheck);
 					boards.addElement(b);
 				}
 			} catch (IndexOutOfBoundsException oob) {
@@ -284,7 +286,7 @@ public class Main implements ActionListener{
 	/**
 	 * This Method initializes the Program
 	 */
-	private void init(){
+	private void init() throws Exception{
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e){

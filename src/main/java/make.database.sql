@@ -228,7 +228,13 @@ CREATE TABLE IF NOT EXISTS `thumbs` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Thumbnails for items in the Filter list';
 
 -- Data exporting was unselected.
-
+CREATE TABLE IF NOT EXISTS `lastmodified` (
+	`id` VARCHAR(48) NOT NULL COLLATE 'utf8_unicode_ci',
+	`lastmod` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	`lastvisit` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',
+	PRIMARY KEY (`id`),
+	UNIQUE INDEX `id` (`id`)
+)
 
 -- Dumping structure for procedure aid.WarmUpDB
 DELIMITER //
