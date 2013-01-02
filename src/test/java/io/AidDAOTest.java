@@ -540,7 +540,7 @@ public class AidDAOTest extends DatabaseTestCase{
 	
 	@Test
 	public void testGetSettingVersion() {
-		assertThat(sql.getSetting(DBsettings.SchemaVersion), is("3"));
+		assertThat(sql.getSetting(DBsettings.SchemaVersion), is("4"));
 	}
 	
 	@SuppressWarnings("deprecation")
