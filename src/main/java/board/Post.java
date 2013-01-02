@@ -17,11 +17,7 @@
  */
 package board;
 
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Scanner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class that represents a post in a thread.
