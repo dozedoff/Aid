@@ -86,6 +86,10 @@ public class FourChanStrategy implements SiteStrategy {
 		Elements threadLinks = boardPage.select("a.replylink");
 
 		for (Element thread : threadLinks) {
+			if(thread.text().equals("here")){
+				continue;
+			}
+			
 			String absoluteThreadUrl = thread.attr("abs:href");
 
 			try {
