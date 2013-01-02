@@ -26,7 +26,7 @@ import gui.BoardListDataModel;
 import gui.Filterlist;
 import gui.Stats;
 import io.AidDAO;
-import io.CachePrune;
+import io.CachePruneDaemon;
 import io.FileWriter;
 import io.ImageLoader;
 import io.ThumbnailLoader;
@@ -45,9 +45,11 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Timer;
+import java.util.TimerTask;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -98,7 +100,6 @@ public class Main implements ActionListener{
 	private ThumbnailLoader thumbLoader;
 	private ConnectionPool connPool;
 	private AidDAO mySQL;
-	private CachePrune cachePrune;
 	private SiteStrategy strategy;
 	private LastModCheck lastModCheck;
 
@@ -119,7 +120,13 @@ public class Main implements ActionListener{
 	private final int FILTER_UPDATER_STARTUP_DELAY = 4 * 1000 * 60 * 60;
 	private final int FILTER_UPDATER_REFRESH_INTERVAL = 1000 * 60;
 	
+	private final int CACHE_PRUNE_STARTUP_DELAY = 120 * 60 * 1000;
+	private final int CACHE_PRUNE_INTERVAL = 15 * 60 * 1000;
+	private final int CACHE_PRUNE_MAX_AGE_SEC = 240 * 60;
+	
 	private final Timer daemons = new Timer("Daemon thread", true);
+	
+	private URL siteUrl;
 	
 	public static void main(String[] args) throws Exception {
 		new Main().init();
@@ -213,6 +220,7 @@ public class Main implements ActionListener{
 		}
 		
 		strategy = findSiteStrategy(checkAliveUrl); //TODO change settings to contain list of site URLs
+		siteUrl = checkAliveUrl;
 		
 		//  -------------- Class instantiation starts here --------------  //
 		connPool = new BoneConnectionPool(sqlProps,10); // connection pool for database connections
@@ -237,8 +245,6 @@ public class Main implements ActionListener{
 		logger.info("Saving files to the basePath "+basePath.toString());
 		blockList = new BlockList(filter,blockListModel);
 		
-		cachePrune = new CachePrune(mySQL, checkAliveUrl, 15*60, 120*60, 240*60);
-
 		// parse subpages
 		String[] subP = preferredBoards.split(",");
 		
@@ -330,7 +336,6 @@ public class Main implements ActionListener{
 		}
 
 		startDaemons(connPool);
-		cachePrune.start(); //FIXME make daemon timer task
 		aid.setVisible(true);
 
 		String startupMessage = "Startup complete";
@@ -359,9 +364,22 @@ public class Main implements ActionListener{
 	 */
 	private void startDaemons(ConnectionPool pool) {
 		try {
-			daemons.schedule(new FilterUpdateDaemon(pool.getConnectionSource()), FILTER_UPDATER_STARTUP_DELAY, FILTER_UPDATER_REFRESH_INTERVAL);
+			logger.info("Starting daemon {}...", FilterUpdateDaemon.class);
+			daemons.schedule(
+					new FilterUpdateDaemon(pool.getConnectionSource()),
+					FILTER_UPDATER_STARTUP_DELAY,
+					FILTER_UPDATER_REFRESH_INTERVAL);
 		} catch (Exception e) {
-			logger.warn("Failed to start FilterUpdate daemon", e);
+			logger.warn("Failed to start {}", FilterUpdateDaemon.class, e);
+		}
+
+		try {
+			logger.info("Starting daemon {}...", CachePruneDaemon.class);
+			daemons.schedule(new CachePruneDaemon(pool.getConnectionSource(),
+					siteUrl, CACHE_PRUNE_MAX_AGE_SEC),
+					CACHE_PRUNE_STARTUP_DELAY, CACHE_PRUNE_INTERVAL);
+		} catch (Exception e) {
+			logger.warn("Failed to start {}", CachePruneDaemon.class, e);
 		}
 	}
 
@@ -462,11 +480,6 @@ public class Main implements ActionListener{
 				}
 			} catch (InterruptedException e) {
 				logger.debug("FileWriter was interrupted");
-			}
-			
-			// stop cache pruning
-			if(cachePrune != null){
-				cachePrune.stop();
 			}
 
 			// close all DB connections
