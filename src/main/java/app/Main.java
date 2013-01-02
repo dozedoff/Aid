@@ -416,6 +416,10 @@ public class Main implements ActionListener{
 	 * This Thread will be called when the Program is shut down.
 	 */
 	class Shutdown extends Thread{
+		public Shutdown() {
+			super("main shutdown hook");
+		}
+		
 		@Override
 		public void run(){
 			logger.info("Shutting down...");
