@@ -861,6 +861,10 @@ public class AidDAO{
 		return new LinkedList<FilterItem>();
 	}
 
+	/**
+	 * Use FilterDao instead.
+	 */
+	@Deprecated
 	public void updateFilterTimestamp(String id) {
 		try {
 			filterDAO.updateFilterTimestamp(id);
@@ -869,6 +873,10 @@ public class AidDAO{
 		}
 	}
 
+	/**
+	 * Use FilterDao instead.
+	 */
+	@Deprecated
 	public String getOldestFilter() {
 		try {
 			FilterItem oldestFilter = filterDAO.getOldestFilter();

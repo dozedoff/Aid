@@ -32,23 +32,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.DefaultListModel;
 
 import board.Post;
-
-import com.github.dozedoff.commonj.net.GetHtml;
 
 /**
  * Class used to filter thread contents based on Post content and Filenames,
@@ -57,7 +51,6 @@ import com.github.dozedoff.commonj.net.GetHtml;
  */
 public class Filter implements FilterModifiable{
 	private static Logger logger = LoggerFactory.getLogger(Filter.class);
-	private static int FILTER_UPDATER_INTERVAL = 60*1000; // one minute
 	private final String LOCATION_TAG = "DL_CLIENT";
 	private int filterNr = 0;	// filter item counter
 
@@ -67,7 +60,6 @@ public class Filter implements FilterModifiable{
 	private ThumbnailLoader thumbLoader;
 
 	private AidDAO sql;
-	private Timer filterUpdateTimer = new Timer("Filter update daemon", true);
 	
 	public Filter(AidDAO sql, BlockListDataModel blockListModel,DefaultListModel<String> fileNameModel, DefaultListModel<String> postContentModel, ThumbnailLoader thumbLoader){
 		this.sql = sql;
@@ -79,10 +71,6 @@ public class Filter implements FilterModifiable{
 	
 	public boolean loadFilter(String path){
 		return loadFilter(new File(path));
-	}
-	
-	public void startUpdater(){
-		filterUpdateTimer.schedule(new FilterUpdater(), 0, FILTER_UPDATER_INTERVAL);
 	}
 	
 	public boolean loadFilter(File file){
@@ -239,8 +227,7 @@ public class Filter implements FilterModifiable{
 	 * Non existing items will be removed from the database and the GUI-list.
 	 */
 	public void refreshList(){
-		Thread t = new RefreshList();
-		t.start();
+		logger.error("Functionality removed");
 	}
 
 	/**
@@ -341,70 +328,5 @@ public class Filter implements FilterModifiable{
 	
 	public void downloadThumbs(String url, List<Post> postList){
 		thumbLoader.downloadThumbs(url, postList);
-	}
-
-	/**
-	 * Attempts to connect to the URL.
-	 * If it exists, update the FilterItem timestamp, else delete it.
-	 * 
-	 * @param mySql An active mySql connection
-	 * @param url The URL to be checked
-	 * @return true if valid, else false<br/>
-	 * Returns false on error.
-	 */
-	private boolean refreshFilterItem(URL url){
-		String currString = url.toString();
-
-		try {
-			if (new GetHtml().getResponse(currString) == 404){
-				sql.delete(AidTables.Filter, currString);
-				return false;
-			}else{
-				sql.updateFilterTimestamp(currString);
-				return true;
-			}
-		} catch (MalformedURLException e2) {
-			logger.warn("Refresh invalid URL: "+currString);
-		} catch (Exception e) {
-			logger.warn("Refresh failed,  Reason: "+e.getMessage());
-		}
-		return false;
-	}
-	
-	/**
-	 * Thread for updating the pending item list.
-	 */
-	class RefreshList extends Thread{
-		@Override
-		public void run() {
-			LinkedList<FilterItem> filterList = new LinkedList<>();
-			filterNr = 0;
-			filterList.addAll(sql.getPendingFilters());
-			blocklistModel.clear();
-			for(FilterItem fi : filterList){
-				if(refreshFilterItem(fi.getUrl())){
-					blocklistModel.addElement(fi);
-					filterNr++;
-				}
-			}
-			Stats.setFilterSize(filterNr);
-		}
-	}
-	
-	class FilterUpdater extends TimerTask{
-		@Override
-		public void run(){
-			
-			String currString = sql.getOldestFilter();
-			if(currString == null){
-				return;
-			}
-			
-			try {
-				refreshFilterItem(new URL(currString));
-			} catch (MalformedURLException e) {
-				logger.warn("Filter refresh failed due to "+e.getMessage());
-			}
-		}
 	}
 }

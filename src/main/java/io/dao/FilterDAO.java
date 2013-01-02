@@ -22,7 +22,6 @@ import java.util.List;
 
 import com.j256.ormlite.dao.BaseDaoImpl;
 import com.j256.ormlite.stmt.PreparedQuery;
-import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.support.ConnectionSource;
 
 import filter.FilterItem;
@@ -38,10 +37,20 @@ public class FilterDAO extends BaseDaoImpl<FilterItem, String>{
 		pendingFilterCountQuery = queryBuilder().setCountOf(true).where().eq("status", FilterState.PENDING).prepare();
 	}
 	
+	public void updateFilterTimestamp(FilterItem filterItem) throws SQLException{
+		String id = filterItem.getId();
+		updateFilterTimestamp(id);
+	}
+	
 	public void updateFilterTimestamp(String id) throws SQLException{
 		executeRaw(SQL_UPDATE_TIME, id);
 	}
 	
+	/**
+	 * Returns the oldest Filter in the list, or null if no entries are found.
+	 * @return the oldest filter entry found or null
+	 * @throws SQLException
+	 */
 	public FilterItem getOldestFilter() throws SQLException {
 		List<FilterItem>filterItems = query(oldestFilterQuery);
 		

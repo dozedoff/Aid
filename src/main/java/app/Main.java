@@ -17,6 +17,7 @@
  */
 package app;
 
+import filter.FilterUpdateDaemon;
 import filter.LastModCheck;
 import gui.Aid;
 import gui.BlockList;
@@ -46,6 +47,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Timer;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -113,6 +115,11 @@ public class Main implements ActionListener{
 	private final String DEFAULT_WRITE_BLOCKED = "false";
 	private final String DEFAULT_BASE_URL = "http://boards.4chan.org/";
 	private final String DEFAULT_SUB_PAGES = "a;15,w;15,wg;15";
+	
+	private final int FILTER_UPDATER_STARTUP_DELAY = 4 * 1000 * 60 * 60;
+	private final int FILTER_UPDATER_REFRESH_INTERVAL = 1000 * 60;
+	
+	private final Timer daemons = new Timer("Daemon thread", true);
 	
 	public static void main(String[] args) throws Exception {
 		new Main().init();
@@ -322,8 +329,8 @@ public class Main implements ActionListener{
 			logger.warn("Error accessing file " + ioe.getMessage());
 		}
 
-		filter.startUpdater();
-		cachePrune.start();
+		startDaemons(connPool);
+		cachePrune.start(); //FIXME make daemon timer task
 		aid.setVisible(true);
 
 		String startupMessage = "Startup complete";
@@ -343,6 +350,18 @@ public class Main implements ActionListener{
 		} catch (IOException e) {
 			logger.warn("Failed to load page {} with error {}", url, e);
 			return Jsoup.parse("");
+		}
+	}
+	
+	/**
+	 * Unleash the daemons!
+	 * @param pool daemons need connections too...
+	 */
+	private void startDaemons(ConnectionPool pool) {
+		try {
+			daemons.schedule(new FilterUpdateDaemon(pool.getConnectionSource()), FILTER_UPDATER_STARTUP_DELAY, FILTER_UPDATER_REFRESH_INTERVAL);
+		} catch (Exception e) {
+			logger.warn("Failed to start FilterUpdate daemon", e);
 		}
 	}
 

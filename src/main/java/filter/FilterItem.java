@@ -101,6 +101,10 @@ public class FilterItem implements Serializable{
 		return timestamp;
 	}
 
+	public String getId() {
+		return id;
+	}
+
 	@Override
 	public String toString(){
 		return displayString;
