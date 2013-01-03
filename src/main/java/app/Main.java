@@ -247,6 +247,8 @@ public class Main implements ActionListener{
 		DefaultListModel<String> fileNameModel = new DefaultListModel<>();
 		DefaultListModel<String> postContentModel = new DefaultListModel<>();
 		mySQL = new AidDAO(connPool);
+		blockListModel = new BlockListDataModel();
+		thumbLoader = new ThumbnailLoader(mySQL);
 		
 		try{
 			CacheDAO cacheDao = DaoManager.createDao(connPool.getConnectionSource(), Cache.class);
@@ -260,12 +262,6 @@ public class Main implements ActionListener{
 			logger.error("Failed to create DAOs", se);
 			System.exit(9);
 		}
-		
-		blockListModel = new BlockListDataModel();
-		
-		
-		thumbLoader = new ThumbnailLoader(mySQL);
-		
 		
 		filterlist = new Filterlist(filter, fileNameModel, postContentModel); // filter GUI
 		fileWriter = new FileWriter(filter); // disk IO

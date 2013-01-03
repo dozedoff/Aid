@@ -29,12 +29,13 @@ import filter.FilterState;
 
 public class FilterDAO extends BaseDaoImpl<FilterItem, String>{
 	final String SQL_UPDATE_TIME = "UPDATE `filter` SET `timestamp` = NOW() WHERE `id` = ?";
-	PreparedQuery<FilterItem> oldestFilterQuery, pendingFilterCountQuery;
+	PreparedQuery<FilterItem> oldestFilterQuery, pendingFilterCountQuery,pendingFilterQuery;
 
 	public FilterDAO(ConnectionSource cSource) throws SQLException {
 		super(cSource, FilterItem.class);
 		oldestFilterQuery = queryBuilder().orderBy("timestamp", true).limit(1L).prepare();
 		pendingFilterCountQuery = queryBuilder().setCountOf(true).where().eq("status", FilterState.PENDING).prepare();
+		pendingFilterQuery = queryBuilder().where().eq("status", FilterState.PENDING).prepare();
 	}
 	
 	public void updateFilterTimestamp(FilterItem filterItem) throws SQLException{
@@ -63,5 +64,9 @@ public class FilterDAO extends BaseDaoImpl<FilterItem, String>{
 	
 	public int getPendingFilterCount() throws SQLException {
 		return (int)countOf(pendingFilterCountQuery);
+	}
+	
+	public List<FilterItem> getPendingFilter() throws SQLException {
+		return query(pendingFilterQuery);
 	}
 }

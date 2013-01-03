@@ -41,6 +41,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.dozedoff.commonj.net.GetHtml;
+
 import javax.swing.DefaultListModel;
 
 import board.Post;
@@ -263,7 +265,8 @@ public class Filter implements FilterModifiable{
 	 * Non existing items will be removed from the database and the GUI-list.
 	 */
 	public void refreshList(){
-		logger.error("Functionality removed");
+		logger.info("Reloading filter list...");
+		new FilterUpdateJob().start();
 	}
 
 	/**
@@ -361,5 +364,24 @@ public class Filter implements FilterModifiable{
 	
 	public void downloadThumbs(String url, List<Post> postList){
 		thumbLoader.downloadThumbs(url, postList);
+	}
+	
+	class FilterUpdateJob extends Thread {
+		@Override
+		public void run() {
+			try {
+				List<FilterItem> fi = filterDao.getPendingFilter();
+				blocklistModel.clear();
+				filterNr = 0;
+				for(FilterItem item : fi){
+					blocklistModel.addElement(item);
+					filterNr++;
+				}
+				Stats.setFilterSize(filterNr);
+				logger.info("Loaded {} pending filter entries", filterNr);
+			} catch (SQLException e) {
+				logger.warn("Failed to update pending filters", e);
+			}
+		}
 	}
 }
