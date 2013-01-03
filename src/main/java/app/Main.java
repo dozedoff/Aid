@@ -33,6 +33,7 @@ import io.CachePruneDaemon;
 import io.FileItem;
 import io.FileWriter;
 import io.ImageLoader;
+import io.LastModifiedPruneDaemon;
 import io.ThumbnailLoader;
 import io.dao.CacheDAO;
 import io.dao.FilterDAO;
@@ -404,6 +405,15 @@ public class Main implements ActionListener{
 		try {
 			logger.info("Starting daemon {}...", CachePruneDaemon.class);
 			daemons.schedule(new CachePruneDaemon(pool.getConnectionSource(),
+					siteUrl, CACHE_PRUNE_MAX_AGE_SEC),
+					CACHE_PRUNE_STARTUP_DELAY, CACHE_PRUNE_INTERVAL);
+		} catch (Exception e) {
+			logger.warn("Failed to start {}", CachePruneDaemon.class, e);
+		}
+		
+		try {
+			logger.info("Starting daemon {}...", LastModifiedPruneDaemon.class);
+			daemons.schedule(new LastModifiedPruneDaemon(pool.getConnectionSource(),
 					siteUrl, CACHE_PRUNE_MAX_AGE_SEC),
 					CACHE_PRUNE_STARTUP_DELAY, CACHE_PRUNE_INTERVAL);
 		} catch (Exception e) {
