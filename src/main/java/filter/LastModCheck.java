@@ -17,6 +17,7 @@
  */
 package filter;
 
+import gui.Stats;
 import io.dao.CacheDAO;
 import io.dao.LastModifiedDAO;
 import io.tables.Cache;
@@ -170,7 +171,7 @@ public class LastModCheck {
 				cache.setLast_mod_id(last_mod_id);
 				cacheDao.createIfNotExists(cache);
 			}
-			
+			Stats.setCacheSize((int)cacheDao.countOf());
 			logger.info("Added {} cache links to thread {}", posts.size(), threadId);
 		} catch (SQLException e) {
 			logger.warn("Failed to add cache links for thread {}", thread, e);
@@ -186,6 +187,11 @@ public class LastModCheck {
 			} catch (SQLException e) {
 				logger.warn("Failed to add thread {} last modified table", threadId, e);
 			}
+		}
+		try {
+			Stats.setCacheSize((int)cacheDao.countOf());
+		} catch (SQLException e) {
+			logger.warn("Failed to update cache stats", e);
 		}
 	}
 	
