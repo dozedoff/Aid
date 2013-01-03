@@ -20,9 +20,12 @@ package filter;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import board.Post;
 
 import io.dao.CacheDAO;
 import io.tables.Cache;
@@ -48,6 +51,46 @@ public class CacheCheck {
 		return isCached;
 	}
 	
+	public boolean isDownloaded(URL url) {
+		boolean isDownloaded = false;
+		try {
+			isDownloaded = cacheDao.isDownloaded(url);
+		} catch (SQLException e) {
+			logger.warn("Failed to check if {} is downloaded", url, e);
+		}
+		return isDownloaded;
+	}
+	
+	public boolean areAllCached(List<Post> posts){
+		boolean allCached = false;
+		
+		for(Post p : posts){
+			if(!isCached(p.getImageUrl())){
+				allCached = false;
+				break;
+			}
+		}
+		
+		return allCached;
+	}
+	
+	public boolean areAllDownloaded(List<Post> posts) {
+		boolean allDownloaded = false;
+
+		try {
+			for (Post p : posts) {
+				if (!cacheDao.isDownloaded(p.getImageUrl())) {
+					allDownloaded = false;
+					break;
+				}
+			}
+		} catch (SQLException e) {
+			logger.warn("Failed to check if all posts are downloaded", e);
+		}
+
+		return allDownloaded;
+	}
+	
 	public void addCache(URL url){
 		addCache(url, true);
 	}
@@ -61,6 +104,21 @@ public class CacheCheck {
 			cacheDao.createOrUpdate(cache);
 		} catch (SQLException e) {
 			logger.warn("Failed to create/update cache entry for {} (downloaded: {})", cacheId, downloaded);
+		}
+	}
+	
+	public void setDownloaded(URL imageUrl, boolean downloaded){
+		String cacheId = imageUrl.toString();
+		
+		try {
+			Cache cache = cacheDao.queryForId(cacheId);
+			if(cache == null){
+				logger.info("Could not find cache entry {} to set download state", cacheId);
+			}
+			cache.setDownloaded(downloaded);
+			cacheDao.update(cache);
+		} catch (SQLException e) {
+			logger.warn("Could not set download state for {}", cacheId, e);
 		}
 	}
 	

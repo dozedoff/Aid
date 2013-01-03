@@ -30,6 +30,7 @@ import java.util.LinkedList;
 import org.junit.Before;
 import org.junit.Test;
 
+import filter.CacheCheck;
 import filter.Filter;
 import filter.LastModCheck;
 
@@ -38,6 +39,7 @@ public class BoardTest {
 	
 	SiteStrategy strategy;
 	Filter filter;
+	CacheCheck cacheCheck;
 	ImageLoader imageLoader;
 	LastModCheck lmc;
 	
@@ -47,7 +49,8 @@ public class BoardTest {
 		filter = mock(Filter.class);
 		imageLoader = mock(ImageLoader.class);
 		lmc = mock(LastModCheck.class);
-		board = new Board(new URL("http://foo.bar/"), "t", strategy, filter, imageLoader, lmc);
+		cacheCheck = mock(CacheCheck.class);
+		board = new Board(new URL("http://foo.bar/"), "t", strategy, filter, imageLoader, lmc, cacheCheck);
 	}
 	
 	@Test

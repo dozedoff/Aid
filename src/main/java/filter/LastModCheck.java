@@ -22,6 +22,7 @@ import io.dao.LastModifiedDAO;
 import io.tables.Cache;
 import io.tables.LastModified;
 
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
@@ -37,6 +38,7 @@ public class LastModCheck {
 	CacheDAO cacheDao;
 	
 	final static Logger logger = LoggerFactory.getLogger(LastModCheck.class);
+	private final long INITIAL_TIMESTAMP = 1000;
 	
 	public LastModCheck(CacheDAO cacheDao, LastModifiedDAO lastModifiedDao) {
 		this.cacheDao = cacheDao;
@@ -69,7 +71,12 @@ public class LastModCheck {
 				logger.info("Looking up modified state for {} with mod time {} - found timestamp {} - no change", logData);
 				visit = false;
 			}else{
-				logger.info("Looking up modified state for {} with mod time {} - found timestamp {} - CHANGED", logData);
+				if(dbTimestamp == INITIAL_TIMESTAMP){
+					logger.info("Looking up modified state for {} with mod time {} - found new Thread", logData);
+				} else {
+					logger.info("Looking up modified state for {} with mod time {} - found timestamp {} - CHANGED", logData);
+				}
+				
 			}
 			
 			lastModiefied.setLastvisit(now());
@@ -114,6 +121,90 @@ public class LastModCheck {
 				logger.warn("Faild to update last_mod_id for {}", post.getImageUrl(), e);
 			}
 		}
+	}
+	
+	public void updateCachedLinks(URL thread){
+		String lastModId = thread.toString();
+		try {
+			LastModified lastMod = lastModifiedDao.queryForId(lastModId);
+			if(lastMod == null){
+				logger.info("Could not find lastmodified entry for thread {}. Aborting cache update.", lastModId);
+				return;
+			}
+			
+			int last_mod_id = lastMod.getLast_mod_id();
+			
+			List<Cache> cacheEntries = cacheDao.queryForEq("last_mod_id", last_mod_id);
+			
+			Date currentTime = Calendar.getInstance().getTime();
+			
+			for(Cache cache : cacheEntries){
+				cache.setTimestamp(currentTime);
+				cacheDao.update(cache);
+			}
+			
+			Object[] logData = {cacheEntries.size(), lastModId, currentTime};
+			logger.info("Updated {} cache entries for thread {} with the new timestamp {}", logData);
+		} catch (SQLException e) {
+			logger.warn("Could not update cache links for lastmodified thread {}", lastModId);
+			logger.warn("Error was", e);
+		}
+	}
+	
+	public void addCacheLinks(URL thread, List<Post> posts){
+		String threadId = thread.toString();
+		try {
+			LastModified lastMod = lastModifiedDao.queryForId(threadId);
+			
+			if(lastMod == null){
+				logger.info("Cannot add cache-lastmod links, no entry found for {}", threadId);
+				return;
+			}
+			
+			int last_mod_id = lastMod.getLast_mod_id();
+			
+			for(Post post : posts){
+				String cacheId = post.getImageUrl().toString();
+				Cache cache = new Cache(cacheId, false);
+				
+				cache.setLast_mod_id(last_mod_id);
+				cacheDao.createIfNotExists(cache);
+			}
+			
+			logger.info("Added {} cache links to thread {}", posts.size(), threadId);
+		} catch (SQLException e) {
+			logger.warn("Failed to add cache links for thread {}", thread, e);
+		}
+	}
+	
+	public void recordNewThreads(List<URL> threads){
+		for(URL thread : threads){
+			String threadId = thread.toString();
+			try {
+				LastModified lm = new LastModified(threadId, new Date(INITIAL_TIMESTAMP), now());
+				lastModifiedDao.createIfNotExists(lm);
+			} catch (SQLException e) {
+				logger.warn("Failed to add thread {} last modified table", threadId, e);
+			}
+		}
+	}
+	
+	public boolean areAllDownloaded(URL thread){
+		String threadId = thread.toString();
+		boolean allDownloaded = false;
+		try {
+			LastModified lm =  lastModifiedDao.queryForId(threadId);
+			
+			if(lm == null){
+				return allDownloaded;
+			}
+			
+			allDownloaded = cacheDao.areAllDownloaded(lm.getLast_mod_id());
+		} catch (SQLException e) {
+			logger.warn("Failed to check if all files for {} were downloaded", thread, e);
+		}
+		
+		return allDownloaded;
 	}
 	
 	private Date now() {

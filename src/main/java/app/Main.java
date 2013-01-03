@@ -269,7 +269,7 @@ public class Main implements ActionListener{
 		filterlist = new Filterlist(filter, fileNameModel, postContentModel); // filter GUI
 		fileWriter = new FileWriter(filter); // disk IO
 
-		imageLoader = new ImageLoader(fileWriter, filter, basePath,imageThreads);
+		imageLoader = new ImageLoader(fileWriter, cacheCheck, basePath,imageThreads);
 		logger.info("Saving files to the basePath "+basePath.toString());
 		blockList = new BlockList(filter,blockListModel);
 		
@@ -285,7 +285,7 @@ public class Main implements ActionListener{
 		for (String s : subP) {
 			try {
 				if (shortcutMap.containsKey(s)) {
-					Board b = new Board(shortcutMap.get(s), s, strategy, filter, imageLoader, lastModCheck);
+					Board b = new Board(shortcutMap.get(s), s, strategy, filter, imageLoader, lastModCheck, cacheCheck);
 					boards.addElement(b);
 				}
 			} catch (IndexOutOfBoundsException oob) {

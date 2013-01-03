@@ -28,6 +28,7 @@ import com.github.dozedoff.commonj.net.DownloadItem;
 import com.github.dozedoff.commonj.net.FileLoader;
 import com.github.dozedoff.commonj.net.PageLoadException;
 
+import filter.CacheCheck;
 import filter.Filter;
 import gui.Stats;
 
@@ -35,22 +36,21 @@ public class ImageLoader extends FileLoader {
 private static final Logger logger = LoggerFactory.getLogger(ImageLoader.class);
 
 private FileWriter fileWriter;
-private Filter filter;
+private CacheCheck cacheCheck;
 
 private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph output
 
-	public ImageLoader(FileWriter fileWriter, Filter filter, File workingDir, int imageQueueWorkers) {
+	public ImageLoader(FileWriter fileWriter, CacheCheck cacheCheck, File workingDir, int imageQueueWorkers) {
 		super(workingDir, imageQueueWorkers);
 		this.fileWriter = fileWriter;
-		this.filter = filter;
+		this.cacheCheck = cacheCheck;
 		
 		logger.info("ImageLoader started");
 	}
 
 	@Override
 	protected boolean beforeFileAdd(URL url, String fileName) {
-		if(filter.isCached(url)){	// has the file been downloaded recently?
-			filter.cache(url);		// if it has, update cache timestamp
+		if(cacheCheck.isDownloaded(url)){	// has the file been downloaded recently?
 			return false;
 		}
 		return true;
@@ -82,7 +82,7 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 			try {
 				logger.debug("Adding file {} to FileWriter, caching URL {}", fullpath, url);
 				fileWriter.add(fullpath, data.clone());
-				filter.cache(url);	//add URL to cache
+				cacheCheck.setDownloaded(url, true);
 				Stats.addTimeGraphValue((int)((data.length/1024)*TIME_GRAPH_FACTOR)); // add data to the download graph
 			} catch (InvalidActivityException e) {
 				logger.warn("Failed adding file {} to FileWriter ({})", fullpath, url);

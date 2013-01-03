@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import com.github.dozedoff.commonj.file.FileUtil;
 import com.github.dozedoff.commonj.net.GetHtml;
 
+import filter.CacheCheck;
 import filter.Filter;
 import filter.FilterItem;
 import filter.FilterState;
@@ -60,16 +61,18 @@ public class Board {
 	final private Filter filter;
 	final private ImageLoader imageLoader;
 	final private LastModCheck lastModCheck;
+	final private CacheCheck cacheCheck;
 	private final int WAIT_TIME = 60 * 1000 * 60; // 1 hour
 	private static final Logger logger = LoggerFactory.getLogger(Board.class);
 	
-	public Board(URL boardUrl, String boardId, SiteStrategy siteStrategy, Filter filter, ImageLoader imageLoader, LastModCheck lastModCheck){
+	public Board(URL boardUrl, String boardId, SiteStrategy siteStrategy, Filter filter, ImageLoader imageLoader, LastModCheck lastModCheck, CacheCheck cacheCheck){
 		this.boardUrl = boardUrl;
 		this.boardId = boardId;
 		this.siteStartegy = siteStrategy;
 		this.filter = filter;
 		this.imageLoader = imageLoader;
 		this.lastModCheck = lastModCheck;
+		this.cacheCheck = cacheCheck;
 	}
 
 	public void stop(){
@@ -105,7 +108,7 @@ public class Board {
 	}
 
 	public void start(int delay){
-		logger.info("Starting board {} with a delay of {}", boardId, delay);
+		logger.info("Starting board {} with a delay of {} minutes", boardId, delay);
 		pageAdder = new Timer("Board "+boardId+" worker", true);
 
 		this.stoppped = false;
@@ -140,11 +143,16 @@ public class Board {
 			Document boardPage = loadPage(boardUrl);
 			int numOfPages = siteStartegy.getBoardPageCount(boardPage);
 			logger.info("Found {} pages on Board {}", numOfPages, boardId);
+			
 			ArrayList<URL> pageUrls = PageUrlFactory.makePages(boardUrl, numOfPages);
 			List<URL> pageThreads = parsePages(pageUrls);
 			logger.info("Parsing board {} pages resulted in {} thread links", boardId, pageThreads.size());
+			
+			lastModCheck.recordNewThreads(pageThreads);
+			
 			filterPageThreads(pageThreads);
 			logger.info("{} {} threads left after filtering", pageThreads.size(), boardId);
+			
 			processPageThreads(pageThreads);
 			logger.info("Finished processing board {}", boardId);
 		}
@@ -166,7 +174,6 @@ public class Board {
 		}
 		
 		private void filterPageThreads(List<URL> pageThreads) {
-			logger.debug("Filtering pages for {}", boardId);
 			Iterator<URL> iterator = pageThreads.iterator();
 			
 			while(iterator.hasNext()){
@@ -176,9 +183,15 @@ public class Board {
 					iterator.remove();
 					continue;
 				}
+
+				if(!lastModCheck.areAllDownloaded(currentPageThread)){
+					logger.info("Not all files of {} are downloaded, will not filter", currentPageThread);
+					continue;
+				}
 				
 				if(!hasBeenModified(currentPageThread)){
 					iterator.remove();
+					lastModCheck.updateCachedLinks(currentPageThread);
 					continue;
 				}
 			}
@@ -207,6 +220,7 @@ public class Board {
 				if(stoppped){
 					break;
 				}
+				
 				Document threadPage = loadPage(thread);
 				List<Post> posts = siteStartegy.parseThread(threadPage);
 				String reason = filterPosts(posts);
@@ -219,29 +233,12 @@ public class Board {
 				}
 				
 				filterImages(posts);
-				if(areAllCached(posts)){
-					GetHtml gh = new GetHtml();
-					long lastMod = gh.getLastModified(thread);
-					LastModified lm = lastModCheck.addLastModified(thread.toString(), lastMod);
-					lastModCheck.setCacheLastModId(lm, posts);
-				}
+				lastModCheck.addCacheLinks(thread, posts);
+				lastModCheck.updateCachedLinks(thread);
 				
 				logger.info("Queuing {} posts for download from thread {}", posts.size(), thread);
 				queueForDownload(posts, siteStartegy.getThreadNumber(thread));
 			}
-		}
-
-		private boolean areAllCached(List<Post> posts){
-			boolean allCached = true;
-			
-			for(Post p : posts){
-				if(!filter.isCached(p.getImageUrl())){
-					allCached = false;
-					break;
-				}
-			}
-			
-			return allCached;
 		}
 		
 		private String filterPosts(List<Post> posts) {
@@ -271,7 +268,7 @@ public class Board {
 				if(currentPost.hasImage()){
 					URL imageUrl = currentPost.getImageUrl();
 					
-					if(filter.isCached(imageUrl)) {
+					if(cacheCheck.isDownloaded(imageUrl)) {
 						iterator.remove();
 					}
 				}else{
