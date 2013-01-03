@@ -36,7 +36,7 @@ public class LastModifiedDAO extends BaseDaoImpl<LastModified, String> {
 		super(cSource, LastModified.class);
 		timestamp = new SelectArg();
 		DeleteBuilder<LastModified, String> del = deleteBuilder();
-		del.where().le("timestamp", timestamp);
+		del.where().le("lastvisit", timestamp);
 		pruneCacheQuery = del.prepare();
 	}
 	

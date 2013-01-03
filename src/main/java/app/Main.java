@@ -18,6 +18,8 @@
 package app;
 
 import filter.CacheCheck;
+import filter.Filter;
+import filter.FilterItem;
 import filter.FilterUpdateDaemon;
 import filter.LastModCheck;
 import gui.Aid;
@@ -28,12 +30,15 @@ import gui.Filterlist;
 import gui.Stats;
 import io.AidDAO;
 import io.CachePruneDaemon;
+import io.FileItem;
 import io.FileWriter;
 import io.ImageLoader;
 import io.ThumbnailLoader;
 import io.dao.CacheDAO;
 import io.dao.FilterDAO;
 import io.dao.LastModifiedDAO;
+import io.tables.Cache;
+import io.tables.LastModified;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -240,11 +245,12 @@ public class Main implements ActionListener{
 		
 		DefaultListModel<String> fileNameModel = new DefaultListModel<>();
 		DefaultListModel<String> postContentModel = new DefaultListModel<>();
+		mySQL = new AidDAO(connPool);
 		
 		try{
-			CacheDAO cacheDao = DaoManager.createDao(connPool.getConnectionSource(), CacheDAO.class);
-			LastModifiedDAO lastModDao = DaoManager.createDao(connPool.getConnectionSource(), LastModifiedDAO.class);
-			FilterDAO filterDao = DaoManager.createDao(connPool.getConnectionSource(), FilterDAO.class);
+			CacheDAO cacheDao = DaoManager.createDao(connPool.getConnectionSource(), Cache.class);
+			LastModifiedDAO lastModDao = DaoManager.createDao(connPool.getConnectionSource(), LastModified.class);
+			FilterDAO filterDao = DaoManager.createDao(connPool.getConnectionSource(), FilterItem.class);
 			
 			lastModCheck = new LastModCheck(cacheDao,lastModDao);
 			cacheCheck = new CacheCheck(cacheDao);
@@ -255,7 +261,7 @@ public class Main implements ActionListener{
 		}
 		
 		blockListModel = new BlockListDataModel();
-		mySQL = new AidDAO(connPool);
+		
 		
 		thumbLoader = new ThumbnailLoader(mySQL);
 		
