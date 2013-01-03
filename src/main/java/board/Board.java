@@ -174,10 +174,12 @@ public class Board {
 				
 				if(isBlockedByFilter(currentPageThread)){
 					iterator.remove();
+					continue;
 				}
 				
 				if(!hasBeenModified(currentPageThread)){
 					iterator.remove();
+					continue;
 				}
 			}
 		}
