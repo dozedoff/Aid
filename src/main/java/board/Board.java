@@ -225,7 +225,7 @@ public class Board {
 				List<Post> posts = siteStartegy.parseThread(threadPage);
 				String reason = filterPosts(posts);
 				
-				if (reason != null){
+				if ((reason != null) && (filter.getFilterState(thread) == FilterState.UNKNOWN)){
 					logger.info("Suspending thread {} for {}", thread, reason);
 					suspendThread(thread, reason);
 					filter.downloadThumbs(thread.toString(), posts);
