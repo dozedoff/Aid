@@ -246,7 +246,7 @@ ALTER TABLE `cache`
 	ADD INDEX `last_mod_id` (`last_mod_id`);
 	
 ALTER TABLE `cache`
-	ADD COLUMN `downloaded` BINARY(1) NOT NULL DEFAULT '0' AFTER `last_mod_id`;
+	ADD COLUMN `downloaded` BIT(1) NOT NULL DEFAULT b'0' AFTER `last_mod_id`;
 
 -- Dumping structure for procedure aid.WarmUpDB
 DELIMITER //
