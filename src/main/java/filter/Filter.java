@@ -212,7 +212,7 @@ public class Filter implements FilterModifiable{
 	 */
 	public void reviewThread(FilterItem filterItem){
 		try {
-			filterDao.create(filterItem);
+			filterDao.createIfNotExists(filterItem);
 			blocklistModel.addElement(filterItem);
 			filterNr++;
 			Stats.setFilterSize(filterNr);
