@@ -33,14 +33,24 @@ public class Cache {
 	@DatabaseField(canBeNull=false)
 	private int last_mod_id;
 	@DatabaseField(canBeNull=false)
-	boolean downloaded = false;
+	boolean downloaded = true;
 	
 	public Cache() {}
 	
+	/**
+	 * Create a new cache entry.<br>
+	 * <strong>Note:</strong> For compatibility the download flag will be <strong>set to true</strong>.
+	 * @param id
+	 */
 	public Cache(String id) {
 		this.id = id;
 	}
 	
+	public Cache(String id, boolean downloaded) {
+		this.id = id;
+		this.downloaded = downloaded;
+	}
+
 	public String getId() {
 		return id;
 	}

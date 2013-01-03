@@ -17,6 +17,7 @@
  */
 package app;
 
+import filter.CacheCheck;
 import filter.FilterUpdateDaemon;
 import filter.LastModCheck;
 import gui.Aid;
@@ -106,6 +107,7 @@ public class Main implements ActionListener{
 	private AidDAO mySQL;
 	private SiteStrategy strategy;
 	private LastModCheck lastModCheck;
+	private CacheCheck cacheCheck;
 
 	private BoardListDataModel boards = new BoardListDataModel();
 	Properties appSettings = new DefaultAppSettings();
@@ -245,7 +247,8 @@ public class Main implements ActionListener{
 			FilterDAO filterDao = DaoManager.createDao(connPool.getConnectionSource(), FilterDAO.class);
 			
 			lastModCheck = new LastModCheck(cacheDao,lastModDao);
-			filter = new filter.Filter(mySQL, filterDao,blockListModel,fileNameModel, postContentModel, thumbLoader);
+			cacheCheck = new CacheCheck(cacheDao);
+			filter = new filter.Filter(mySQL, filterDao, cacheCheck, blockListModel,fileNameModel, postContentModel, thumbLoader);
 		}catch(SQLException se){
 			logger.error("Failed to create DAOs", se);
 			System.exit(9);

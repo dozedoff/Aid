@@ -62,8 +62,9 @@ public class Filter implements FilterModifiable{
 
 	private AidDAO sql;
 	private FilterDAO filterDao;
+	private CacheCheck cacheCheck;
 	
-	public Filter(AidDAO sql,FilterDAO filterDao, BlockListDataModel blockListModel,DefaultListModel<String> fileNameModel, DefaultListModel<String> postContentModel, ThumbnailLoader thumbLoader){
+	public Filter(AidDAO sql,FilterDAO filterDao, CacheCheck cacheCheck, BlockListDataModel blockListModel,DefaultListModel<String> fileNameModel, DefaultListModel<String> postContentModel, ThumbnailLoader thumbLoader){
 		this.sql = sql;
 		this.filterDao = filterDao;
 		
@@ -71,6 +72,7 @@ public class Filter implements FilterModifiable{
 		this.fileNameModel = fileNameModel;
 		this.postContentModel = postContentModel;
 		this.thumbLoader = thumbLoader;
+		this.cacheCheck = cacheCheck;
 	}
 	
 	public boolean loadFilter(String path){
@@ -297,7 +299,7 @@ public class Filter implements FilterModifiable{
 	 * @return true if found, else false.
 	 */
 	public boolean isCached(URL url){
-		boolean known = sql.isCached(url);
+		boolean known = cacheCheck.isCached(url);
 		return known;
 	}
 	/**
@@ -305,19 +307,16 @@ public class Filter implements FilterModifiable{
 	 * @param url URL to add.
 	 */
 	public void cache(URL url){
-		sql.addCache(url);
-		Stats.setCacheSize(sql.size(AidTables.Cache));
+		cacheCheck.addCache(url);
+		Stats.setCacheSize(cacheCheck.getCacheSize());
 	}
 	
 	/**
 	 * Remove all cache entries with timestamps older than 3 hours.<br/>
 	 */
 	public void pruneCache(){
-		Calendar exp = Calendar.getInstance();
-		exp.add(Calendar.HOUR, -3);
-
-		sql.pruneCache(exp.getTimeInMillis()); //keys that are older than 3 Hour
-		Stats.setCacheSize(sql.size(AidTables.Cache));
+		cacheCheck.pruneCache();
+		Stats.setCacheSize(cacheCheck.getCacheSize());
 	}
 	
 	/**

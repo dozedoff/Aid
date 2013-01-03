@@ -27,6 +27,7 @@ import static org.mockito.Mockito.*;
 import gui.BlockListDataModel;
 import io.AidDAO;
 import io.ThumbnailLoader;
+import io.dao.FilterDAO;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,9 +47,13 @@ import board.Post;
 public class FilterTest {
 	AidDAO mockMySqlAid = mock(AidDAO.class);
 	ThumbnailLoader mockThumbnailLoader = mock(ThumbnailLoader.class);
+	FilterDAO mockFilterDao = mock(FilterDAO.class);
+	CacheCheck mockCacheCheck = mock(CacheCheck.class);
+	
 	
 	DefaultListModel<String> fileNameModel;
 	DefaultListModel<String> postContentModel;
+	BlockListDataModel blockListModel;
 	
 	Filter filter;
 	static File tempFolder;
@@ -71,7 +76,8 @@ public class FilterTest {
 	public void setUp() throws Exception {
 		fileNameModel = new DefaultListModel<>();
 		postContentModel = new DefaultListModel<>();
-		filter = new Filter(mockMySqlAid, new BlockListDataModel(),fileNameModel, postContentModel, mockThumbnailLoader);
+		blockListModel = new BlockListDataModel();
+		filter = new Filter(mockMySqlAid, mockFilterDao, mockCacheCheck, blockListModel, fileNameModel, postContentModel, mockThumbnailLoader);
 
 		testURL = new URL("http://foo.bar/test/12345");
 	}
