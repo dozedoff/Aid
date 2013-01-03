@@ -30,6 +30,8 @@ import io.CachePruneDaemon;
 import io.FileWriter;
 import io.ImageLoader;
 import io.ThumbnailLoader;
+import io.dao.CacheDAO;
+import io.dao.LastModifiedDAO;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -67,6 +69,7 @@ import board.SiteStrategy;
 import com.github.dozedoff.commonj.gui.Log;
 import com.github.dozedoff.commonj.io.BoneConnectionPool;
 import com.github.dozedoff.commonj.io.ConnectionPool;
+import com.j256.ormlite.dao.DaoManager;
 
 import config.AppSetting;
 import config.DefaultAppSettings;
@@ -231,9 +234,21 @@ public class Main implements ActionListener{
 						+e.getMessage();
 			dieWithError(message, 7);
 		}
+		
+		
+		try{
+			CacheDAO cacheDao = DaoManager.createDao(connPool.getConnectionSource(), CacheDAO.class);
+			LastModifiedDAO lastModDao = DaoManager.createDao(connPool.getConnectionSource(), LastModifiedDAO.class);
+			
+			lastModCheck = new LastModCheck(cacheDao,lastModDao);
+		}catch(SQLException se){
+			logger.error("Failed to create DAOs", se);
+			System.exit(9);
+		}
+		
 		blockListModel = new BlockListDataModel();
 		mySQL = new AidDAO(connPool);
-		lastModCheck = new LastModCheck(connPool.getConnectionSource());
+		
 		thumbLoader = new ThumbnailLoader(mySQL);
 		DefaultListModel<String> fileNameModel = new DefaultListModel<>();
 		DefaultListModel<String> postContentModel = new DefaultListModel<>();

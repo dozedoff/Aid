@@ -32,20 +32,17 @@ import org.slf4j.LoggerFactory;
 
 import board.Post;
 
-import com.j256.ormlite.dao.DaoManager;
-import com.j256.ormlite.support.ConnectionSource;
-
 public class LastModCheck {
 	LastModifiedDAO lastModifiedDao;
 	CacheDAO cacheDao;
 	
 	final static Logger logger = LoggerFactory.getLogger(LastModCheck.class);
 	
-	public LastModCheck(ConnectionSource source) throws SQLException {
-		lastModifiedDao = DaoManager.createDao(source, LastModified.class);
-		cacheDao = DaoManager.createDao(source, Cache.class);
+	public LastModCheck(CacheDAO cacheDao, LastModifiedDAO lastModifiedDao) {
+		this.cacheDao = cacheDao;
+		this.lastModifiedDao = lastModifiedDao;
 	}
-	
+
 	public boolean contains(String threadUrl) {
 		try {
 			return lastModifiedDao.idExists(threadUrl);
