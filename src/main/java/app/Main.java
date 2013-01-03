@@ -31,6 +31,7 @@ import io.FileWriter;
 import io.ImageLoader;
 import io.ThumbnailLoader;
 import io.dao.CacheDAO;
+import io.dao.FilterDAO;
 import io.dao.LastModifiedDAO;
 
 import java.awt.event.ActionEvent;
@@ -235,12 +236,16 @@ public class Main implements ActionListener{
 			dieWithError(message, 7);
 		}
 		
+		DefaultListModel<String> fileNameModel = new DefaultListModel<>();
+		DefaultListModel<String> postContentModel = new DefaultListModel<>();
 		
 		try{
 			CacheDAO cacheDao = DaoManager.createDao(connPool.getConnectionSource(), CacheDAO.class);
 			LastModifiedDAO lastModDao = DaoManager.createDao(connPool.getConnectionSource(), LastModifiedDAO.class);
+			FilterDAO filterDao = DaoManager.createDao(connPool.getConnectionSource(), FilterDAO.class);
 			
 			lastModCheck = new LastModCheck(cacheDao,lastModDao);
+			filter = new filter.Filter(mySQL, filterDao,blockListModel,fileNameModel, postContentModel, thumbLoader);
 		}catch(SQLException se){
 			logger.error("Failed to create DAOs", se);
 			System.exit(9);
@@ -250,9 +255,8 @@ public class Main implements ActionListener{
 		mySQL = new AidDAO(connPool);
 		
 		thumbLoader = new ThumbnailLoader(mySQL);
-		DefaultListModel<String> fileNameModel = new DefaultListModel<>();
-		DefaultListModel<String> postContentModel = new DefaultListModel<>();
-		filter = new filter.Filter(mySQL,blockListModel,fileNameModel, postContentModel, thumbLoader); // filter handler
+		
+		
 		filterlist = new Filterlist(filter, fileNameModel, postContentModel); // filter GUI
 		fileWriter = new FileWriter(filter); // disk IO
 

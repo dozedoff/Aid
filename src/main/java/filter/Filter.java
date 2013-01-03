@@ -22,6 +22,7 @@ import gui.Stats;
 import io.AidDAO;
 import io.AidTables;
 import io.ThumbnailLoader;
+import io.dao.FilterDAO;
 
 import java.awt.Image;
 import java.io.File;
@@ -60,9 +61,12 @@ public class Filter implements FilterModifiable{
 	private ThumbnailLoader thumbLoader;
 
 	private AidDAO sql;
+	private FilterDAO filterDao;
 	
-	public Filter(AidDAO sql, BlockListDataModel blockListModel,DefaultListModel<String> fileNameModel, DefaultListModel<String> postContentModel, ThumbnailLoader thumbLoader){
+	public Filter(AidDAO sql,FilterDAO filterDao, BlockListDataModel blockListModel,DefaultListModel<String> fileNameModel, DefaultListModel<String> postContentModel, ThumbnailLoader thumbLoader){
 		this.sql = sql;
+		this.filterDao = filterDao;
+		
 		this.blocklistModel = blockListModel;
 		this.fileNameModel = fileNameModel;
 		this.postContentModel = postContentModel;
@@ -174,7 +178,12 @@ public class Filter implements FilterModifiable{
 	 * @return Number of items in the filter.
 	 */
 	public int getSize(){
-		int size = sql.size(AidTables.Filter);
+		int size = -1;
+		try {
+			size = (int)filterDao.countOf();
+		} catch (SQLException e) {
+			logger.warn("Failed to get filter table size", e);
+		}
 		return size;
 	}
 
@@ -184,7 +193,12 @@ public class Filter implements FilterModifiable{
 	 * @return Number of "Pending" filter items.
 	 */
 	public int getPending(){
-		int pending = sql.getPending();
+		int pending = -1;
+		try {
+			pending = filterDao.getPendingFilterCount();
+		} catch (SQLException e) {
+			logger.warn("Failed to get filter pending size", e);
+		}
 		return pending;
 	}
 
@@ -193,10 +207,15 @@ public class Filter implements FilterModifiable{
 	 * @param filteritem FilterItem to add.
 	 */
 	public void reviewThread(FilterItem filterItem){
-		sql.addFilter(filterItem.getUrl().toString(),  filterItem.getBoard(), filterItem.getReason(), filterItem.getState());
-		blocklistModel.addElement(filterItem);
-		filterNr++;
-		Stats.setFilterSize(filterNr);
+		try {
+			filterDao.create(filterItem);
+			blocklistModel.addElement(filterItem);
+			filterNr++;
+			Stats.setFilterSize(filterNr);
+		} catch (SQLException e) {
+			logger.warn("Failed to add filter for {} with reason {}",filterItem.getUrl(), filterItem.getReason());
+			logger.warn("Error was", e);
+		}
 	}
 
 	/**
@@ -206,9 +225,12 @@ public class Filter implements FilterModifiable{
 	 * @param url URL to allow.
 	 */
 	public void setAllow(URL url){
-		sql.updateState(url.toString(), FilterState.ALLOW);
-		filterNr--;
-		Stats.setFilterSize(filterNr);
+		try {
+			setFilterState(url, FilterState.ALLOW);
+		} catch (SQLException e) {
+			logger.warn("Failed to set filter ALLOW state for {}", url);
+			logger.warn("Error was", e);
+		}
 	}
 
 	/**
@@ -216,7 +238,19 @@ public class Filter implements FilterModifiable{
 	 * Files in this thread will not be processed.
 	 */
 	public void setDeny(URL url){
-		sql.updateState(url.toString(), FilterState.DENY);
+		try {
+			setFilterState(url, FilterState.DENY);
+		} catch (SQLException e) {
+			logger.warn("Failed to set filter DENY state for {}", url);
+			logger.warn("Error was", e);
+		}
+	}
+	
+	private void setFilterState(URL url, FilterState state) throws SQLException{
+		String filterId = url.toString();
+		FilterItem filterItem = filterDao.queryForId(filterId);
+		filterItem.setState(state);
+		filterDao.update(filterItem);
 		filterNr--;
 		Stats.setFilterSize(filterNr);
 	}
