@@ -72,6 +72,16 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 	}
 	
 	@Override
+	protected boolean beforeProcessItem(DownloadItem di) {
+		if (cacheCheck.isDownloaded(di.getImageUrl())) {
+			logger.info("Skipping {} as it has already been downloaded", di.getImageUrl());
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	@Override
 	protected void afterProcessItem(DownloadItem ii) {
 		updateFileQueueState();
 	}
