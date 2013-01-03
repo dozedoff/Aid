@@ -18,6 +18,7 @@
 package board;
 
 import io.ImageLoader;
+import io.tables.LastModified;
 
 import java.io.IOException;
 import java.net.URL;
@@ -145,6 +146,7 @@ public class Board {
 			filterPageThreads(pageThreads);
 			logger.info("{} {} threads left after filtering", pageThreads.size(), boardId);
 			processPageThreads(pageThreads);
+			logger.info("Finished processing board {}", boardId);
 		}
 		
 		private List<URL> parsePages(List<URL> pageUrls){
@@ -184,7 +186,7 @@ public class Board {
 			FilterState state = filter.getFilterState(currentPageThread);
 			
 			if(state == FilterState.DENY || state == FilterState.PENDING) {
-				logger.info("{} is blocked by the filter", currentPageThread);
+				logger.info("{} is blocked by the filter ({})", currentPageThread, state);
 				return true;
 			}else{
 				return false;
@@ -218,14 +220,15 @@ public class Board {
 				if(areAllCached(posts)){
 					GetHtml gh = new GetHtml();
 					long lastMod = gh.getLastModified(thread);
-					lastModCheck.addLastModified(thread.toString(), lastMod);
+					LastModified lm = lastModCheck.addLastModified(thread.toString(), lastMod);
+					lastModCheck.setCacheLastModId(lm, posts);
 				}
 				
 				logger.info("Queuing {} posts for download from thread {}", posts.size(), thread);
 				queueForDownload(posts, siteStartegy.getThreadNumber(thread));
 			}
 		}
-		
+
 		private boolean areAllCached(List<Post> posts){
 			boolean allCached = true;
 			

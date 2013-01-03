@@ -17,10 +17,14 @@
  */
 package io.tables;
 
+import io.dao.LastModifiedDAO;
+
 import java.util.Date;
 
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
+@DatabaseTable(daoClass=LastModifiedDAO.class)
 public class LastModified {
 	@DatabaseField(id=true, canBeNull=false)
 	private String id;
@@ -28,6 +32,8 @@ public class LastModified {
 	private Date lastmod;
 	@DatabaseField(canBeNull=false)
 	private Date lastvisit;
+	@DatabaseField(canBeNull=false)
+	private int last_mod_id;
 	
 	public LastModified() {}
 
@@ -55,5 +61,9 @@ public class LastModified {
 
 	public String getId() {
 		return id;
+	}
+
+	public int getLast_mod_id() {
+		return last_mod_id;
 	}
 }

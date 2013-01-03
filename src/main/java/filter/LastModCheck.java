@@ -17,25 +17,33 @@
  */
 package filter;
 
+import io.dao.CacheDAO;
+import io.dao.LastModifiedDAO;
+import io.tables.Cache;
+import io.tables.LastModified;
+
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.tables.LastModified;
+import board.Post;
 
-import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.support.ConnectionSource;
 
 public class LastModCheck {
-	Dao<LastModified, String> lastModifiedDao;
+	LastModifiedDAO lastModifiedDao;
+	CacheDAO cacheDao;
+	
 	final static Logger logger = LoggerFactory.getLogger(LastModCheck.class);
 	
 	public LastModCheck(ConnectionSource source) throws SQLException {
 		lastModifiedDao = DaoManager.createDao(source, LastModified.class);
+		cacheDao = DaoManager.createDao(source, Cache.class);
 	}
 	
 	public boolean contains(String threadUrl) {
@@ -64,7 +72,7 @@ public class LastModCheck {
 				logger.info("Looking up modified state for {} with mod time {} - found timestamp {} - no change", logData);
 				visit = false;
 			}else{
-				logger.info("Looking up modified state for {} with mod time {} - found timestamp {} - CHANGE", logData);
+				logger.info("Looking up modified state for {} with mod time {} - found timestamp {} - CHANGED", logData);
 			}
 			
 			lastModiefied.setLastvisit(now());
@@ -76,20 +84,39 @@ public class LastModCheck {
 		return visit;
 	}
 	
-	public boolean addLastModified(String threadUrl, long lastModTime) {
-		boolean allOk = true;
-		
+	public LastModified addLastModified(String threadUrl, long lastModTime) {
 		LastModified dbLastMod = new LastModified(threadUrl, new Date(lastModTime), now());
 		try {
 			lastModifiedDao.createOrUpdate(dbLastMod);
 			logger.info("Added last modified entry for {} at {}", threadUrl, lastModTime);
+			lastModifiedDao.refresh(dbLastMod);
 		} catch (SQLException e) {
 			logger.warn("Failed to add last modiefied entry for {} with time {}", threadUrl, lastModTime);
 			logger.warn("Error was ", e);
-			allOk = false;
+			dbLastMod = null;
 		}
 		
-		return allOk;
+		return dbLastMod;
+	}
+	
+	public void setCacheLastModId(LastModified lastMod, List<Post> posts){
+		if(lastMod == null){
+			logger.warn("Could not set last_mod_id for cache, LastModified was null");
+			return;
+		}
+		
+		logger.info("Setting last_mod_id for {} posts for thread {}", posts.size(), lastMod.getId());
+
+		int lmID = lastMod.getLast_mod_id();
+		for(Post post : posts){
+			try {
+				Cache cache = cacheDao.queryForId(post.getImageUrl().toString());
+				cache.setLast_mod_id(lmID);
+				cacheDao.update(cache);
+			} catch (SQLException e) {
+				logger.warn("Faild to update last_mod_id for {}", post.getImageUrl(), e);
+			}
+		}
 	}
 	
 	private Date now() {

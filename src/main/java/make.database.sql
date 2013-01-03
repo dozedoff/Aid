@@ -228,13 +228,25 @@ CREATE TABLE IF NOT EXISTS `thumbs` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Thumbnails for items in the Filter list';
 
 -- Data exporting was unselected.
-CREATE TABLE IF NOT EXISTS `lastmodified` (
+CREATE TABLE `lastmodified` (
 	`id` VARCHAR(48) NOT NULL COLLATE 'utf8_unicode_ci',
-	`lastmod` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	`lastmod` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`lastvisit` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`last_mod_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	PRIMARY KEY (`id`),
-	UNIQUE INDEX `id` (`id`)
+	UNIQUE INDEX `id` (`id`),
+	INDEX `last_mod_id` (`last_mod_id`)
 )
+COLLATE='utf8_unicode_ci'
+ENGINE=InnoDB;
+
+
+ALTER TABLE `cache`
+	ADD COLUMN `last_mod_id` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `timestamp`,
+	ADD INDEX `last_mod_id` (`last_mod_id`);
+	
+ALTER TABLE `cache`
+	ADD COLUMN `downloaded` BINARY(1) NOT NULL DEFAULT '0' AFTER `last_mod_id`;
 
 -- Dumping structure for procedure aid.WarmUpDB
 DELIMITER //
@@ -278,7 +290,22 @@ CREATE TRIGGER `prune_thumbs_up` AFTER UPDATE ON `filter` FOR EACH ROW BEGIN
 END//
 DELIMITER ;
 SET SQL_MODE=@OLD_SQL_MODE;
+	
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+DELIMITER //
+CREATE TRIGGER `lastmodified_update` AFTER UPDATE ON `lastmodified` FOR EACH ROW BEGIN
+	UPDATE `cache` SET `timestamp` = NOW() WHERE `last_mod_id` = NEW.last_mod_id;
+END//
+DELIMITER ;
+SET SQL_MODE=@OLD_SQL_MODE;
 
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+DELIMITER //
+CREATE TRIGGER `lastmodified_delete` AFTER DELETE ON `lastmodified` FOR EACH ROW BEGIN
+		DELETE FROM `cache` WHERE last_mod_id = OLD.last_mod_id;
+END//
+DELIMITER ;
+SET SQL_MODE=@OLD_SQL_MODE;
 
 -- Dumping structure for view aid.dupeview
 -- Removing temporary table and create final VIEW structure

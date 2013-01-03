@@ -30,6 +30,10 @@ public class Cache {
 	private String id;
 	@DatabaseField
 	private Date timestamp;
+	@DatabaseField(canBeNull=false)
+	private int last_mod_id;
+	@DatabaseField(canBeNull=false)
+	boolean downloaded = false;
 	
 	public Cache() {}
 	
@@ -47,6 +51,20 @@ public class Cache {
 	public void setTimestamp(Date timestamp) {
 		this.timestamp = timestamp;
 	}
-	
-	
+
+	public int getLast_mod_id() {
+		return last_mod_id;
+	}
+
+	public void setLast_mod_id(int last_mod_id) {
+		this.last_mod_id = last_mod_id;
+	}
+
+	public boolean isDownloaded() {
+		return downloaded;
+	}
+
+	public void setDownloaded(boolean downloaded) {
+		this.downloaded = downloaded;
+	}
 }
