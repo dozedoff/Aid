@@ -68,7 +68,6 @@ public class LastModifiedPruneDaemon extends TimerTask {
 
 			int pruned = lastModifiedDao.pruneLastMod(maxAge(maximumAgeSec));
 			logger.info("Pruned {} last modified entries", pruned);
-			Stats.setCacheSize((int) lastModifiedDao.countOf());
 		} catch (SQLException se) {
 			logger.warn("Cache prune failed", se);
 		} catch (Exception e) {

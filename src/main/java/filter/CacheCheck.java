@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import board.Post;
 
+import gui.Stats;
 import io.dao.CacheDAO;
 import io.tables.Cache;
 
@@ -102,6 +103,8 @@ public class CacheCheck {
 
 		try {
 			cacheDao.createOrUpdate(cache);
+			int cacheSize = getCacheSize();
+			Stats.setCacheSize(cacheSize);
 		} catch (SQLException e) {
 			logger.warn("Failed to create/update cache entry for {} (downloaded: {})", cacheId, downloaded);
 		}
@@ -138,6 +141,8 @@ public class CacheCheck {
 
 		try {
 			cacheDao.pruneCache(exp.getTimeInMillis());
+			int cacheSize = getCacheSize();
+			Stats.setCacheSize(cacheSize);
 		} catch (SQLException e) {
 			logger.warn("Failed to prune cache entries older than {} hours", CACHE_PRUNE_THRESHOLD_HRS);
 			logger.warn("Error was", e);
