@@ -51,7 +51,13 @@ public class FilterItem implements Serializable{
 	private String displayString;
 	
 	private void updateDiplayString(){
-		String urlStr = url.toString();
+		String urlStr;
+		if (url != null) {
+			urlStr = url.toString();
+		} else {
+			urlStr = id;
+		}
+		
 		String format = "%1$-5s %2$-10s %3$-30s";
 		String pageNr = urlStr.substring(urlStr.lastIndexOf("/")+1,urlStr.length());
 		displayString = String.format(format, board,pageNr,reason);
@@ -106,7 +112,10 @@ public class FilterItem implements Serializable{
 	}
 
 	@Override
-	public String toString(){
+	public String toString() {
+		if (displayString == null) {
+			updateDiplayString();
+		}
 		return displayString;
 	}
 	
