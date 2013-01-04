@@ -160,11 +160,12 @@ public class FileWriter extends Thread{
 					
 					if(newFileHash.equals(existingFileHash)){
 						//files are identical, normally this should not happen
+						logger.warn("Found identical file during write {} with hash {}", path, hash);
 						bytesDiscarded += data.length;
 						try {
 							filter.addIndex(existingFileHash, fullPath.toString(), data.length);
 						} catch (SQLException e) {
-							logger.warn("Could not add Hash to database: "+e.getMessage());
+							logger.warn("Could not add Hash to database",e);
 						}
 						return;
 					}else{
@@ -177,7 +178,7 @@ public class FileWriter extends Thread{
 			}
 
 		}catch(IOException e){
-			logger.warn("Unable to create File: "+e.getMessage());
+			logger.warn("Unable to create File",e);
 		}
 
 		try{
@@ -193,21 +194,23 @@ public class FileWriter extends Thread{
 			filter.addIndex(hash, path, data.length);
 			bytesSaved += data.length; // in bytes
 			Stats.saveBytes(data.length);
+			Object[] logData = {data.length, path, hash};
+			logger.info("Wrote {} bytes to {} with hash {}", logData);
 		}catch(SQLException se){
 			if(se.getLocalizedMessage().contains("Incorrect string value")){ //TODO instead of writing the file here, add the data back to the buffer
-				logger.warn("Unable to add hash to database due to :"+se.getMessage());
+				logger.warn("Unable to add hash to database due to",se);
 				fullPath.delete();
 				fullPath = newFileName(fullPath, false);
 				try {
 					add(fullPath,data);
 				} catch (InvalidActivityException e) {
-					logger.warn("failed to write file: "+e.getMessage());
+					logger.warn("failed to write file", e);
 				}
 			}else{
-				logger.error("add hash failed: "+se.getMessage());
+				logger.error("add hash failed",se);
 			}
 		}catch(Exception e){
-			logger.error("File Buffer write failed: "+e.getLocalizedMessage());
+			logger.error("File Buffer write failed",e);
 			if(e != null && e.getLocalizedMessage().contains("space")){
 				logger.error("Not enough free disk space, will now exit...");
 				System.exit(1);
@@ -236,6 +239,7 @@ public class FileWriter extends Thread{
 			data = fi.getData();
 			
 			if(data.length == 0){
+				logger.info("Ignored zero size file {}", path);
 				Log.add("Zero size file ignored: "+path);
 				continue;
 			}
@@ -259,16 +263,17 @@ public class FileWriter extends Thread{
 					try {
 						file.createNewFile();
 					} catch (IOException e) {
-						logger.warn("failed to create warning Tag for "+dir);
+						logger.warn("failed to create warning Tag for {}",dir);
 					}
 				}
 
-				logger.warn("WARNING! "+ path + " is blacklisted");
+				logger.warn("WARNING! {} is blacklisted", path);
 				Log.add("WARNING! "+ path + " is blacklisted");
 				continue;
 			}
 
 			if (filter.exists(hash)){
+				logger.info("{} present in file index ({}), discarding", fi.getPath(), hash);
 				bytesDiscarded += data.length; // in bytes
 				Stats.discardBytes(data.length);
 				continue;
