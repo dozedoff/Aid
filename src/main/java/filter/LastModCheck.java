@@ -64,8 +64,8 @@ public class LastModCheck {
 		}
 		
 		try {
-			LastModified lastModiefied = lastModifiedDao.queryForId(threadUrl);
-			long dbTimestamp = lastModiefied.getLastmod().getTime();
+			LastModified lastModified = lastModifiedDao.queryForId(threadUrl);
+			long dbTimestamp = lastModified.getLastmod().getTime();
 			Object[] logData = {threadUrl, modTimestamp, dbTimestamp};
 			
 			if(modTimestamp <= dbTimestamp) {
@@ -80,8 +80,7 @@ public class LastModCheck {
 				
 			}
 			
-			lastModiefied.setLastvisit(now());
-			lastModifiedDao.update(lastModiefied);
+			addOrUpdateLastModified(threadUrl, modTimestamp);
 		} catch (SQLException e) {
 			logger.warn("Failed to get data for lastModified", e);
 		}
@@ -89,7 +88,7 @@ public class LastModCheck {
 		return visit;
 	}
 	
-	public LastModified addLastModified(String threadUrl, long lastModTime) {
+	public LastModified addOrUpdateLastModified(String threadUrl, long lastModTime) {
 		LastModified dbLastMod = new LastModified(threadUrl, new Date(lastModTime), now());
 		try {
 			lastModifiedDao.createOrUpdate(dbLastMod);

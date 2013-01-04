@@ -175,6 +175,7 @@ public class Board {
 		
 		private void filterPageThreads(List<URL> pageThreads) {
 			Iterator<URL> iterator = pageThreads.iterator();
+			GetHtml gh = new GetHtml();
 			
 			while(iterator.hasNext()){
 				URL currentPageThread = iterator.next();
@@ -189,7 +190,7 @@ public class Board {
 					continue;
 				}
 				
-				if(!hasBeenModified(currentPageThread)){
+				if(!hasBeenModified(gh, currentPageThread)){
 					iterator.remove();
 					lastModCheck.updateCachedLinks(currentPageThread);
 					continue;
@@ -208,8 +209,7 @@ public class Board {
 			}
 		}
 
-		private boolean hasBeenModified(URL currentPageThread) {
-			GetHtml gh = new GetHtml();
+		private boolean hasBeenModified(GetHtml gh, URL currentPageThread) {
 			long lastMod = gh.getLastModified(currentPageThread);
 			boolean visit = lastModCheck.isVisitNeeded(currentPageThread.toString(), lastMod);
 			return visit;
