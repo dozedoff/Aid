@@ -273,7 +273,8 @@ public class FileWriter extends Thread{
 			}
 
 			if (filter.exists(hash)){
-				logger.info("{} present in file index ({}), discarding", fi.getPath(), hash);
+				Object[] logData = {data.length, path, hash};
+				logger.info("Discarded {} bytes for {}, found in index {}", logData);
 				bytesDiscarded += data.length; // in bytes
 				Stats.discardBytes(data.length);
 				continue;
