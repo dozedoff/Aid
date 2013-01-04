@@ -193,7 +193,6 @@ public class Board {
 				
 				if(!hasBeenModified(gh, currentPageThread)){
 					iterator.remove();
-					lastModCheck.updateCachedLinks(currentPageThread);
 					continue;
 				}
 			}
@@ -235,7 +234,6 @@ public class Board {
 				
 				filterImages(posts);
 				lastModCheck.addCacheLinks(thread, posts);
-				lastModCheck.updateCachedLinks(thread);
 				
 				logger.info("Queuing {} posts for download from thread {}", posts.size(), thread);
 				queueForDownload(posts, siteStartegy.getThreadNumber(thread));

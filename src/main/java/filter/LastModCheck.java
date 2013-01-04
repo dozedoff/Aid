@@ -142,34 +142,6 @@ public class LastModCheck {
 		}
 	}
 	
-	public void updateCachedLinks(URL thread){
-		String lastModId = thread.toString();
-		try {
-			LastModified lastMod = lastModifiedDao.queryForId(lastModId);
-			if(lastMod == null){
-				logger.info("Could not find lastmodified entry for thread {}. Aborting cache update.", lastModId);
-				return;
-			}
-			
-			int last_mod_id = lastMod.getLast_mod_id();
-			
-			List<Cache> cacheEntries = cacheDao.queryForEq("last_mod_id", last_mod_id);
-			
-			Date currentTime = Calendar.getInstance().getTime();
-			
-			for(Cache cache : cacheEntries){
-				cache.setTimestamp(currentTime);
-				cacheDao.update(cache);
-			}
-			
-			Object[] logData = {cacheEntries.size(), lastModId, currentTime};
-			logger.info("Updated {} cache entries for thread {} with the new timestamp {}", logData);
-		} catch (SQLException e) {
-			logger.warn("Could not update cache links for lastmodified thread {}", lastModId);
-			logger.warn("Error was", e);
-		}
-	}
-	
 	public void addCacheLinks(URL thread, List<Post> posts){
 		String threadId = thread.toString();
 		try {
