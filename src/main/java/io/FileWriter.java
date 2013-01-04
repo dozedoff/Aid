@@ -275,6 +275,9 @@ public class FileWriter extends Thread{
 			if (filter.exists(hash)){
 				Object[] logData = {data.length, path, hash};
 				logger.info("Discarded {} bytes for {}, found in index {}", logData);
+				if(new File(path).exists()) {
+					logger.warn("Found same name file for {}, despite it being indexed...");
+				}
 				bytesDiscarded += data.length; // in bytes
 				Stats.discardBytes(data.length);
 				continue;

@@ -51,6 +51,7 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 	@Override
 	protected boolean beforeFileAdd(URL url, String fileName) {
 		if(cacheCheck.isDownloaded(url)){	// has the file been downloaded recently?
+			logger.info("Not adding {}, already downloaded", url);
 			return false;
 		}
 		return true;
