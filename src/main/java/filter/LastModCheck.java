@@ -154,15 +154,20 @@ public class LastModCheck {
 			
 			int last_mod_id = lastMod.getLast_mod_id();
 			
+			int newCacheEntries = 0;
+			
 			for(Post post : posts){
 				String cacheId = post.getImageUrl().toString();
 				Cache cache = new Cache(cacheId, false);
 				
 				cache.setLast_mod_id(last_mod_id);
-				cacheDao.createIfNotExists(cache);
+				if(!cacheDao.idExists(cacheId)){
+					cacheDao.create(cache);
+					newCacheEntries++;
+				}
 			}
 			Stats.setCacheSize((int)cacheDao.countOf());
-			logger.info("Added {} cache links to thread {}", posts.size(), threadId);
+			logger.info("Added {} new cache links to thread {}", newCacheEntries, threadId);
 		} catch (SQLException e) {
 			logger.warn("Failed to add cache links for thread {}", thread, e);
 		}
