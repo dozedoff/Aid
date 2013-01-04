@@ -102,7 +102,11 @@ public class CacheCheck {
 		cache.setTimestamp(Calendar.getInstance().getTime());
 
 		try {
-			cacheDao.createOrUpdate(cache);
+			if(!cacheDao.idExists(cacheId)){
+				cacheDao.create(cache);
+			}else{
+				logger.info("Cache entry for {} already exists", cacheId);
+			}
 			int cacheSize = getCacheSize();
 			Stats.setCacheSize(cacheSize);
 		} catch (SQLException e) {
