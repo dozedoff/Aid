@@ -22,8 +22,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ CachePruneDaemonTest.class,
-				FileWriterTest.class,
+@SuiteClasses({ FileWriterTest.class,
 				ImageItemTest.class,
 				AidDAOTest.class,
 				ThumbnailLoaderTest.class
