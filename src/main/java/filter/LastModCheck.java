@@ -106,6 +106,22 @@ public class LastModCheck {
 		return dbLastMod;
 	}
 	
+	public void updateLastVisit(URL thread) {
+		String threadUrl = thread.toString();
+		LastModified dbLastMod = null;
+		Date lastVisit = now();
+		try {
+			dbLastMod = lastModifiedDao.queryForId(threadUrl);
+			dbLastMod.setLastvisit(lastVisit);
+			lastModifiedDao.update(dbLastMod);
+			logger.info("Updated last visit for {} to {}", threadUrl, lastVisit);
+		} catch (SQLException e) {
+			logger.warn("Failed to update last visit for {} to {}", threadUrl,	lastVisit);
+			logger.warn("Error was ", e);
+			dbLastMod = null;
+		}
+	}
+	
 	public void setCacheLastModId(LastModified lastMod, List<Post> posts){
 		if(lastMod == null){
 			logger.warn("Could not set last_mod_id for cache, LastModified was null");

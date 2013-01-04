@@ -179,6 +179,7 @@ public class Board {
 			
 			while(iterator.hasNext()){
 				URL currentPageThread = iterator.next();
+				lastModCheck.updateLastVisit(currentPageThread);
 				
 				if(isBlockedByFilter(currentPageThread)){
 					iterator.remove();
