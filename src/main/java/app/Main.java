@@ -18,7 +18,6 @@
 package app;
 
 import filter.CacheCheck;
-import filter.Filter;
 import filter.FilterItem;
 import filter.FilterUpdateDaemon;
 import filter.LastModCheck;
@@ -29,8 +28,6 @@ import gui.BoardListDataModel;
 import gui.Filterlist;
 import gui.Stats;
 import io.AidDAO;
-import io.CachePruneDaemon;
-import io.FileItem;
 import io.FileWriter;
 import io.ImageLoader;
 import io.LastModifiedPruneDaemon;
@@ -55,11 +52,9 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -397,15 +392,6 @@ public class Main implements ActionListener{
 		} catch (Exception e) {
 			logger.warn("Failed to start {}", FilterUpdateDaemon.class, e);
 		}
-
-		try {
-			logger.info("Starting daemon {}...", CachePruneDaemon.class);
-			daemons.schedule(new CachePruneDaemon(pool.getConnectionSource(),
-					siteUrl, CACHE_PRUNE_MAX_AGE_SEC),
-					CACHE_PRUNE_STARTUP_DELAY, CACHE_PRUNE_INTERVAL);
-		} catch (Exception e) {
-			logger.warn("Failed to start {}", CachePruneDaemon.class, e);
-		}
 		
 		try {
 			logger.info("Starting daemon {}...", LastModifiedPruneDaemon.class);
@@ -413,7 +399,7 @@ public class Main implements ActionListener{
 					siteUrl, CACHE_PRUNE_MAX_AGE_SEC),
 					CACHE_PRUNE_STARTUP_DELAY, CACHE_PRUNE_INTERVAL);
 		} catch (Exception e) {
-			logger.warn("Failed to start {}", CachePruneDaemon.class, e);
+			logger.warn("Failed to start {}", LastModifiedPruneDaemon.class, e);
 		}
 	}
 
