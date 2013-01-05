@@ -78,11 +78,6 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 			logger.info("Skipping {} as it has already been downloaded", di.getImageUrl());
 			return false;
 		} else {
-			// FIXME this is a fix until the problem can be located
-			if(new File(workingDir,di.getImageName()).exists()){
-				logger.warn("Attempting to re-download file {} from {}, aborting transfer", di.getImageName(), di.getImageUrl());
-				return false;
-			}
 			return true;
 		}
 	}
