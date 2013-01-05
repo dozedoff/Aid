@@ -26,10 +26,10 @@ import javax.activity.InvalidActivityException;
 
 import com.github.dozedoff.commonj.net.DownloadItem;
 import com.github.dozedoff.commonj.net.FileLoader;
+import com.github.dozedoff.commonj.net.GetBinary;
 import com.github.dozedoff.commonj.net.PageLoadException;
 
 import filter.CacheCheck;
-import filter.Filter;
 import gui.Stats;
 
 public class ImageLoader extends FileLoader {
@@ -37,14 +37,14 @@ private static final Logger logger = LoggerFactory.getLogger(ImageLoader.class);
 
 private FileWriter fileWriter;
 private CacheCheck cacheCheck;
-
+private GetBinary gb;
 private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph output
 
 	public ImageLoader(FileWriter fileWriter, CacheCheck cacheCheck, File workingDir, int imageQueueWorkers) {
 		super(workingDir, imageQueueWorkers);
 		this.fileWriter = fileWriter;
 		this.cacheCheck = cacheCheck;
-		
+		this.gb = new GetBinary();
 		logger.info("ImageLoader started");
 	}
 
@@ -79,9 +79,19 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 			return false;
 		} else {
 			// FIXME this is a fix until the problem can be located
-			if(new File(workingDir,di.getImageName()).exists()){
-				logger.warn("Attempting to re-download file {} from {}, aborting transfer", di.getImageName(), di.getImageUrl());
-				return false;
+			File localFile = new File(workingDir, di.getImageName());
+			if (localFile.exists()) {
+				long downloadsize = 0;
+				try {
+					downloadsize = gb.getLenght(di.getImageUrl());
+				} catch (Exception e) {
+					return true;
+				}
+
+				if (downloadsize == localFile.length()) {
+					logger.warn("Attempting to re-download file {} from {}, aborting transfer", di.getImageName(), di.getImageUrl());
+					return false;
+				}
 			}
 			return true;
 		}
