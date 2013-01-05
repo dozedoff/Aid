@@ -262,6 +262,7 @@ public class Main implements ActionListener{
 		fileWriter = new FileWriter(filter); // disk IO
 
 		imageLoader = new ImageLoader(fileWriter, cacheCheck, basePath,imageThreads);
+		imageLoader.setDownloadSleep(0);
 		logger.info("Saving files to the basePath "+basePath.toString());
 		blockList = new BlockList(filter,blockListModel);
 		
