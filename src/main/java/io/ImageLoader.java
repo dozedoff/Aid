@@ -92,7 +92,7 @@ private final int TIME_GRAPH_FACTOR = 1; // factor used for scaling DataGraph ou
 		if(data != null){
 			try {
 				logger.debug("Adding file {} to FileWriter, caching URL {}", fullpath, url);
-				fileWriter.add(fullpath, data.clone());
+				fileWriter.add(fullpath, data);
 				cacheCheck.setDownloaded(url, true);
 				Stats.addTimeGraphValue((int)((data.length/1024)*TIME_GRAPH_FACTOR)); // add data to the download graph
 			} catch (InvalidActivityException e) {
