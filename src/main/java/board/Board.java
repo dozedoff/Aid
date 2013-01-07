@@ -56,6 +56,7 @@ public class Board {
 	private String boardId;
 	private String lastRun ="";
 	private boolean stoppped = true;
+	private boolean processing = false;
 	final private URL boardUrl;
 	final private SiteStrategy siteStartegy;
 	final private Filter filter;
@@ -92,7 +93,9 @@ public class Board {
 	}
 
 	public String getStatus(){
-		String status = "/"+boardId+"/";
+		String status = "";
+		
+		status += "/"+boardId+"/";
 		status += " "+lastRun+" ";
 
 		if(stoppped){
@@ -100,6 +103,11 @@ public class Board {
 		}else{
 			status += "running";
 		}
+		
+		if(processing){
+			status += " - processing...";
+		}
+		
 		return status;
 	}
 
@@ -140,6 +148,7 @@ public class Board {
 		}
 		
 		private void processBoard() {
+			processing = true;
 			Document boardPage = loadPage(boardUrl);
 			int numOfPages = siteStartegy.getBoardPageCount(boardPage);
 			logger.info("Found {} pages on Board {}", numOfPages, boardId);
@@ -155,6 +164,7 @@ public class Board {
 			
 			processPageThreads(pageThreads);
 			logger.info("Finished processing board {}", boardId);
+			processing = false;
 		}
 		
 		private List<URL> parsePages(List<URL> pageUrls){
