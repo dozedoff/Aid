@@ -92,7 +92,11 @@ public class LastModCheck {
 			LastModified dbLastMod = null;
 		try {
 			dbLastMod = lastModifiedDao.queryForId(threadUrl);
-			dbLastMod.setLastmod(new Date(lastModTime));
+			if (lastModTime > 0) {
+				dbLastMod.setLastmod(new Date(lastModTime));
+			} else {
+				dbLastMod.setLastmod(new Date(INITIAL_TIMESTAMP));
+			}
 			dbLastMod.setLastvisit(now());
 			lastModifiedDao.createOrUpdate(dbLastMod);
 			logger.info("Added last modified entry for {} at {}", threadUrl, lastModTime);
