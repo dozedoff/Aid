@@ -20,7 +20,9 @@ import filter.FilterItem;
 import filter.FilterState;
 import io.dao.BlacklistDAO;
 import io.dao.CacheDAO;
+import io.dao.DirectoryPathDAO;
 import io.dao.DuplicateDAO;
+import io.dao.FilePathDAO;
 import io.dao.FilterDAO;
 import io.dao.IndexDAO;
 import io.dao.LocationDAO;
@@ -82,8 +84,8 @@ public class AidDAO{
 	private Dao<Thumbnail, Integer> ThumbnailDAO;
 	private LocationDAO locationDao;
 	private IndexDAO indexDao;
-	private Dao<DirectoryPathRecord, Integer> directoryDAO;
-	private Dao<FilePathRecord, Integer> fileDAO;
+	private DirectoryPathDAO directoryDAO;
+	private FilePathDAO fileDAO;
 	private DuplicateDAO duplicateDAO;
 	private Dao<DnwRecord, String> dnwDAO;
 	private BlacklistDAO blackListDAO;
@@ -103,12 +105,9 @@ public class AidDAO{
 			cacheDAO = new CacheDAO(cSource);
 			DaoManager.registerDao(cSource, cacheDAO);
 			ThumbnailDAO = DaoManager.createDao(cSource, Thumbnail.class);
-			indexDao = new IndexDAO(cSource);
-			DaoManager.registerDao(cSource, indexDao);
+			indexDao = DaoManager.createDao(cSource, IndexRecord.class);
 			locationDao = new LocationDAO(cSource);
 			DaoManager.registerDao(cSource, locationDao);
-			directoryDAO = DaoManager.createDao(cSource, DirectoryPathRecord.class);
-			fileDAO = DaoManager.createDao(cSource, FilePathRecord.class);
 			duplicateDAO = new DuplicateDAO(cSource);
 			DaoManager.registerDao(cSource, duplicateDAO);
 			dnwDAO = DaoManager.createDao(cSource, DnwRecord.class);
@@ -117,8 +116,10 @@ public class AidDAO{
 			filterDAO = new FilterDAO(cSource);
 			DaoManager.registerDao(cSource, filterDAO);
 			settingDao = DaoManager.createDao(cSource, Settings.class);
+			directoryDAO = DaoManager.createDao(cSource, DirectoryPathRecord.class);
+			fileDAO = DaoManager.createDao(cSource, FilePathRecord.class);
 		}catch(SQLException e){
-			logger.error("Unable to create DAO: " + e.getMessage());
+			logger.error("Unable to create DAO", e);
 		}
 	}
 
@@ -316,20 +317,8 @@ public class AidDAO{
 		DirectoryPathRecord directory = record.getDirectory();
 		FilePathRecord file = record.getFile();
 		
-		List<DirectoryPathRecord> directories = directoryDAO.queryForMatchingArgs(directory);
-		List<FilePathRecord> files = fileDAO.queryForMatchingArgs(file);
-		
-		if(directories.isEmpty()){
-			directoryDAO.createOrUpdate(directory);
-		}else{
-			directory = directories.get(0);
-		}
-		
-		if(files.isEmpty()) {
-			fileDAO.createOrUpdate(file);
-		}else{
-			file = files.get(0);
-		}
+		directory = directoryDAO.add(Paths.get(directory.getDirpath()));
+		file = fileDAO.add(Paths.get(file.getFilename()));
 		
 		record.setDirectory(directory);
 		record.setFile(file);

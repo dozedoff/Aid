@@ -17,10 +17,12 @@
  */
 package io.tables;
 
+import io.dao.DirectoryPathDAO;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName = "dirlist")
+@DatabaseTable(tableName = "dirlist", daoClass=DirectoryPathDAO.class)
 public class DirectoryPathRecord {
 	@DatabaseField(generatedId=true)
 	private int id;
@@ -29,6 +31,10 @@ public class DirectoryPathRecord {
 
 	public int getId() {
 		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String getDirpath() {

@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `block` (
 
 -- Dumping structure for table aid.cache
 CREATE TABLE IF NOT EXISTS `cache` (
-  `id` varchar(48) NOT NULL,
+  `id` varchar(60) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`)

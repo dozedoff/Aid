@@ -30,6 +30,12 @@ public class LocationDAO extends BaseDaoImpl<LocationRecord, Integer> {
 		super(source, LocationRecord.class);
 	}
 	
+	/**
+	 * Returns the {@link LocationRecord} for the given tag, or null if not found.
+	 * @param location to search for
+	 * @return the location or null
+	 * @throws SQLException
+	 */
 	public LocationRecord queryForLocation(String location) throws SQLException {
 		LocationRecord loc = new LocationRecord();
 		loc.setLocation(location);
@@ -40,7 +46,5 @@ public class LocationDAO extends BaseDaoImpl<LocationRecord, Integer> {
 		}else{
 			return locations.get(0);
 		}
-		
-		
 	}
 }
