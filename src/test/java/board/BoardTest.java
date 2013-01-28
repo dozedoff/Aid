@@ -21,11 +21,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.mockito.Mockito.mock;
-
+import static org.hamcrest.core.StringEndsWith.*;
+import static org.hamcrest.core.StringStartsWith.*;
 import io.ImageLoader;
 
 import java.net.URL;
-import java.util.LinkedList;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -59,11 +59,13 @@ public class BoardTest {
 	}
 
 	@Test
-	public void testGetStatus() {
+	public void testBoardStatusIdle() {
 		assertThat(board.getStatus(), is("/t/  idle"));
+	}
+	
+	@Test
+	public void testBoardStatusRunning() {
 		board.start();
-		assertThat(board.getStatus(), containsString("running"));
-		board.stop();
-		assertThat(board.getStatus(), is("/t/  idle"));
+		assertThat(board.getStatus(), endsWith("running"));
 	}
 }
