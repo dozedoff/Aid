@@ -18,7 +18,6 @@
 package io;
 import filter.FilterItem;
 import filter.FilterState;
-import io.dao.BlacklistDAO;
 import io.dao.CacheDAO;
 import io.dao.DirectoryPathDAO;
 import io.dao.DuplicateDAO;
@@ -88,7 +87,7 @@ public class AidDAO{
 	private FilePathDAO fileDAO;
 	private DuplicateDAO duplicateDAO;
 	private Dao<DnwRecord, String> dnwDAO;
-	private BlacklistDAO blackListDAO;
+	private Dao<BlacklistRecord, String> blackListDAO;
 	private FilterDAO filterDAO;
 	private Dao<Settings, String> settingDao;
 	
@@ -111,8 +110,7 @@ public class AidDAO{
 			duplicateDAO = new DuplicateDAO(cSource);
 			DaoManager.registerDao(cSource, duplicateDAO);
 			dnwDAO = DaoManager.createDao(cSource, DnwRecord.class);
-			blackListDAO = new BlacklistDAO(cSource);
-			DaoManager.registerDao(cSource, blackListDAO);
+			blackListDAO = DaoManager.createDao(cSource, BlacklistRecord.class);
 			filterDAO = new FilterDAO(cSource);
 			DaoManager.registerDao(cSource, filterDAO);
 			settingDao = DaoManager.createDao(cSource, Settings.class);
@@ -169,17 +167,6 @@ public class AidDAO{
 		return true;
 	}
 	
-	public LinkedList<String> getBlacklistedFiles(){
-		LinkedList<String> images = new LinkedList<>();
-		
-		try {
-			images = blackListDAO.getBlacklisted();
-		} catch (SQLException e) {
-			logSQLerror(e);
-		}
-		
-		return images;
-	}
 	/**
 	 * Use {@link AidDAO#getDuplicatesAndOriginal()} instead.
 	 */

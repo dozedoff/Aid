@@ -230,12 +230,6 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertThat(sql.size(AidTables.Filter), is(8));
 	}
 
-	@SuppressWarnings("deprecation")
-	@Test
-	public void testCacheSize(){
-		assertThat(sql.size(AidTables.Cache), is(4));
-	}
-	
 	@Test
 	public void testAddCache() throws Exception{
 		sql.addCache(new URL("http://foo.bar.com"));
@@ -509,14 +503,6 @@ public class AidDAOTest extends DatabaseTestCase{
 	public void testGetLocationByIdInvalidID() {
 		String location = sql.getLocationById("999");
 		assertThat(location, is(TEST_LOCATION[1]));
-	}
-	
-	@Test
-	public void testGetBlacklisted() {
-		final String[] blacklisted = {"1", "2", "3", "4"};
-		
-		assertThat(sql.getBlacklistedFiles(), hasItems(blacklisted));
-		assertThat(sql.getBlacklistedFiles().size(), is(4));
 	}
 	
 	@Test

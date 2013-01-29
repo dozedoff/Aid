@@ -1,4 +1,4 @@
-/*  Copyright (C) 2012  Nicholas Wright
+/*  Copyright (C) 2013  Nicholas Wright
 	
 	part of 'Aid', an imageboard downloader.
 
@@ -15,27 +15,14 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.tables;
+package io.dao;
 
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
-@DatabaseTable(tableName = "block")
-public class BlacklistRecord {
-	@DatabaseField(id=true, canBeNull = false)
-	String id;
-
-	public BlacklistRecord() {}
-
-	public BlacklistRecord(String id) {
-		this.id = id;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-}
+@RunWith(Suite.class)
+@SuiteClasses({ 
+	CacheDAOTest.class
+})
+public class AllDAOTests {}
