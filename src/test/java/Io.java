@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import io.*;
+import io.dao.BlacklistDAOTest;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -25,6 +26,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({ FileWriterTest.class,
 				ImageItemTest.class,
 				AidDAOTest.class,
+				BlacklistDAOTest.class,
 				ThumbnailLoaderTest.class
 })
 public class Io {
