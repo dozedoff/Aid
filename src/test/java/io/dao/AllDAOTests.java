@@ -23,6 +23,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ 
-	CacheDAOTest.class
+	CacheDAOTest.class,
+	LastModifiedDAOTest.class
 })
 public class AllDAOTests {}
