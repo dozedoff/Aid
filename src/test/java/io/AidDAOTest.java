@@ -62,7 +62,7 @@ public class AidDAOTest extends DatabaseTestCase{
 	static boolean done = false;
 	static AidDAO sql;
 	static BoneConnectionPool bcp = null;
-	final String[] IGNORE_CACHE_COL = {"timestamp"};
+	final String[] IGNORE_CACHE_COL = {"timestamp", "last_mod_id", "downloaded"};
 	final String[] IGNORE_THUMBS_DATA_COL = {"id"};
 	final String[] IGNORE_THUMBS_TRIGGER_COL = {"id","thumb"};
 	final String[] IGNORE_PATH_COL = {"id"};
@@ -300,7 +300,6 @@ public class AidDAOTest extends DatabaseTestCase{
 		assertFalse(sql.isHashed("bananas!"));
 	}
 	
-	@Test
 	public void testIsBlacklisted(){
 		assertTrue(sql.isBlacklisted("1"));
 		assertFalse(sql.isBlacklisted("45345"));
