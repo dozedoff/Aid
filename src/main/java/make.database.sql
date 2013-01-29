@@ -28,7 +28,6 @@ CREATE TABLE IF NOT EXISTS `block` (
 -- Dumping structure for table aid.cache
 CREATE TABLE IF NOT EXISTS `cache` (
   `id` varchar(60) NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Recently downloaded files';
@@ -242,7 +241,7 @@ ENGINE=InnoDB;
 
 
 ALTER TABLE `cache`
-	ADD COLUMN `last_mod_id` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `timestamp`,
+	ADD COLUMN `last_mod_id` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `id`,
 	ADD INDEX `last_mod_id` (`last_mod_id`);
 	
 ALTER TABLE `cache`
@@ -287,14 +286,6 @@ CREATE TRIGGER `prune_thumbs_up` AFTER UPDATE ON `filter` FOR EACH ROW BEGIN
 	IF NEW.status != 1 THEN
 		DELETE FROM thumbs WHERE url = OLD.id;
 	END IF;
-END//
-DELIMITER ;
-SET SQL_MODE=@OLD_SQL_MODE;
-	
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
-DELIMITER //
-CREATE TRIGGER `lastmodified_update` AFTER UPDATE ON `lastmodified` FOR EACH ROW BEGIN
-	UPDATE `cache` SET `timestamp` = NOW() WHERE `last_mod_id` = NEW.last_mod_id;
 END//
 DELIMITER ;
 SET SQL_MODE=@OLD_SQL_MODE;

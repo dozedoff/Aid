@@ -36,12 +36,9 @@ import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.github.dozedoff.commonj.net.GetHtml;
 
 import javax.swing.DefaultListModel;
 
@@ -311,14 +308,6 @@ public class Filter implements FilterModifiable{
 	 */
 	public void cache(URL url){
 		cacheCheck.addCache(url);
-		Stats.setCacheSize(cacheCheck.getCacheSize());
-	}
-	
-	/**
-	 * Remove all cache entries with timestamps older than 3 hours.<br/>
-	 */
-	public void pruneCache(){
-		cacheCheck.pruneCache();
 		Stats.setCacheSize(cacheCheck.getCacheSize());
 	}
 	

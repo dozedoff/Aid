@@ -24,7 +24,6 @@ import io.tables.Cache;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 
 import org.junit.Before;
@@ -64,14 +63,6 @@ public class CacheDAOTest {
 		
 		// Create one entry that has already been downloaded
 		dao.create(new Cache(String.valueOf(BASE_URL + (SAMPLE_NO + 1))));
-	}
-
-	@Test
-	public void testPruneCache() throws SQLException {
-		assertThat(dao.countOf(), is((long)(SAMPLE_NO + 1))); // guard condition
-		
-		dao.pruneCache(new Date().getTime());
-		assertThat(dao.countOf(), is(0L));
 	}
 
 	@Test

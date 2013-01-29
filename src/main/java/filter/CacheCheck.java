@@ -19,7 +19,6 @@ package filter;
 
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -34,7 +33,6 @@ import io.tables.Cache;
 public class CacheCheck {
 	private static final Logger logger = LoggerFactory.getLogger(CacheCheck.class);
 	private CacheDAO cacheDao;
-	private final int CACHE_PRUNE_THRESHOLD_HRS = 4;
 
 	public CacheCheck(CacheDAO cacheDao) {
 		this.cacheDao = cacheDao;
@@ -99,7 +97,6 @@ public class CacheCheck {
 	public void addCache(URL url, boolean downloaded) {
 		String cacheId = url.toString();
 		Cache cache = new Cache(cacheId, downloaded);
-		cache.setTimestamp(Calendar.getInstance().getTime());
 
 		try {
 			if(!cacheDao.idExists(cacheId)){
@@ -137,19 +134,5 @@ public class CacheCheck {
 			logger.warn("Failed to get cache size", e);
 		}
 		return cacheSize;
-	}
-	
-	public void pruneCache() {
-		Calendar exp = Calendar.getInstance();
-		exp.add(Calendar.HOUR, -CACHE_PRUNE_THRESHOLD_HRS);
-
-		try {
-			cacheDao.pruneCache(exp.getTimeInMillis());
-			int cacheSize = getCacheSize();
-			Stats.setCacheSize(cacheSize);
-		} catch (SQLException e) {
-			logger.warn("Failed to prune cache entries older than {} hours", CACHE_PRUNE_THRESHOLD_HRS);
-			logger.warn("Error was", e);
-		}
 	}
 }

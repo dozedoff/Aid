@@ -18,9 +18,6 @@
 package io.tables;
 
 import io.dao.CacheDAO;
-
-import java.util.Date;
-
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -28,8 +25,6 @@ import com.j256.ormlite.table.DatabaseTable;
 public class Cache {
 	@DatabaseField(id=true, canBeNull=false)
 	private String id;
-	@DatabaseField
-	private Date timestamp;
 	@DatabaseField(canBeNull=false)
 	private int last_mod_id;
 	@DatabaseField(canBeNull=false)
@@ -53,13 +48,6 @@ public class Cache {
 
 	public String getId() {
 		return id;
-	}
-
-	public Date getTimestamp() {
-		return timestamp;
-	}
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
 	}
 
 	public int getLast_mod_id() {

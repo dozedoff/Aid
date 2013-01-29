@@ -447,10 +447,6 @@ public class Main implements ActionListener{
 			imageLoader.clearQueue();
 		}
 
-		if("Prune cache".equals(e.getActionCommand())){
-			filter.pruneCache();
-		}
-
 		if("Filter".equals(e.getActionCommand())){
 			blockList.setVisible(true);
 		}

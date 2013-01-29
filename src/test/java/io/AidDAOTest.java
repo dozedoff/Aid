@@ -62,7 +62,7 @@ public class AidDAOTest extends DatabaseTestCase{
 	static boolean done = false;
 	static AidDAO sql;
 	static BoneConnectionPool bcp = null;
-	final String[] IGNORE_CACHE_COL = {"timestamp", "last_mod_id", "downloaded"};
+	final String[] IGNORE_CACHE_COL = {"last_mod_id", "downloaded"};
 	final String[] IGNORE_THUMBS_DATA_COL = {"id"};
 	final String[] IGNORE_THUMBS_TRIGGER_COL = {"id","thumb"};
 	final String[] IGNORE_PATH_COL = {"id"};
@@ -357,14 +357,6 @@ public class AidDAOTest extends DatabaseTestCase{
 		Thread.sleep(1100);
 		sql.updateFilterTimestamp(sql.getOldestFilter());
 		assertThat(sql.getOldestFilter(), is("http://foo.bar/3"));
-	}
-	
-	@SuppressWarnings("deprecation")
-	@Test
-	public void testCachePrune(){
-		sql.pruneCache(Calendar.getInstance().getTimeInMillis());
-		assertThat(sql.size(AidTables.Cache), is(1));
-		assertThat(sql.isCached("1"), is(true));
 	}
 	
 	@Test

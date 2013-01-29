@@ -586,14 +586,6 @@ public class AidDAO{
 		return affectedRows;
 	}
 	
-	public void pruneCache(long maxAge){
-		try {
-			cacheDAO.pruneCache(maxAge);
-		} catch (SQLException e) {
-			logSQLerror(e);
-		}
-	}
-	
 	/**
 	 * Use DAO instead.
 	 */

@@ -19,13 +19,11 @@ package io.dao;
 
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 
 import io.tables.Cache;
 
 import com.j256.ormlite.dao.BaseDaoImpl;
-import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedDelete;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
@@ -39,28 +37,13 @@ public class CacheDAO extends BaseDaoImpl<Cache, String> {
 
 	public CacheDAO(ConnectionSource cSource) throws SQLException {
 		super(cSource, Cache.class);
-		createPruneCacheStmt();
 		createDownloadQueryStmt();
-	}
-
-	private void createPruneCacheStmt() throws SQLException {
-		timestamp = new SelectArg();
-		DeleteBuilder<Cache, String> del = deleteBuilder();
-		del.where().le("timestamp", timestamp);
-		pruneCacheQuery = del.prepare();
 	}
 
 	private void createDownloadQueryStmt() throws SQLException {
 		lastModIdPrep = new SelectArg();
 		QueryBuilder<Cache, String> qb = queryBuilder();
 		allDownloadedQuery = qb.setCountOf(true).where().eq("last_mod_id", lastModIdPrep).and().eq("downloaded", false).prepare();
-	}
-
-	public int pruneCache(long timestampInMillis) throws SQLException {
-		Date date = new Date(timestampInMillis);
-		timestamp.setValue(date);
-		int updated = delete(pruneCacheQuery);
-		return updated;
 	}
 	
 	public boolean isDownloaded(URL url) throws SQLException{
