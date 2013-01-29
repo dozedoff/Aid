@@ -24,10 +24,10 @@
     <location_tags tag_id="4" location="ARCHIVE"/>
     
 	<!-- cache Table -->
-	<cache id="1" timestamp="2020-01-01 00:00:00.000000000" />
-	<cache id="2" timestamp="2000-01-01 00:00:00.000000000" />
-	<cache id="3" timestamp="2000-01-01 00:00:00.000000000" />
-	<cache id="4" timestamp="2000-01-01 00:00:00.000000000" />
+	<cache id="1" timestamp="2020-01-01 00:00:00.000000000" last_mod_id="1" downloaded="0" />
+	<cache id="2" timestamp="2000-01-01 00:00:00.000000000" last_mod_id="1" downloaded="0"/>
+	<cache id="3" timestamp="2000-01-01 00:00:00.000000000" last_mod_id="1" downloaded="0"/>
+	<cache id="4" timestamp="2000-01-01 00:00:00.000000000" last_mod_id="1" downloaded="0"/>
 
 	<!-- filter Table 0: Deny 1: Pending 2: Allow 3: Unknown -->
 	<filter id="http://foo.bar/1" board="t" reason="just testing" status="0" timestamp="2000-01-01 00:00:00.000000000" />
