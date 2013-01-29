@@ -104,11 +104,9 @@ public class AidDAO{
 			cacheDAO = new CacheDAO(cSource);
 			DaoManager.registerDao(cSource, cacheDAO);
 			ThumbnailDAO = DaoManager.createDao(cSource, Thumbnail.class);
-			indexDao = DaoManager.createDao(cSource, IndexRecord.class);
 			locationDao = new LocationDAO(cSource);
 			DaoManager.registerDao(cSource, locationDao);
-			duplicateDAO = new DuplicateDAO(cSource);
-			DaoManager.registerDao(cSource, duplicateDAO);
+			
 			dnwDAO = DaoManager.createDao(cSource, DnwRecord.class);
 			blackListDAO = DaoManager.createDao(cSource, BlacklistRecord.class);
 			filterDAO = new FilterDAO(cSource);
@@ -116,6 +114,9 @@ public class AidDAO{
 			settingDao = DaoManager.createDao(cSource, Settings.class);
 			directoryDAO = DaoManager.createDao(cSource, DirectoryPathRecord.class);
 			fileDAO = DaoManager.createDao(cSource, FilePathRecord.class);
+			indexDao = DaoManager.createDao(cSource, IndexRecord.class);
+			duplicateDAO = new DuplicateDAO(cSource);
+			DaoManager.registerDao(cSource, duplicateDAO);
 		}catch(SQLException e){
 			logger.error("Unable to create DAO", e);
 		}
