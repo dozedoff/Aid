@@ -17,6 +17,13 @@
  */
 package io;
 
+import static io.AidTables.Block;
+import static io.AidTables.Dirlist;
+import static io.AidTables.Dnw;
+import static io.AidTables.Fileduplicate;
+import static io.AidTables.Fileindex;
+import static io.AidTables.Filelist;
+import static io.AidTables.Filter;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItem;
@@ -52,10 +59,9 @@ import com.github.dozedoff.commonj.file.FileUtil;
 import com.github.dozedoff.commonj.io.BoneConnectionPool;
 import com.github.dozedoff.commonj.io.DBsettings;
 
-import config.DefaultMySQLconnection;
+import config.DefaultSQLiteConnection;
 import filter.FilterItem;
 import filter.FilterState;
-import static io.AidTables.*;
 
 
 public class AidDAOTest extends DatabaseTestCase{
@@ -94,7 +100,7 @@ public class AidDAOTest extends DatabaseTestCase{
 	
 	private static void setupPool() throws Exception {
 		if(! done){
-			bcp = new BoneConnectionPool(new DefaultMySQLconnection("127.0.0.1", 3306, "test", "test", "test"), 10);
+			bcp = new BoneConnectionPool(new DefaultSQLiteConnection("test.db"), 10);
 			bcp.startPool();
 			System.out.println("Pool created");
 			sql = new AidDAO(bcp);
@@ -570,7 +576,7 @@ public class AidDAOTest extends DatabaseTestCase{
 	@Override
 	protected IDatabaseConnection getConnection() throws Exception {
 		Class.forName("com.mysql.jdbc.Driver"); 
-		Connection jdbcConnection = DriverManager.getConnection( "jdbc:mysql://localhost/test","test", "test"); 
+		Connection jdbcConnection = DriverManager.getConnection("jdbc:sqlite:test.db");
 		
 		DatabaseConnection dbConn = new DatabaseConnection(jdbcConnection);
 		dbConn.getConfig().setProperty("http://www.dbunit.org/properties/datatypeFactory", new MySqlDataTypeFactory());

@@ -19,7 +19,6 @@ package io.dao;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import io.tables.Cache;
 import io.tables.LastModified;
 
@@ -32,9 +31,10 @@ import org.junit.Test;
 
 import com.github.dozedoff.commonj.io.BoneConnectionPool;
 import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.jdbc.DataSourceConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
-import config.DefaultMySQLconnection;
+import config.DefaultSQLiteConnection;
 
 public class LastModifiedDAOTest {
 	private static LastModifiedDAO dao = null;
@@ -46,8 +46,14 @@ public class LastModifiedDAOTest {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		bcp = new BoneConnectionPool(new DefaultMySQLconnection("127.0.0.1", 3306, "test", "test", "test"), 10);
+		bcp = new BoneConnectionPool(new DefaultSQLiteConnection("test.db"), 10);
 		bcp.startPool();
+
+		DataSourceConnectionSource con = bcp.getConnectionSource();
+
+		TableUtils.createTableIfNotExists(con, Cache.class);
+		TableUtils.createTableIfNotExists(con, LastModified.class);
+
 		dao = DaoManager.createDao(bcp.getConnectionSource(), LastModified.class);
 		cacheDao = DaoManager.createDao(bcp.getConnectionSource(), Cache.class);
 	}
