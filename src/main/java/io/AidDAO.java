@@ -33,6 +33,7 @@ import io.tables.DuplicateRecord;
 import io.tables.FilePathRecord;
 import io.tables.FileRecord;
 import io.tables.IndexRecord;
+import io.tables.LastModified;
 import io.tables.LocationRecord;
 import io.tables.Settings;
 import io.tables.Thumbnail;
@@ -54,10 +55,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.dozedoff.commonj.file.FileInfo;
 import com.github.dozedoff.commonj.file.FileUtil;
@@ -68,6 +70,7 @@ import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.table.TableUtils;
 /**
  * Class for database communication.
  */
@@ -101,6 +104,22 @@ public class AidDAO{
 		try{
 			ConnectionSource cSource = connPool.getConnectionSource();
 			
+			TableUtils.createTableIfNotExists(cSource, Settings.class);
+			TableUtils.createTableIfNotExists(cSource, Thumbnail.class);
+			TableUtils.createTableIfNotExists(cSource, Cache.class);
+			TableUtils.createTableIfNotExists(cSource, LastModified.class);
+
+			TableUtils.createTableIfNotExists(cSource, DirectoryPathRecord.class);
+			TableUtils.createTableIfNotExists(cSource, FilePathRecord.class);
+			TableUtils.createTableIfNotExists(cSource, LocationRecord.class);
+
+			TableUtils.createTableIfNotExists(cSource, IndexRecord.class);
+			TableUtils.createTableIfNotExists(cSource, FilterItem.class);
+			TableUtils.createTableIfNotExists(cSource, DuplicateRecord.class);
+			TableUtils.createTableIfNotExists(cSource, DnwRecord.class);
+			TableUtils.createTableIfNotExists(cSource, BlacklistRecord.class);
+
+
 			cacheDAO = new CacheDAO(cSource);
 			DaoManager.registerDao(cSource, cacheDAO);
 			ThumbnailDAO = DaoManager.createDao(cSource, Thumbnail.class);
