@@ -31,7 +31,7 @@ public class IndexDAO extends BaseDaoImpl<IndexRecord, String> {
 	public IndexDAO(ConnectionSource cs) throws SQLException {
 		super(cs, IndexRecord.class);
 	}
-	
+
 	public IndexRecord queryForFirst(IndexRecord index) throws SQLException {
 		List<IndexRecord> records = queryForMatchingArgs(index);
 		

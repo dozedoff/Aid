@@ -33,6 +33,7 @@ import io.tables.DuplicateRecord;
 import io.tables.FilePathRecord;
 import io.tables.FileRecord;
 import io.tables.IndexRecord;
+import io.tables.LastModified;
 import io.tables.LocationRecord;
 import io.tables.Settings;
 import io.tables.Thumbnail;
@@ -54,10 +55,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.dozedoff.commonj.file.FileInfo;
 import com.github.dozedoff.commonj.file.FileUtil;
@@ -68,6 +70,8 @@ import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.support.DatabaseConnection;
+import com.j256.ormlite.table.TableUtils;
 /**
  * Class for database communication.
  */
@@ -79,6 +83,18 @@ public class AidDAO{
 	private final String DEFAULT_LOCATION = "UNKNOWN";
 	protected final ConnectionPool connPool;
 	
+	private static final String PRUNE_THUMB_DEL_QUERY = "CREATE TRIGGER IF NOT EXISTS `prune_thumbs_del` AFTER DELETE ON `filter` FOR EACH ROW BEGIN\n"
+			+ "DELETE FROM thumbs WHERE url = OLD.id;\n" + "END";
+
+	private static final String PRUNE_THUMB_UPD_QUERY = "CREATE TRIGGER IF NOT EXISTS `prune_thumbs_up` AFTER UPDATE ON `filter` FOR EACH ROW BEGIN\n"
+			+ "DELETE FROM thumbs WHERE url = OLD.id AND NEW.status != 1;\n" + "END";
+
+	private static final String LASTMOD_UPDATE_QUERY = "CREATE TRIGGER IF NOT EXISTS `lastmodified_update` AFTER UPDATE ON `lastmodified` FOR EACH ROW BEGIN\n"
+			+ "UPDATE `cache` SET `timestamp` = NOW() WHERE `last_mod_id` = NEW.last_mod_id;\n" + "END";
+
+	private static final String LASTMOD_DELETE_QUERY = "CREATE TRIGGER IF NOT EXISTS `lastmodified_delete` AFTER DELETE ON `lastmodified` FOR EACH ROW BEGIN\n"
+			+ "DELETE FROM `cache` WHERE last_mod_id = OLD.last_mod_id\n;" + "END";
+
 	private CacheDAO cacheDAO;
 	private Dao<Thumbnail, Integer> ThumbnailDAO;
 	private LocationDAO locationDao;
@@ -101,6 +117,21 @@ public class AidDAO{
 		try{
 			ConnectionSource cSource = connPool.getConnectionSource();
 			
+			TableUtils.createTableIfNotExists(cSource, Settings.class);
+			TableUtils.createTableIfNotExists(cSource, Thumbnail.class);
+			TableUtils.createTableIfNotExists(cSource, Cache.class);
+			TableUtils.createTableIfNotExists(cSource, LastModified.class);
+
+			TableUtils.createTableIfNotExists(cSource, DirectoryPathRecord.class);
+			TableUtils.createTableIfNotExists(cSource, FilePathRecord.class);
+			TableUtils.createTableIfNotExists(cSource, LocationRecord.class);
+
+			TableUtils.createTableIfNotExists(cSource, IndexRecord.class);
+			TableUtils.createTableIfNotExists(cSource, FilterItem.class);
+			TableUtils.createTableIfNotExists(cSource, DuplicateRecord.class);
+			TableUtils.createTableIfNotExists(cSource, DnwRecord.class);
+			TableUtils.createTableIfNotExists(cSource, BlacklistRecord.class);
+			
 			cacheDAO = new CacheDAO(cSource);
 			DaoManager.registerDao(cSource, cacheDAO);
 			ThumbnailDAO = DaoManager.createDao(cSource, Thumbnail.class);
@@ -116,6 +147,17 @@ public class AidDAO{
 			settingDao = DaoManager.createDao(cSource, Settings.class);
 			directoryDAO = DaoManager.createDao(cSource, DirectoryPathRecord.class);
 			fileDAO = DaoManager.createDao(cSource, FilePathRecord.class);
+
+			// Triggers
+
+			DatabaseConnection con = cSource.getReadWriteConnection();
+
+			con.executeStatement(PRUNE_THUMB_DEL_QUERY, DatabaseConnection.DEFAULT_RESULT_FLAGS);
+			con.executeStatement(PRUNE_THUMB_UPD_QUERY, DatabaseConnection.DEFAULT_RESULT_FLAGS);
+			con.executeStatement(LASTMOD_UPDATE_QUERY, DatabaseConnection.DEFAULT_RESULT_FLAGS);
+			con.executeStatement(LASTMOD_DELETE_QUERY, DatabaseConnection.DEFAULT_RESULT_FLAGS);
+			cSource.releaseConnection(con);
+
 		}catch(SQLException e){
 			logger.error("Unable to create DAO", e);
 		}

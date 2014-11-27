@@ -33,9 +33,10 @@ import org.junit.Test;
 
 import com.github.dozedoff.commonj.io.BoneConnectionPool;
 import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.jdbc.DataSourceConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
-import config.DefaultMySQLconnection;
+import config.DefaultSQLiteConnection;
 
 public class CacheDAOTest {
 	private static CacheDAO dao = null;
@@ -46,8 +47,12 @@ public class CacheDAOTest {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		bcp = new BoneConnectionPool(new DefaultMySQLconnection("127.0.0.1", 3306, "test", "test", "test"), 10);
+		bcp = new BoneConnectionPool(new DefaultSQLiteConnection("test.db"), 10);
 		bcp.startPool();
+
+		DataSourceConnectionSource con = bcp.getConnectionSource();
+		TableUtils.createTableIfNotExists(con, Cache.class);
+
 		dao = DaoManager.createDao(bcp.getConnectionSource(), Cache.class);
 		TableUtils.clearTable(bcp.getConnectionSource(), Cache.class);
 	}
