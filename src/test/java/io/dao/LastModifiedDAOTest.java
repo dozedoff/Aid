@@ -19,6 +19,7 @@ package io.dao;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import io.AidDAO;
 import io.tables.Cache;
 import io.tables.LastModified;
 
@@ -56,6 +57,8 @@ public class LastModifiedDAOTest {
 
 		dao = DaoManager.createDao(bcp.getConnectionSource(), LastModified.class);
 		cacheDao = DaoManager.createDao(bcp.getConnectionSource(), Cache.class);
+
+		new AidDAO(bcp);
 	}
 
 	@Before
