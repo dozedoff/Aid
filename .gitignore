@@ -7,3 +7,4 @@ bin/
 /.pmd
 /reports/
 /target
+/aid.log
