@@ -20,6 +20,9 @@ package io.dao;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.j256.ormlite.dao.BaseDaoImpl;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.support.ConnectionSource;
@@ -27,9 +30,10 @@ import com.j256.ormlite.support.ConnectionSource;
 import filter.FilterItem;
 import filter.FilterState;
 
-public class FilterDAO extends BaseDaoImpl<FilterItem, String>{
+public class FilterDAO extends BaseDaoImpl<FilterItem, String> {
+	private static Logger logger = LoggerFactory.getLogger(FilterDAO.class);
 	final String SQL_UPDATE_TIME = "UPDATE `filter` SET `timestamp` = NOW() WHERE `id` = ?";
-	PreparedQuery<FilterItem> oldestFilterQuery, pendingFilterCountQuery,pendingFilterQuery;
+	PreparedQuery<FilterItem> oldestFilterQuery, pendingFilterCountQuery, pendingFilterQuery;
 
 	public FilterDAO(ConnectionSource cSource) throws SQLException {
 		super(cSource, FilterItem.class);
@@ -37,36 +41,57 @@ public class FilterDAO extends BaseDaoImpl<FilterItem, String>{
 		pendingFilterCountQuery = queryBuilder().setCountOf(true).where().eq("status", FilterState.PENDING).prepare();
 		pendingFilterQuery = queryBuilder().where().eq("status", FilterState.PENDING).prepare();
 	}
-	
-	public void updateFilterTimestamp(FilterItem filterItem) throws SQLException{
+
+	public void updateFilterTimestamp(FilterItem filterItem) throws SQLException {
 		String id = filterItem.getId();
 		updateFilterTimestamp(id);
 	}
-	
-	public void updateFilterTimestamp(String id) throws SQLException{
+
+	public void updateFilterTimestamp(String id) throws SQLException {
 		executeRaw(SQL_UPDATE_TIME, id);
 	}
-	
+
 	/**
 	 * Returns the oldest Filter in the list, or null if no entries are found.
+	 * 
 	 * @return the oldest filter entry found or null
 	 * @throws SQLException
 	 */
 	public FilterItem getOldestFilter() throws SQLException {
-		List<FilterItem>filterItems = query(oldestFilterQuery);
-		
-		if(filterItems.isEmpty()){
+		List<FilterItem> filterItems = query(oldestFilterQuery);
+
+		if (filterItems.isEmpty()) {
 			return null;
-		}else{
+		} else {
 			return filterItems.get(0);
 		}
 	}
-	
+
 	public int getPendingFilterCount() throws SQLException {
-		return (int)countOf(pendingFilterCountQuery);
+		return (int) countOf(pendingFilterCountQuery);
 	}
-	
+
 	public List<FilterItem> getPendingFilter() throws SQLException {
 		return query(pendingFilterQuery);
+	}
+
+	/**
+	 * Use the DAO create or createIfNotExists
+	 */
+	@Deprecated
+	public boolean addFilter(FilterItem fi) {
+		try {
+			FilterItem existing = this.queryForSameId(fi);
+			if (existing != null) {
+				return false;
+			}
+
+			this.create(fi);
+			return true;
+		} catch (SQLException e) {
+			logger.warn("Failed to add filter {}", fi, e);
+		}
+
+		return false;
 	}
 }
