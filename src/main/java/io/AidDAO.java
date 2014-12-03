@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package io;
+
 import filter.FilterItem;
 import filter.FilterState;
 import io.dao.CacheDAO;
@@ -72,17 +73,18 @@ import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.support.DatabaseConnection;
 import com.j256.ormlite.table.TableUtils;
+
 /**
  * Class for database communication.
  */
-public class AidDAO{
+public class AidDAO {
 	private static final HashMap<String, String> prepStmts = new HashMap<String, String>();
 	protected static Logger logger = LoggerFactory.getLogger(AidDAO.class);
 	protected final String RS_CLOSE_ERR = "Could not close ResultSet: ";
 	protected final String SQL_OP_ERR = "MySQL operation failed: ";
 	private final String DEFAULT_LOCATION = "UNKNOWN";
 	protected final ConnectionPool connPool;
-	
+
 	private static final String PRUNE_THUMB_DEL_QUERY = "CREATE TRIGGER IF NOT EXISTS `prune_thumbs_del` AFTER DELETE ON `filter` FOR EACH ROW BEGIN\n"
 			+ "DELETE FROM thumbs WHERE url = OLD.id;\n" + "END";
 
@@ -106,17 +108,16 @@ public class AidDAO{
 	private Dao<BlacklistRecord, String> blackListDAO;
 	private FilterDAO filterDAO;
 	private Dao<Settings, String> settingDao;
-	
 
-	public AidDAO(ConnectionPool connPool){
+	public AidDAO(ConnectionPool connPool) {
 		this.connPool = connPool;
 		createDaos();
 	}
-	
+
 	private void createDaos() {
-		try{
+		try {
 			ConnectionSource cSource = connPool.getConnectionSource();
-			
+
 			TableUtils.createTableIfNotExists(cSource, Settings.class);
 			TableUtils.createTableIfNotExists(cSource, Thumbnail.class);
 			TableUtils.createTableIfNotExists(cSource, Cache.class);
@@ -131,7 +132,7 @@ public class AidDAO{
 			TableUtils.createTableIfNotExists(cSource, DuplicateRecord.class);
 			TableUtils.createTableIfNotExists(cSource, DnwRecord.class);
 			TableUtils.createTableIfNotExists(cSource, BlacklistRecord.class);
-			
+
 			cacheDAO = new CacheDAO(cSource);
 			DaoManager.registerDao(cSource, cacheDAO);
 			ThumbnailDAO = DaoManager.createDao(cSource, Thumbnail.class);
@@ -158,30 +159,30 @@ public class AidDAO{
 			con.executeStatement(LASTMOD_DELETE_QUERY, DatabaseConnection.DEFAULT_RESULT_FLAGS);
 			cSource.releaseConnection(con);
 
-		}catch(SQLException e){
+		} catch (SQLException e) {
 			logger.error("Unable to create DAO", e);
 		}
 	}
 
-	protected Connection getConnection(){
+	protected Connection getConnection() {
 		try {
 			return connPool.getConnection();
 		} catch (SQLException e) {
 			logger.warn("Failed to get database connection");
 		}
-		
+
 		return null;
 	}
 
-	protected static void addPrepStmt(String id, String stmt){
+	protected static void addPrepStmt(String id, String stmt) {
 		try {
-			if(prepStmts.containsKey(id))
-				throw new IllegalArgumentException("Key "+"'"+id+"'"+" is already present");
+			if (prepStmts.containsKey(id))
+				throw new IllegalArgumentException("Key " + "'" + id + "'" + " is already present");
 			prepStmts.put(id, stmt);
-		} catch (NullPointerException npe){
+		} catch (NullPointerException npe) {
 			logger.error("Prepared Statement could not be created, invalid connection");
-		} catch (IllegalArgumentException iae){
-			logger.error("Prepared Statement could not be created, "+iae.getMessage());
+		} catch (IllegalArgumentException iae) {
+			logger.error("Prepared Statement could not be created, " + iae.getMessage());
 		}
 	}
 
@@ -189,36 +190,36 @@ public class AidDAO{
 	 * Use DAO instead.
 	 */
 	@Deprecated
-	public boolean batchExecute(String[] statements){
+	public boolean batchExecute(String[] statements) {
 		Connection cn = getConnection();
 		Statement req = null;
-		
+
 		try {
-			for(String sql : statements){
+			for (String sql : statements) {
 				req = cn.createStatement();
 				req.execute(sql);
 				req.close();
 			}
 		} catch (SQLException e) {
-			logger.warn(SQL_OP_ERR+e.getMessage());
+			logger.warn(SQL_OP_ERR + e.getMessage());
 			return false;
 		} finally {
 			silentClose(cn, null, null);
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Use {@link AidDAO#getDuplicatesAndOriginal()} instead.
 	 */
 	@Deprecated
-	public LinkedList<String[]> getDuplicates(){
+	public LinkedList<String[]> getDuplicates() {
 		final int NUM_OF_COLS = 3;
 		LinkedList<String[]> duplicates = new LinkedList<>();
 		LinkedList<FileRecord> records = duplicateDAO.getDuplicatesAndOriginals();
 
-		for(FileRecord record : records){
+		for (FileRecord record : records) {
 			String[] dupe = new String[NUM_OF_COLS];
 			dupe[0] = record.getId();
 			dupe[1] = record.getLocation();
@@ -227,62 +228,86 @@ public class AidDAO{
 		}
 		return duplicates;
 	}
-	
+
 	public LinkedList<FileRecord> getDuplicatesAndOriginal() {
 		return duplicateDAO.getDuplicatesAndOriginals();
 	}
 
-	protected PreparedStatement getPrepStmt(String command){
-		if(prepStmts.containsKey(command)){
+	protected PreparedStatement getPrepStmt(String command) {
+		if (prepStmts.containsKey(command)) {
 			Connection cn = getConnection();
-			
+
 			PreparedStatement prepStmt = null;
 			try {
 				prepStmt = cn.prepareStatement(prepStmts.get(command));
 			} catch (SQLException e) {
-				logger.warn("Failed to create prepared statement for command \""+command+"\"");
+				logger.warn("Failed to create prepared statement for command \"" + command + "\"");
 			}
 			return prepStmt;
-		}else{
-			logger.warn("Prepared statment command \""+command+"\" not found.\nHas this object been initialized?");
+		} else {
+			logger.warn("Prepared statment command \"" + command + "\" not found.\nHas this object been initialized?");
 			return null;
 		}
 	}
-	
-	protected void silentClose(Connection cn, PreparedStatement ps, ResultSet rs){
-		if(rs != null)
-			try{rs.close();}catch(SQLException e){}
-		if(ps != null)
-			try{ps.close();}catch(SQLException e){}
-		if(cn != null)
-			try{cn.close();}catch(SQLException e){}
+
+	protected void silentClose(Connection cn, PreparedStatement ps, ResultSet rs) {
+		if (rs != null)
+			try {
+				rs.close();
+			} catch (SQLException e) {
+			}
+		if (ps != null)
+			try {
+				ps.close();
+			} catch (SQLException e) {
+			}
+		if (cn != null)
+			try {
+				cn.close();
+			} catch (SQLException e) {
+			}
 	}
-	
-	protected void closeAll(PreparedStatement ps){
+
+	protected void closeAll(PreparedStatement ps) {
 		Connection cn = null;
 		ResultSet rs = null;
-		
-		if(ps == null)
+
+		if (ps == null)
 			return;
-		
-		try{cn = ps.getConnection();}catch(SQLException e){}
-		try{rs = ps.getResultSet();}catch(SQLException e){}
-		
-		if(rs != null)
-			try{rs.close();}catch(SQLException e){}
-		if(ps != null)
-			try{ps.close();}catch(SQLException e){}
-		if(cn != null)
-			try{cn.close();}catch(SQLException e){}
+
+		try {
+			cn = ps.getConnection();
+		} catch (SQLException e) {
+		}
+		try {
+			rs = ps.getResultSet();
+		} catch (SQLException e) {
+		}
+
+		if (rs != null)
+			try {
+				rs.close();
+			} catch (SQLException e) {
+			}
+		if (ps != null)
+			try {
+				ps.close();
+			} catch (SQLException e) {
+			}
+		if (cn != null)
+			try {
+				cn.close();
+			} catch (SQLException e) {
+			}
 	}
 
 	/**
-	 * Add the current URL to the cache, or update it's Timestamp if it
-	 * already exists. Method will return true if the URL is already present,
-	 * otherwise false.
-	 * @param url URL to be added
-	 * @return true if URL is already present else false.
-	 * Retruns true on error.
+	 * Add the current URL to the cache, or update it's Timestamp if it already exists. Method will return true if the URL is already
+	 * present, otherwise false.
+	 * 
+	 * @param url
+	 *            URL to be added
+	 * @return true if URL is already present else false. Retruns true on error.
 	 */
 	public boolean addCache(URL url) {
 		try {
@@ -303,90 +328,92 @@ public class AidDAO{
 		return false;
 	}
 
-	public void addThumb(String url,String filename, byte[] data){
+	public void addThumb(String url, String filename, byte[] data) {
 		Thumbnail thumb = new Thumbnail(url, filename, data);
-		
+
 		try {
 			ThumbnailDAO.create(thumb);
 		} catch (SQLException e) {
 			logSQLerror(e);
 		}
 	}
-	
-	public boolean addIndex(FileInfo fileInfo, String location){
+
+	public boolean addIndex(FileInfo fileInfo, String location) {
 		try {
 			LocationRecord locationRec = locationDao.queryForLocation(location);
-			
-			if(locationRec == null) {
+
+			if (locationRec == null) {
 				locationRec = locationDao.createIfNotExists(new LocationRecord(location));
 			}
-			
+
 			IndexRecord index = new IndexRecord(fileInfo, locationRec);
-			
-			if(indexDao.idExists(fileInfo.getHash())) {
+
+			if (indexDao.idExists(fileInfo.getHash())) {
 				return false;
 			}
-			
+
 			resolvePathIDs(index);
-			
+
 			int rowsChanged = indexDao.create(index);
-			
-			if(rowsChanged == 1){
+
+			if (rowsChanged == 1) {
 				return true;
 			}
-			
+
 		} catch (SQLException e) {
 			logSQLerror(e);
 		}
-		
+
 		return false;
 	}
-	
+
 	private void resolvePathIDs(FileRecord record) throws SQLException {
 		DirectoryPathRecord directory = record.getDirectory();
 		FilePathRecord file = record.getFile();
-		
+
 		directory = directoryDAO.add(Paths.get(directory.getDirpath()));
 		file = fileDAO.add(Paths.get(file.getFilename()));
-		
+
 		record.setDirectory(directory);
 		record.setFile(file);
 	}
-	
-	public boolean addIndex(String hash, String path, long size, String location){
+
+	public boolean addIndex(String hash, String path, long size, String location) {
 		FileInfo info = new FileInfo(Paths.get(path), hash);
 		info.setSize(size);
-		
+
 		return addIndex(info, location);
 	}
-	
-	public boolean addDuplicate(String hash, String path, long size, String location){
+
+	public boolean addDuplicate(String hash, String path, long size, String location) {
 		FileInfo info = new FileInfo(Paths.get(path), hash);
 		info.setSize(size);
 		try {
 			LocationRecord locationRec = locationDao.queryForLocation(location);
 			DuplicateRecord index = new DuplicateRecord(info, locationRec);
-		
+
 			resolvePathIDs(index);
-			
+
 			int rowsChanged = duplicateDAO.create(index);
-			
-			if(rowsChanged == 1){
+
+			if (rowsChanged == 1) {
 				return true;
 			}
-			
+
 		} catch (SQLException e) {
 			logSQLerror(e);
 		}
-		
+
 		return false;
 	}
 
 	/**
 	 * Get the number of pending filter items.
+	 * 
 	 * @return Number of pending items.
 	 */
-	public int getPending(){
+	@Deprecated
+	public int getPending() {
 		try {
 			return filterDAO.getPendingFilterCount();
 		} catch (SQLException e) {
@@ -395,16 +422,16 @@ public class AidDAO{
 		return -1;
 	}
 
-	public ArrayList<Image> getThumb(String url){
+	public ArrayList<Image> getThumb(String url) {
 		LinkedList<Thumbnail> thumbs;
 		ArrayList<Image> images = new ArrayList<>(1);
-		
+
 		try {
 			thumbs = new LinkedList<>(ThumbnailDAO.queryForEq("url", url));
 			images = new ArrayList<>(thumbs.size());
-			
-			for(Thumbnail thumb : thumbs){
-				InputStream	is = new ByteArrayInputStream(thumb.getThumb());
+
+			for (Thumbnail thumb : thumbs) {
+				InputStream is = new ByteArrayInputStream(thumb.getThumb());
 				images.add(ImageIO.read(is));
 				is.close();
 			}
@@ -413,7 +440,7 @@ public class AidDAO{
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
-		
+
 		return images;
 	}
 
@@ -449,21 +476,23 @@ public class AidDAO{
 
 	/**
 	 * Check the ID against the cache.
-	 * @param uniqueID ID to check
-	 * @return true if the ID is present otherwise false.
-	 * Returns true on errors.
+	 * 
+	 * @param uniqueID
+	 *            ID to check
+	 * @return true if the ID is present otherwise false. Returns true on errors.
 	 */
-	public boolean isCached(URL url){
+	public boolean isCached(URL url) {
 		return isCached(url.toString());
 	}
 
 	/**
 	 * Check the ID against the cache.
-	 * @param uniqueID ID to check
-	 * @return true if the ID is present otherwise false.
-	 * Returns true on errors.
+	 * 
+	 * @param uniqueID
+	 *            ID to check
+	 * @return true if the ID is present otherwise false. Returns true on errors.
 	 */
-	public boolean isCached(String uniqueID){
+	public boolean isCached(String uniqueID) {
 		try {
 			return cacheDAO.idExists(uniqueID);
 		} catch (SQLException e) {
@@ -471,53 +500,53 @@ public class AidDAO{
 			return true;
 		}
 	}
-	
+
 	private void logSQLerror(SQLException e) {
 		logSQLerror(e, "");
 		e.printStackTrace();
 	}
-	
+
 	private void logSQLerror(SQLException e, String command) {
-		logger.warn(SQL_OP_ERR+command+": "+e.getMessage());
+		logger.warn(SQL_OP_ERR + command + ": " + e.getMessage());
 	}
 
-	public boolean isDnw(String hash){
-		if(hash == null){
+	public boolean isDnw(String hash) {
+		if (hash == null) {
 			return false;
 		}
-		
+
 		boolean result = true;
-		
+
 		try {
 			result = dnwDAO.idExists(hash);
 			return result;
 		} catch (SQLException e) {
 			logSQLerror(e);
 		}
-		
+
 		return true;
 	}
 
-	public boolean isHashed(String hash){
+	public boolean isHashed(String hash) {
 		try {
 			return indexDao.idExists(hash);
 		} catch (SQLException e) {
 			logSQLerror(e);
 		}
-		
+
 		return true;
 	}
 
-	public boolean isBlacklisted(String hash){
+	public boolean isBlacklisted(String hash) {
 		try {
 			return blackListDAO.idExists(hash);
 		} catch (SQLException e) {
 			logSQLerror(e);
 		}
-		
+
 		return true;
 	}
-	
+
 	public boolean isValidTag(String tag) {
 		if (getTagId(tag) == -1) {
 			return false;
@@ -538,6 +567,7 @@ public class AidDAO{
 		}
 		return -1;
 	}
+
 	/**
 	 * Use the relevant DAO instead.
 	 */
@@ -549,7 +579,7 @@ public class AidDAO{
 				BlacklistRecord blacklist = new BlacklistRecord(id);
 				blackListDAO.createOrUpdate(blacklist);
 				break;
-				
+
 			case Dnw:
 				DnwRecord dnw = new DnwRecord(id);
 				dnwDAO.createOrUpdate(dnw);
@@ -563,10 +593,9 @@ public class AidDAO{
 			logSQLerror(e);
 		}
 	}
-	
-	
-	//TODO add isIndexedPath(Path fullPath)
-	
+
+	// TODO add isIndexedPath(Path fullPath)
+
 	public boolean isIndexedPath(Path fullpath, String locationTag) {
 		Path relPath = FileUtil.removeDriveLetter(fullpath);
 		LocationRecord locRec;
@@ -585,20 +614,20 @@ public class AidDAO{
 
 		return false;
 	}
-	
-	public int deleteIndexByPath(String fullpath){
+
+	public int deleteIndexByPath(String fullpath) {
 		return deleteIndexByPath(Paths.get(fullpath.toLowerCase()));
 	}
-	
+
 	public int deleteIndexByPath(Path path) {
 		FileInfo info = new FileInfo(path);
 		IndexRecord index = new IndexRecord(info, null);
 		int affectedRows = 0;
-		
+
 		try {
 			resolvePathIDs(index);
 			List<IndexRecord> results = indexDao.queryForMatching(index);
-			if(! results.isEmpty()){
+			if (!results.isEmpty()) {
 				affectedRows = indexDao.delete(results.get(0));
 			}
 		} catch (SQLException e) {
@@ -606,20 +635,20 @@ public class AidDAO{
 		}
 		return affectedRows;
 	}
-	
-	public int deleteDuplicateByPath(String fullpath){
+
+	public int deleteDuplicateByPath(String fullpath) {
 		return deleteDuplicateByPath(FileUtil.removeDriveLetter(Paths.get(fullpath.toLowerCase())));
 	}
-	
-	public int deleteDuplicateByPath(Path path){
+
+	public int deleteDuplicateByPath(Path path) {
 		FileInfo info = new FileInfo(path);
 		DuplicateRecord index = new DuplicateRecord(info, null);
 		int affectedRows = 0;
-		
+
 		try {
 			resolvePathIDs(index);
 			List<DuplicateRecord> results = duplicateDAO.queryForMatching(index);
-			if(! results.isEmpty()){
+			if (!results.isEmpty()) {
 				affectedRows = duplicateDAO.delete(results.get(0));
 			}
 		} catch (SQLException e) {
@@ -627,15 +656,15 @@ public class AidDAO{
 		}
 		return affectedRows;
 	}
-	
-	public void pruneCache(long maxAge){
+
+	public void pruneCache(long maxAge) {
 		try {
 			cacheDAO.pruneCache(maxAge);
 		} catch (SQLException e) {
 			logSQLerror(e);
 		}
 	}
-	
+
 	/**
 	 * Use DAO instead.
 	 */
@@ -662,8 +691,7 @@ public class AidDAO{
 				break;
 
 			default:
-				logger.error("Unable to perform delete for table "
-						+ table.toString());
+				logger.error("Unable to perform delete for table " + table.toString());
 				break;
 			}
 		} catch (SQLException e) {
@@ -673,7 +701,7 @@ public class AidDAO{
 		return affected;
 	}
 
-	public void sendStatement(String sqlStatment){
+	public void sendStatement(String sqlStatment) {
 		Connection cn = getConnection();
 		Statement req = null;
 		try {
@@ -681,10 +709,13 @@ public class AidDAO{
 			req.execute(sqlStatment);
 			req.close();
 		} catch (SQLException e) {
-			logger.warn("Failed to execute statement id: "+sqlStatment+"\n"+e.getMessage());
+			logger.warn("Failed to execute statement id: " + sqlStatment + "\n" + e.getMessage());
 		} finally {
-			if(req != null)
-				try{req.close();} catch (SQLException e){}
+			if (req != null)
+				try {
+					req.close();
+				} catch (SQLException e) {
+				}
 
 			silentClose(cn, null, null);
 		}
@@ -700,14 +731,15 @@ public class AidDAO{
 
 		return null;
 	}
-	
+
 	/**
 	 * Get path associated with the given hash value.
 	 * 
-	 * @param hash hash value to lookup
+	 * @param hash
+	 *            hash value to lookup
 	 * @return path as a String or null if not found
 	 */
-	public String getPath(String hash){
+	public String getPath(String hash) {
 		try {
 			IndexRecord index = indexDao.queryForId(hash);
 			return index.getRelativePath().toString();
@@ -716,29 +748,29 @@ public class AidDAO{
 		}
 		return null;
 	}
-	
+
 	public ArrayList<Path> getLocationPathList(String locationTag) {
 		ArrayList<Path> pathList = new ArrayList<>();
-		
+
 		try {
 			List<LocationRecord> locRec = locationDao.queryForEq("location", locationTag);
-			
-			if(! locRec.isEmpty()){
+
+			if (!locRec.isEmpty()) {
 				IndexRecord index = new IndexRecord();
 				index.setLocation(locRec.get(0));
 				List<IndexRecord> results = indexDao.queryForMatchingArgs(index);
-				
-				for(IndexRecord result : results){
+
+				for (IndexRecord result : results) {
 					pathList.add(result.getRelativePath());
 				}
 			}
 		} catch (SQLException e) {
 			logSQLerror(e);
 		}
-		
+
 		return pathList;
 	}
-	
+
 	public ArrayList<String> getLocationFilelist(String locationTag) {
 		ArrayList<Path> pathList = getLocationPathList(locationTag);
 		ArrayList<String> pathStrings = new ArrayList<>(pathList.size());
@@ -749,7 +781,7 @@ public class AidDAO{
 
 		return pathStrings;
 	}
-	
+
 	public int getLocationIndexSize(String locationTag) {
 		try {
 			LocationRecord locRec = locationDao.queryForLocation(locationTag);
@@ -759,9 +791,7 @@ public class AidDAO{
 			}
 			SelectArg selectLoc = new SelectArg();
 			selectLoc.setValue(locRec.getTag_id());
-			PreparedQuery<IndexRecord> indexPrep = indexDao.queryBuilder()
-					.setCountOf(true).where().eq("location", selectLoc)
-					.prepare();
+			PreparedQuery<IndexRecord> indexPrep = indexDao.queryBuilder().setCountOf(true).where().eq("location", selectLoc).prepare();
 			return (int) indexDao.countOf(indexPrep);
 		} catch (SQLException e) {
 			logSQLerror(e);
@@ -769,7 +799,7 @@ public class AidDAO{
 
 		return -1;
 	}
-	
+
 	public String getLocationById(String id) {
 		try {
 			IndexRecord index = indexDao.queryForId(id);
@@ -784,17 +814,17 @@ public class AidDAO{
 		return DEFAULT_LOCATION;
 	}
 
-	public boolean moveIndexToDuplicate(String id){
+	public boolean moveIndexToDuplicate(String id) {
 		try {
 			return indexDao.moveIndexToDuplicate(id);
 		} catch (SQLException e) {
 			logSQLerror(e);
 		}
-		
+
 		return false;
 	}
 
-	public boolean moveDuplicateToIndex(String id){
+	public boolean moveDuplicateToIndex(String id) {
 		try {
 			return duplicateDAO.moveDuplicateToIndex(id);
 		} catch (SQLException e) {
@@ -802,14 +832,15 @@ public class AidDAO{
 		}
 		return false;
 	}
-	
+
+	@Deprecated
 	public boolean addFilter(FilterItem fi) {
 		try {
 			String id = filterDAO.extractId(fi);
-			if(filterDAO.idExists(id)){
+			if (filterDAO.idExists(id)) {
 				return false;
 			}
-			
+
 			filterDAO.create(fi);
 			return true;
 		} catch (SQLException e) {
@@ -821,18 +852,24 @@ public class AidDAO{
 
 	/**
 	 * Adds a filter item to the database.
-	 * @param id id of the item
-	 * @param board board alias
-	 * @param reason reason for adding the filter
-	 * @param state initial state of the filter
+	 * 
+	 * @param id
+	 *            id of the item
+	 * @param board
+	 *            board alias
+	 * @param reason
+	 *            reason for adding the filter
+	 * @param state
+	 *            initial state of the filter
 	 * @return true if the filter was added, else false
 	 */
 	public boolean addFilter(String id, String board, String reason, FilterState state) {
 		try {
 			FilterItem filter = new FilterItem(new URL(id), board, reason, state);
 			return addFilter(filter);
-		} catch (MalformedURLException e) {}
-	
+		} catch (MalformedURLException e) {
+		}
+
 		return false;
 	}
 
@@ -847,26 +884,26 @@ public class AidDAO{
 	}
 
 	public FilterState getFilterState(String id) {
-		//TODO move this into the filter DAO
+		// TODO move this into the filter DAO
 		try {
 			FilterItem filter = filterDAO.queryForId(id);
-			if(filter != null){
+			if (filter != null) {
 				return filter.getState();
-			}else{
+			} else {
 				FilterItem unknownState = new FilterItem();
 				unknownState.setState(FilterState.UNKNOWN);
 			}
-			
-			
+
 		} catch (SQLException e) {
 			logSQLerror(e);
 		}
-		
+
 		return FilterState.UNKNOWN;
 	}
 
 	/**
 	 * Returns all items in the filter with state set to pending (1).
+	 * 
 	 * @return a list of all pending filter items
 	 */
 	public LinkedList<FilterItem> getPendingFilters() {
@@ -898,7 +935,7 @@ public class AidDAO{
 	public String getOldestFilter() {
 		try {
 			FilterItem oldestFilter = filterDAO.getOldestFilter();
-			if(oldestFilter != null){
+			if (oldestFilter != null) {
 				URL oldestUrl = oldestFilter.getUrl();
 				return oldestUrl.toString();
 			} else {
