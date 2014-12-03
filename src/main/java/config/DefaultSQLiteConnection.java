@@ -40,8 +40,6 @@ public class DefaultSQLiteConnection extends Properties {
 	 *            Name of the database
 	 */
 	public DefaultSQLiteConnection(String database) {
-		init();
-
 		this.setProperty("url", "jdbc:sqlite:" + database);
 	}
 
