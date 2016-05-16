@@ -7,6 +7,14 @@
 	<name>Another imageboard downloader</name>
 	<description>Software for scraping imageboards</description>
 	<packaging>jar</packaging>
+
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -132,10 +140,9 @@
 			<version>1.0.9</version>
 		</dependency>
 		<dependency>
-			<groupId>com.github.dozedoff.commonj</groupId>
+			<groupId>com.github.dozedoff</groupId>
 			<artifactId>commonj</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
-			<scope>compile</scope>
+			<version>v0.0.2</version>
 		</dependency>
 	</dependencies>
 </project>
