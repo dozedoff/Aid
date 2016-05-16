@@ -8,3 +8,8 @@ bin/
 /reports/
 /target
 /aid.log
+
+# Eclipse IDE files
+.classpath
+.project
+.settings/
